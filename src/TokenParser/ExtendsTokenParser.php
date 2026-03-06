@@ -26,13 +26,14 @@ use Twig\Token;
  */
 final class ExtendsTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\EmptyNode
     {
         $stream = $this->parser->getStream();
-
         if ($this->parser->peekBlockStack()) {
             throw new SyntaxError('Cannot use "extend" in a block.', $token->getLine(), $stream->getSourceContext());
-        } elseif (!$this->parser->isMainScope()) {
+        }
+
+        if (!$this->parser->isMainScope()) {
             throw new SyntaxError('Cannot use "extend" in a macro.', $token->getLine(), $stream->getSourceContext());
         }
 

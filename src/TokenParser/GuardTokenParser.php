@@ -22,7 +22,7 @@ use Twig\Token;
  */
 final class GuardTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\Nodes
     {
         $stream = $this->parser->getStream();
         $typeToken = $stream->expect(Token::NAME_TYPE);
@@ -47,15 +47,15 @@ final class GuardTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
         if ($exists) {
-            $body = $this->parser->subparse([$this, 'decideGuardFork']);
+            $body = $this->parser->subparse($this->decideGuardFork(...));
         } else {
             $body = new EmptyNode();
-            $this->parser->subparseIgnoreUnknownTwigCallables([$this, 'decideGuardFork']);
+            $this->parser->subparseIgnoreUnknownTwigCallables($this->decideGuardFork(...));
         }
         $else = new EmptyNode();
         if ('else' === $stream->next()->getValue()) {
             $stream->expect(Token::BLOCK_END_TYPE);
-            $else = $this->parser->subparse([$this, 'decideGuardEnd'], true);
+            $else = $this->parser->subparse($this->decideGuardEnd(...), true);
         }
         $stream->expect(Token::BLOCK_END_TYPE);
 

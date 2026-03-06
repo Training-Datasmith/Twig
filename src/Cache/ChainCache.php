@@ -25,7 +25,7 @@ final class ChainCache implements CacheInterface, RemovableCacheInterface
      * @param iterable<CacheInterface> $caches The ordered list of caches used to store and fetch cached items
      */
     public function __construct(
-        private iterable $caches,
+        private readonly iterable $caches,
     ) {
     }
 

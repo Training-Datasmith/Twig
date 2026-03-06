@@ -27,7 +27,7 @@ use Twig\Token;
  */
 final class FromTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\ImportNode
     {
         $macro = $this->parser->parseExpression();
         $stream = $this->parser->getStream();

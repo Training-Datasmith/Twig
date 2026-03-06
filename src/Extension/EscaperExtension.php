@@ -23,8 +23,8 @@ use Twig\TwigFilter;
 
 final class EscaperExtension extends AbstractExtension
 {
-    private $environment;
-    private $escapers = [];
+    private ?\Twig\Environment $environment = null;
+    private array $escapers = [];
     private $escaper;
     private $defaultStrategy;
 
@@ -51,8 +51,8 @@ final class EscaperExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('escape', [EscaperRuntime::class, 'escape'], ['is_safe_callback' => [self::class, 'escapeFilterIsSafe']]),
-            new TwigFilter('e', [EscaperRuntime::class, 'escape'], ['is_safe_callback' => [self::class, 'escapeFilterIsSafe']]),
+            new TwigFilter('escape', [EscaperRuntime::class, 'escape'], ['is_safe_callback' => self::escapeFilterIsSafe(...)]),
+            new TwigFilter('e', [EscaperRuntime::class, 'escape'], ['is_safe_callback' => self::escapeFilterIsSafe(...)]),
             new TwigFilter('raw', null, ['is_safe' => ['all'], 'node_class' => RawFilter::class]),
         ];
     }
@@ -80,11 +80,9 @@ final class EscaperExtension extends AbstractExtension
     }
 
     /**
-     * @return void
-     *
      * @deprecated since Twig 3.10
      */
-    public function setEscaperRuntime(EscaperRuntime $escaper)
+    public function setEscaperRuntime(EscaperRuntime $escaper): void
     {
         trigger_deprecation('twig/twig', '3.10', 'The "%s()" method is deprecated and not needed if you are using methods from "Twig\Runtime\EscaperRuntime".', __METHOD__);
 
@@ -102,7 +100,7 @@ final class EscaperExtension extends AbstractExtension
     public function setDefaultStrategy($defaultStrategy): void
     {
         if ('name' === $defaultStrategy) {
-            $defaultStrategy = [FileExtensionEscapingStrategy::class, 'guess'];
+            $defaultStrategy = FileExtensionEscapingStrategy::guess(...);
         }
 
         $this->defaultStrategy = $defaultStrategy;
@@ -132,11 +130,10 @@ final class EscaperExtension extends AbstractExtension
      * @param string                                        $strategy The strategy name that should be used as a strategy in the escape call
      * @param callable(Environment, string, string): string $callable A valid PHP callable
      *
-     * @return void
      *
      * @deprecated since Twig 3.10
      */
-    public function setEscaper($strategy, callable $callable)
+    public function setEscaper($strategy, callable $callable): void
     {
         trigger_deprecation('twig/twig', '3.10', 'The "%s()" method is deprecated, use the "Twig\Runtime\EscaperRuntime::setEscaper()" method instead (be warned that Environment is not passed anymore to the callable).', __METHOD__);
 
@@ -145,9 +142,7 @@ final class EscaperExtension extends AbstractExtension
         }
 
         $this->escapers[$strategy] = $callable;
-        $callable = function ($string, $charset) use ($callable) {
-            return $callable($this->environment, $string, $charset);
-        };
+        $callable = (fn($string, $charset) => $callable($this->environment, $string, $charset));
 
         $this->escaper->setEscaper($strategy, $callable);
     }
@@ -167,11 +162,9 @@ final class EscaperExtension extends AbstractExtension
     }
 
     /**
-     * @return void
-     *
      * @deprecated since Twig 3.10
      */
-    public function setSafeClasses(array $safeClasses = [])
+    public function setSafeClasses(array $safeClasses = []): void
     {
         trigger_deprecation('twig/twig', '3.10', 'The "%s()" method is deprecated, use the "Twig\Runtime\EscaperRuntime::setSafeClasses()" method instead.', __METHOD__);
 
@@ -183,11 +176,9 @@ final class EscaperExtension extends AbstractExtension
     }
 
     /**
-     * @return void
-     *
      * @deprecated since Twig 3.10
      */
-    public function addSafeClass(string $class, array $strategies)
+    public function addSafeClass(string $class, array $strategies): void
     {
         trigger_deprecation('twig/twig', '3.10', 'The "%s()" method is deprecated, use the "Twig\Runtime\EscaperRuntime::addSafeClass()" method instead.', __METHOD__);
 
@@ -203,7 +194,7 @@ final class EscaperExtension extends AbstractExtension
      *
      * @return array<string>
      */
-    public static function escapeFilterIsSafe(Node $filterArgs)
+    public static function escapeFilterIsSafe(Node $filterArgs): array
     {
         foreach ($filterArgs as $arg) {
             if ($arg instanceof ConstantExpression) {

@@ -27,13 +27,13 @@ final class UnaryOperatorExpressionParser extends AbstractExpressionParser imple
 {
     public function __construct(
         /** @var class-string<AbstractUnary> */
-        private string $nodeClass,
-        private string $name,
-        private int $precedence,
-        private ?PrecedenceChange $precedenceChange = null,
-        private ?string $description = null,
-        private array $aliases = [],
-        private ?int $operandPrecedence = null,
+        private readonly string $nodeClass,
+        private readonly string $name,
+        private readonly int $precedence,
+        private readonly ?PrecedenceChange $precedenceChange = null,
+        private readonly ?string $description = null,
+        private readonly array $aliases = [],
+        private readonly ?int $operandPrecedence = null,
     ) {
     }
 

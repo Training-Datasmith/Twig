@@ -19,16 +19,16 @@ use Twig\Error\SyntaxError;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-final class TokenStream
+final class TokenStream implements \Stringable
 {
-    private $current = 0;
+    private int $current = 0;
 
     public function __construct(
         private array $tokens,
         private ?Source $source = null,
     ) {
         if (null === $this->source) {
-            trigger_deprecation('twig/twig', '3.16', \sprintf('Not passing a "%s" object to "%s" constructor is deprecated.', Source::class, __CLASS__));
+            trigger_deprecation('twig/twig', '3.16', \sprintf('Not passing a "%s" object to "%s" constructor is deprecated.', Source::class, self::class));
 
             $this->source = new Source('', '');
         }
@@ -39,10 +39,7 @@ final class TokenStream
         return implode("\n", $this->tokens);
     }
 
-    /**
-     * @return void
-     */
-    public function injectTokens(array $tokens)
+    public function injectTokens(array $tokens): void
     {
         $this->tokens = array_merge(\array_slice($this->tokens, 0, $this->current), $tokens, \array_slice($this->tokens, $this->current));
     }
@@ -64,7 +61,7 @@ final class TokenStream
      *
      * @return Token|null The next token if the condition is true, null otherwise
      */
-    public function nextIf($primary, $secondary = null)
+    public function nextIf($primary, $secondary = null): ?\Twig\Token
     {
         return $this->tokens[$this->current]->test($primary, $secondary) ? $this->next() : null;
     }

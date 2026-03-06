@@ -32,7 +32,7 @@ class IsExpressionParser extends AbstractExpressionParser implements InfixExpres
 {
     use ArgumentsTrait;
 
-    private $readyNodes = [];
+    private array $readyNodes = [];
 
     public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
     {

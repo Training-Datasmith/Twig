@@ -18,7 +18,7 @@ use Twig\Markup;
 final class EscaperRuntime implements RuntimeExtensionInterface
 {
     /** @var array<string, callable(string, string): string> */
-    private $escapers = [];
+    private array $escapers = [];
 
     /** @internal */
     public $safeClasses = [];
@@ -36,10 +36,8 @@ final class EscaperRuntime implements RuntimeExtensionInterface
      *
      * @param string                                            $strategy The strategy name that should be used as a strategy in the escape call
      * @param callable(string $string, string $charset): string $callable A valid PHP callable
-     *
-     * @return void
      */
-    public function setEscaper($strategy, callable $callable)
+    public function setEscaper(string $strategy, callable $callable): void
     {
         $this->escapers[$strategy] = $callable;
     }
@@ -56,10 +54,8 @@ final class EscaperRuntime implements RuntimeExtensionInterface
 
     /**
      * @param array<class-string<\Stringable>, string[]> $safeClasses
-     *
-     * @return void
      */
-    public function setSafeClasses(array $safeClasses = [])
+    public function setSafeClasses(array $safeClasses = []): void
     {
         $this->safeClasses = [];
         $this->safeLookup = [];
@@ -71,10 +67,8 @@ final class EscaperRuntime implements RuntimeExtensionInterface
     /**
      * @param class-string<\Stringable> $class
      * @param string[]                  $strategies
-     *
-     * @return void
      */
-    public function addSafeClass(string $class, array $strategies)
+    public function addSafeClass(string $class, array $strategies): void
     {
         $class = ltrim($class, '\\');
         if (!isset($this->safeClasses[$class])) {
@@ -141,7 +135,7 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                 // see https://www.php.net/htmlspecialchars
 
                 if ('UTF-8' === $charset) {
-                    return htmlspecialchars($string, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+                    return htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
                 }
 
                 // Using a static variable to avoid initializing the array
@@ -165,20 +159,20 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                 ];
 
                 if (isset($htmlspecialcharsCharsets[$charset])) {
-                    return htmlspecialchars($string, \ENT_QUOTES | \ENT_SUBSTITUTE, $charset);
+                    return htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, $charset);
                 }
 
-                if (isset($htmlspecialcharsCharsets[strtoupper($charset)])) {
+                if (isset($htmlspecialcharsCharsets[strtoupper((string) $charset)])) {
                     // cache the lowercase variant for future iterations
                     $htmlspecialcharsCharsets[$charset] = true;
 
-                    return htmlspecialchars($string, \ENT_QUOTES | \ENT_SUBSTITUTE, $charset);
+                    return htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, $charset);
                 }
 
                 $string = $this->convertEncoding($string, 'UTF-8', $charset);
-                $string = htmlspecialchars($string, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
+                $string = htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
 
-                return iconv('UTF-8', $charset, $string);
+                return iconv('UTF-8', (string) $charset, $string);
 
             case 'js':
                 // escape all non-alphanumeric characters
@@ -187,11 +181,11 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                     $string = $this->convertEncoding($string, 'UTF-8', $charset);
                 }
 
-                if (!preg_match('//u', $string)) {
+                if (!preg_match('//u', (string) $string)) {
                     throw new RuntimeError('The string to escape is not a valid UTF-8 string.');
                 }
 
-                $string = preg_replace_callback('#[^a-zA-Z0-9,\._]#Su', static function ($matches) {
+                $string = preg_replace_callback('#[^a-zA-Z0-9,\._]#Su', static function ($matches): string {
                     $char = $matches[0];
 
                     /*
@@ -226,10 +220,10 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                     $low = 0xDC00 | ($u & 0x3FF);
 
                     return \sprintf('\u%04X\u%04X', $high, $low);
-                }, $string);
+                }, (string) $string);
 
                 if ('UTF-8' !== $charset) {
-                    $string = iconv('UTF-8', $charset, $string);
+                    return iconv('UTF-8', (string) $charset, $string);
                 }
 
                 return $string;
@@ -239,18 +233,18 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                     $string = $this->convertEncoding($string, 'UTF-8', $charset);
                 }
 
-                if (!preg_match('//u', $string)) {
+                if (!preg_match('//u', (string) $string)) {
                     throw new RuntimeError('The string to escape is not a valid UTF-8 string.');
                 }
 
-                $string = preg_replace_callback('#[^a-zA-Z0-9]#Su', static function ($matches) {
+                $string = preg_replace_callback('#[^a-zA-Z0-9]#Su', static function ($matches): string {
                     $char = $matches[0];
 
                     return \sprintf('\\%X ', 1 === \strlen($char) ? \ord($char) : mb_ord($char, 'UTF-8'));
-                }, $string);
+                }, (string) $string);
 
                 if ('UTF-8' !== $charset) {
-                    $string = iconv('UTF-8', $charset, $string);
+                    return iconv('UTF-8', (string) $charset, $string);
                 }
 
                 return $string;
@@ -261,7 +255,7 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                     $string = $this->convertEncoding($string, 'UTF-8', $charset);
                 }
 
-                if (!preg_match('//u', $string)) {
+                if (!preg_match('//u', (string) $string)) {
                     throw new RuntimeError('The string to escape is not a valid UTF-8 string.');
                 }
 
@@ -270,7 +264,7 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                     'html_attr_relaxed' => '#[^a-zA-Z0-9,\.\-_:@\[\]]#Su',
                 };
 
-                $string = preg_replace_callback($regex, static function ($matches) {
+                $string = preg_replace_callback($regex, static function ($matches): string {
                     /**
                      * This function is adapted from code coming from Zend Framework.
                      *
@@ -313,16 +307,16 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                     * characters where a named entity does not exist.
                     */
                     return \sprintf('&#x%04X;', mb_ord($chr, 'UTF-8'));
-                }, $string);
+                }, (string) $string);
 
                 if ('UTF-8' !== $charset) {
-                    $string = iconv('UTF-8', $charset, $string);
+                    return iconv('UTF-8', (string) $charset, $string);
                 }
 
                 return $string;
 
             case 'url':
-                return rawurlencode($string);
+                return rawurlencode((string) $string);
 
             default:
                 if (\array_key_exists($strategy, $this->escapers)) {
@@ -335,7 +329,7 @@ final class EscaperRuntime implements RuntimeExtensionInterface
         }
     }
 
-    private function convertEncoding(string $string, string $to, string $from)
+    private function convertEncoding(string $string, string $to, string $from): string|false
     {
         if (!\function_exists('iconv')) {
             throw new RuntimeError('Unable to convert encoding: required function iconv() does not exist. You should install ext-iconv or symfony/polyfill-iconv.');

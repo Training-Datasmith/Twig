@@ -25,7 +25,7 @@ use Twig\Node\Expression\Variable\AssignContextVariable;
 #[YieldReady]
 class ForNode extends Node
 {
-    private $loop;
+    private ?\Twig\Node\ForLoopNode $loop = null;
 
     public function __construct(AssignContextVariable $keyTarget, AssignContextVariable $valueTarget, AbstractExpression $seq, ?Node $ifexpr, Node $body, ?Node $else, int $lineno)
     {

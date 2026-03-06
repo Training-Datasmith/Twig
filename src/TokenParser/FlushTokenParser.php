@@ -24,7 +24,7 @@ use Twig\Token;
  */
 final class FlushTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\FlushNode
     {
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
 

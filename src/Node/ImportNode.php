@@ -32,7 +32,7 @@ class ImportNode extends Node
         }
 
         if (!$var instanceof AssignTemplateVariable) {
-            trigger_deprecation('twig/twig', '3.15', \sprintf('Passing a "%s" instance as the second argument of "%s" is deprecated, pass a "%s" instead.', $var::class, __CLASS__, AssignTemplateVariable::class));
+            trigger_deprecation('twig/twig', '3.15', \sprintf('Passing a "%s" instance as the second argument of "%s" is deprecated, pass a "%s" instead.', $var::class, self::class, AssignTemplateVariable::class));
 
             $var = new AssignTemplateVariable($var->getAttribute('name'), $lineno);
         }

@@ -29,8 +29,8 @@ use Twig\Node\Node;
  */
 final class SafeAnalysisNodeVisitor implements NodeVisitorInterface
 {
-    private $data = [];
-    private $safeVars = [];
+    private array $data = [];
+    private array $safeVars = [];
 
     public function setSafeVars(array $safeVars): void
     {
@@ -90,7 +90,7 @@ final class SafeAnalysisNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env): ?Node
+    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
     {
         if ($node instanceof ConstantExpression) {
             // constants are marked safe for all
@@ -106,7 +106,8 @@ final class SafeAnalysisNodeVisitor implements NodeVisitorInterface
             $operands = $node->getOperandNamesToEscape();
             if (2 < \count($operands)) {
                 throw new \LogicException(\sprintf('Operators with more than 2 operands are not supported yet, got %d.', \count($operands)));
-            } elseif (2 === \count($operands)) {
+            }
+            if (2 === \count($operands)) {
                 $safe = $this->intersectSafe($this->getSafe($node->getNode($operands[0])), $this->getSafe($node->getNode($operands[1])));
                 $this->setSafe($node, $safe);
             }

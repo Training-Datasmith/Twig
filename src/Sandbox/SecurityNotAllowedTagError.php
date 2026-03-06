@@ -18,12 +18,9 @@ namespace Twig\Sandbox;
  */
 final class SecurityNotAllowedTagError extends SecurityError
 {
-    private string $tagName;
-
-    public function __construct(string $message, string $tagName)
+    public function __construct(string $message, private readonly string $tagName)
     {
         parent::__construct($message);
-        $this->tagName = $tagName;
     }
 
     public function getTagName(): string

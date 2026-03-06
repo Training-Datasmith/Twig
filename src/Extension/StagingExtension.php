@@ -26,11 +26,11 @@ use Twig\TwigTest;
  */
 final class StagingExtension extends AbstractExtension
 {
-    private $functions = [];
-    private $filters = [];
-    private $visitors = [];
-    private $tokenParsers = [];
-    private $tests = [];
+    private array $functions = [];
+    private array $filters = [];
+    private array $visitors = [];
+    private array $tokenParsers = [];
+    private array $tests = [];
 
     public function addFunction(TwigFunction $function): void
     {

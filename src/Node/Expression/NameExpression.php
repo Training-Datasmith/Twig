@@ -20,7 +20,7 @@ class NameExpression extends AbstractExpression implements SupportDefinedTestInt
     use SupportDefinedTestDeprecationTrait;
     use SupportDefinedTestTrait;
 
-    private $specialVars = [
+    private array $specialVars = [
         '_self' => '$this->getTemplateName()',
         '_context' => '$context',
         '_charset' => '$this->env->getCharset()',
@@ -96,7 +96,7 @@ class NameExpression extends AbstractExpression implements SupportDefinedTestInt
     /**
      * @deprecated since Twig 3.11 (to be removed in 4.0)
      */
-    public function isSpecial()
+    public function isSpecial(): bool
     {
         trigger_deprecation('twig/twig', '3.11', 'The "%s()" method is deprecated and will be removed in Twig 4.0.', __METHOD__);
 
@@ -106,7 +106,7 @@ class NameExpression extends AbstractExpression implements SupportDefinedTestInt
     /**
      * @deprecated since Twig 3.11 (to be removed in 4.0)
      */
-    public function isSimple()
+    public function isSimple(): bool
     {
         trigger_deprecation('twig/twig', '3.11', 'The "%s()" method is deprecated and will be removed in Twig 4.0.', __METHOD__);
 

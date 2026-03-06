@@ -35,7 +35,7 @@ final class AttributeExtension extends AbstractExtension
      *
      * @param class-string $class
      */
-    public function __construct(private string $class)
+    public function __construct(private readonly string $class)
     {
     }
 

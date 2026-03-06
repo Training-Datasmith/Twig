@@ -26,7 +26,7 @@ use Twig\Token;
  */
 final class ConditionalTernaryExpressionParser extends AbstractExpressionParser implements InfixExpressionParserInterface, ExpressionParserDescriptionInterface
 {
-    public function parse(Parser $parser, AbstractExpression $left, Token $token): AbstractExpression
+    public function parse(Parser $parser, AbstractExpression $left, Token $token): \Twig\Node\Expression\Ternary\ConditionalTernary
     {
         $then = $parser->parseExpression($this->getPrecedence());
         if ($parser->getStream()->nextIf(Token::PUNCTUATION_TYPE, ':')) {

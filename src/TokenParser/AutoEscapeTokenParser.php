@@ -24,7 +24,7 @@ use Twig\Token;
  */
 final class AutoEscapeTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\AutoEscapeNode
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -40,7 +40,7 @@ final class AutoEscapeTokenParser extends AbstractTokenParser
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
         $stream->expect(Token::BLOCK_END_TYPE);
 
         return new AutoEscapeNode($value, $body, $lineno);

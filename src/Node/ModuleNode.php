@@ -36,10 +36,10 @@ final class ModuleNode extends Node
     public function __construct(Node $body, ?AbstractExpression $parent, Node $blocks, Node $macros, Node $traits, $embeddedTemplates, Source $source)
     {
         if (!$body instanceof BodyNode) {
-            trigger_deprecation('twig/twig', '3.12', \sprintf('Not passing a "%s" instance as the "body" argument of the "%s" constructor is deprecated.', BodyNode::class, static::class));
+            trigger_deprecation('twig/twig', '3.12', \sprintf('Not passing a "%s" instance as the "body" argument of the "%s" constructor is deprecated.', BodyNode::class, self::class));
         }
         if (!$embeddedTemplates instanceof Node) {
-            trigger_deprecation('twig/twig', '3.21', \sprintf('Not passing a "%s" instance as the "embedded_templates" argument of the "%s" constructor is deprecated.', Node::class, static::class));
+            trigger_deprecation('twig/twig', '3.21', \sprintf('Not passing a "%s" instance as the "embedded_templates" argument of the "%s" constructor is deprecated.', Node::class, self::class));
 
             if (null !== $embeddedTemplates) {
                 $embeddedTemplates = new Nodes($embeddedTemplates);
@@ -73,10 +73,7 @@ final class ModuleNode extends Node
         $this->setSourceContext($source);
     }
 
-    /**
-     * @return void
-     */
-    public function setIndex($index)
+    public function setIndex($index): void
     {
         $this->setAttribute('index', $index);
     }
@@ -90,10 +87,7 @@ final class ModuleNode extends Node
         }
     }
 
-    /**
-     * @return void
-     */
-    protected function compileTemplate(Compiler $compiler)
+    protected function compileTemplate(Compiler $compiler): void
     {
         if (!$this->getAttribute('index')) {
             $compiler->write('<?php');
@@ -122,10 +116,7 @@ final class ModuleNode extends Node
         $this->compileClassFooter($compiler);
     }
 
-    /**
-     * @return void
-     */
-    protected function compileGetParent(Compiler $compiler)
+    protected function compileGetParent(Compiler $compiler): void
     {
         if (!$this->hasNode('parent')) {
             return;
@@ -158,10 +149,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileClassHeader(Compiler $compiler)
+    protected function compileClassHeader(Compiler $compiler): void
     {
         $compiler
             ->write("\n\n")
@@ -199,10 +187,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileConstructor(Compiler $compiler)
+    protected function compileConstructor(Compiler $compiler): void
     {
         $compiler
             ->write("public function __construct(Environment \$env)\n", "{\n")
@@ -339,10 +324,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileDisplay(Compiler $compiler)
+    protected function compileDisplay(Compiler $compiler): void
     {
         $compiler
             ->write("protected function doDisplay(array \$context, array \$blocks = []): iterable\n", "{\n")
@@ -387,10 +369,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileClassFooter(Compiler $compiler)
+    protected function compileClassFooter(Compiler $compiler): void
     {
         $compiler
             ->subcompile($this->getNode('class_end'))
@@ -399,18 +378,12 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileMacros(Compiler $compiler)
+    protected function compileMacros(Compiler $compiler): void
     {
         $compiler->subcompile($this->getNode('macros'));
     }
 
-    /**
-     * @return void
-     */
-    protected function compileGetTemplateName(Compiler $compiler)
+    protected function compileGetTemplateName(Compiler $compiler): void
     {
         $compiler
             ->write("/**\n")
@@ -426,10 +399,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileIsTraitable(Compiler $compiler)
+    protected function compileIsTraitable(Compiler $compiler): void
     {
         // A template can be used as a trait if:
         //   * it has no parent
@@ -476,10 +446,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileDebugInfo(Compiler $compiler)
+    protected function compileDebugInfo(Compiler $compiler): void
     {
         $compiler
             ->write("/**\n")
@@ -493,10 +460,7 @@ final class ModuleNode extends Node
         ;
     }
 
-    /**
-     * @return void
-     */
-    protected function compileGetSourceContext(Compiler $compiler)
+    protected function compileGetSourceContext(Compiler $compiler): void
     {
         $compiler
             ->write("public function getSourceContext(): Source\n", "{\n")

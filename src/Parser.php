@@ -56,10 +56,10 @@ class Parser
     private $embeddedTemplates = [];
     private $varNameSalt = 0;
     private $ignoreUnknownTwigCallables = false;
-    private ExpressionParsers $parsers;
+    private readonly ExpressionParsers $parsers;
 
     public function __construct(
-        private Environment $env,
+        private readonly Environment $env,
     ) {
         $this->parsers = $env->getExpressionParsers();
     }
@@ -314,10 +314,7 @@ class Parser
         return \count($this->traits) > 0;
     }
 
-    /**
-     * @return void
-     */
-    public function embedTemplate(ModuleNode $template)
+    public function embedTemplate(ModuleNode $template): void
     {
         $template->setIndex(mt_rand());
 
@@ -402,10 +399,7 @@ class Parser
         return $this->parent;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasInheritance()
+    public function hasInheritance(): bool
     {
         return $this->parent || 0 < \count($this->traits);
     }
@@ -451,7 +445,7 @@ class Parser
 
         if (!$function) {
             if ($this->shouldIgnoreUnknownTwigCallables()) {
-                return new TwigFunction($name, static fn () => '');
+                return new TwigFunction($name, static fn (): string => '');
             }
             $e = new SyntaxError(\sprintf('Unknown "%s" function.', $name), $line, $this->stream->getSourceContext());
             $e->addSuggestions($name, array_keys($this->env->getFunctions()));
@@ -480,7 +474,7 @@ class Parser
         }
         if (!$filter) {
             if ($this->shouldIgnoreUnknownTwigCallables()) {
-                return new TwigFilter($name, static fn () => '');
+                return new TwigFilter($name, static fn (): string => '');
             }
             $e = new SyntaxError(\sprintf('Unknown "%s" filter.', $name), $line, $this->stream->getSourceContext());
             $e->addSuggestions($name, array_keys($this->env->getFilters()));
@@ -528,7 +522,7 @@ class Parser
 
         if (!$test) {
             if ($this->shouldIgnoreUnknownTwigCallables()) {
-                return new TwigTest($name, static fn () => '');
+                return new TwigTest($name, static fn (): string => '');
             }
             $e = new SyntaxError(\sprintf('Unknown "%s" test.', $name), $line, $this->stream->getSourceContext());
             $e->addSuggestions($name, array_keys($this->env->getTests()));
@@ -548,11 +542,11 @@ class Parser
     {
         // check that the body does not contain non-empty output nodes
         if (
-            ($node instanceof TextNode && !ctype_space($node->getAttribute('data')))
+            ($node instanceof TextNode && !ctype_space((string) $node->getAttribute('data')))
             || (!$node instanceof TextNode && !$node instanceof BlockReferenceNode && $node instanceof NodeOutputInterface)
         ) {
             if (str_contains((string) $node, \chr(0xEF).\chr(0xBB).\chr(0xBF))) {
-                $t = substr($node->getAttribute('data'), 3);
+                $t = substr((string) $node->getAttribute('data'), 3);
                 if ('' === $t || ctype_space($t)) {
                     // bypass empty nodes starting with a BOM
                     return null;
@@ -584,7 +578,7 @@ class Parser
         // Node::class !== \get_class($node) should be removed in Twig 4.0
         $nested = $nested || (Node::class !== $node::class && !$node instanceof Nodes);
         foreach ($node as $k => $n) {
-            if (null !== $n && null === $this->filterBodyNodes($n, $nested)) {
+            if (null === $this->filterBodyNodes($n, $nested)) {
                 $node->removeNode($k);
             }
         }
@@ -592,7 +586,7 @@ class Parser
         return $node;
     }
 
-    private function checkPrecedenceDeprecations(ExpressionParserInterface $expressionParser, AbstractExpression $expr)
+    private function checkPrecedenceDeprecations(ExpressionParserInterface $expressionParser, AbstractExpression $expr): void
     {
         $this->expressionRefs[$expr] = $expressionParser;
         $precedenceChanges = $this->parsers->getPrecedenceChanges();

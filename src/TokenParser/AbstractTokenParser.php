@@ -43,7 +43,7 @@ abstract class AbstractTokenParser implements TokenParserInterface
         $targets = [];
         while (true) {
             $token = $stream->getCurrent();
-            if ($stream->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, $token->getValue())) {
+            if ($stream->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->getValue())) {
                 // in this context, string operators are variable names
                 $stream->next();
             } else {

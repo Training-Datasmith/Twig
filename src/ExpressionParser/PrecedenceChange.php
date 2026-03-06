@@ -19,9 +19,9 @@ namespace Twig\ExpressionParser;
 class PrecedenceChange
 {
     public function __construct(
-        private string $package,
-        private string $version,
-        private int $newPrecedence,
+        private readonly string $package,
+        private readonly string $version,
+        private readonly int $newPrecedence,
     ) {
     }
 

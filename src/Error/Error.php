@@ -35,30 +35,24 @@ use Twig\Template;
  */
 class Error extends \Exception
 {
-    private $lineno;
-    private $rawMessage;
-    private ?Source $source;
-    private string $phpFile;
-    private int $phpLine;
+    private readonly string $phpFile;
+    private readonly int $phpLine;
 
     /**
      * Constructor.
      *
      * By default, automatic guessing is enabled.
      *
-     * @param string      $message The error message
+     * @param string $rawMessage The error message
      * @param int         $lineno  The template line where the error occurred
      * @param Source|null $source  The source context where the error occurred
      */
-    public function __construct(string $message, int $lineno = -1, ?Source $source = null, ?\Throwable $previous = null)
+    public function __construct(private string $rawMessage, private int $lineno = -1, private ?Source $source = null, ?\Throwable $previous = null)
     {
         parent::__construct('', 0, $previous);
 
         $this->phpFile = $this->getFile();
         $this->phpLine = $this->getLine();
-        $this->lineno = $lineno;
-        $this->source = $source;
-        $this->rawMessage = $message;
         $this->updateRepr();
     }
 
@@ -99,7 +93,7 @@ class Error extends \Exception
         $this->updateRepr();
     }
 
-    public function appendMessage($rawMessage): void
+    public function appendMessage(string $rawMessage): void
     {
         $this->rawMessage .= $rawMessage;
         $this->updateRepr();
@@ -164,10 +158,15 @@ class Error extends \Exception
             $traces = $e->getTrace();
             array_unshift($traces, ['file' => $e instanceof self ? $e->phpFile : $e->getFile(), 'line' => $e instanceof self ? $e->phpLine : $e->getLine()]);
             while ($trace = array_shift($traces)) {
-                if (!isset($trace['file']) || !isset($trace['line']) || $file != $trace['file']) {
+                if (!isset($trace['file'])) {
                     continue;
                 }
-
+                if (!isset($trace['line'])) {
+                    continue;
+                }
+                if ($file != $trace['file']) {
+                    continue;
+                }
                 foreach ($template->getDebugInfo() as $codeLine => $templateLine) {
                     if ($codeLine <= $trace['line']) {
                         // update template line

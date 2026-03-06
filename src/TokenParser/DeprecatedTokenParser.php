@@ -30,7 +30,7 @@ use Twig\Token;
  */
 final class DeprecatedTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\DeprecatedNode
     {
         $stream = $this->parser->getStream();
         $expr = $this->parser->parseExpression();
@@ -41,16 +41,11 @@ final class DeprecatedTokenParser extends AbstractTokenParser
             $stream->next();
             $stream->expect(Token::OPERATOR_TYPE, '=');
 
-            switch ($k) {
-                case 'package':
-                    $node->setNode('package', $this->parser->parseExpression());
-                    break;
-                case 'version':
-                    $node->setNode('version', $this->parser->parseExpression());
-                    break;
-                default:
-                    throw new SyntaxError(\sprintf('Unknown "%s" option.', $k), $stream->getCurrent()->getLine(), $stream->getSourceContext());
-            }
+            match ($k) {
+                'package' => $node->setNode('package', $this->parser->parseExpression()),
+                'version' => $node->setNode('version', $this->parser->parseExpression()),
+                default => throw new SyntaxError(\sprintf('Unknown "%s" option.', $k), $stream->getCurrent()->getLine(), $stream->getSourceContext()),
+            };
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);

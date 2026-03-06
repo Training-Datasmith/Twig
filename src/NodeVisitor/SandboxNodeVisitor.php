@@ -36,14 +36,14 @@ use Twig\Node\SetNode;
  */
 final class SandboxNodeVisitor implements NodeVisitorInterface
 {
-    private $inAModule = false;
+    private bool $inAModule = false;
     /** @var array<string, int> */
-    private $tags;
+    private ?array $tags = null;
     /** @var array<string, int> */
-    private $filters;
+    private ?array $filters = null;
     /** @var array<string, int> */
-    private $functions;
-    private $needsToStringWrap = false;
+    private ?array $functions = null;
+    private bool $needsToStringWrap = false;
 
     public function enterNode(Node $node, Environment $env): Node
     {
@@ -52,38 +52,32 @@ final class SandboxNodeVisitor implements NodeVisitorInterface
             $this->tags = [];
             $this->filters = [];
             $this->functions = [];
-
             return $node;
-        } elseif ($this->inAModule) {
+        }
+        if ($this->inAModule) {
             // look for tags
             if ($node->getNodeTag() && !isset($this->tags[$node->getNodeTag()])) {
                 $this->tags[$node->getNodeTag()] = $node->getTemplateLine();
             }
-
             // look for filters
             if ($node instanceof FilterExpression && !isset($this->filters[$node->getAttribute('name')])) {
                 $this->filters[$node->getAttribute('name')] = $node->getTemplateLine();
             }
-
             // look for functions
             if ($node instanceof FunctionExpression && !isset($this->functions[$node->getAttribute('name')])) {
                 $this->functions[$node->getAttribute('name')] = $node->getTemplateLine();
             }
-
             // the .. operator is equivalent to the range() function
             if ($node instanceof RangeBinary && !isset($this->functions['range'])) {
                 $this->functions['range'] = $node->getTemplateLine();
             }
-
             if ($node instanceof PrintNode) {
                 $this->needsToStringWrap = true;
                 $this->wrapNode($node, 'expr');
             }
-
             if ($node instanceof SetNode && !$node->getAttribute('capture')) {
                 $this->needsToStringWrap = true;
             }
-
             // wrap outer nodes that can implicitly call __toString()
             if ($this->needsToStringWrap) {
                 if ($node instanceof ConcatBinary) {
@@ -103,7 +97,7 @@ final class SandboxNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env): ?Node
+    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
     {
         if ($node instanceof ModuleNode) {
             $this->inAModule = false;

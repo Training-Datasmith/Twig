@@ -30,7 +30,7 @@ final class FilterExpressionParser extends AbstractExpressionParser implements I
 {
     use ArgumentsTrait;
 
-    private $readyNodes = [];
+    private array $readyNodes = [];
 
     public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
     {
@@ -73,7 +73,7 @@ final class FilterExpressionParser extends AbstractExpressionParser implements I
         return 512;
     }
 
-    public function getPrecedenceChange(): ?PrecedenceChange
+    public function getPrecedenceChange(): \Twig\ExpressionParser\PrecedenceChange
     {
         return new PrecedenceChange('twig/twig', '3.21', 300);
     }

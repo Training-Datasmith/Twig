@@ -19,18 +19,18 @@ use Twig\Node\Node;
  */
 class Compiler
 {
-    private $lastLine;
-    private $source;
-    private $indentation;
-    private $debugInfo = [];
-    private $sourceOffset;
-    private $sourceLine;
-    private $varNameSalt = 0;
+    private ?int $lastLine = null;
+    private ?string $source = null;
+    private ?int $indentation = null;
+    private array $debugInfo = [];
+    private ?int $sourceOffset = null;
+    private ?int $sourceLine = null;
+    private int $varNameSalt = 0;
     private $didUseEcho = false;
-    private $didUseEchoStack = [];
+    private array $didUseEchoStack = [];
 
     public function __construct(
-        private Environment $env,
+        private readonly Environment $env,
     ) {
     }
 
@@ -47,7 +47,7 @@ class Compiler
     /**
      * @return $this
      */
-    public function reset(int $indentation = 0)
+    public function reset(int $indentation = 0): static
     {
         $this->lastLine = null;
         $this->source = '';
@@ -64,7 +64,7 @@ class Compiler
     /**
      * @return $this
      */
-    public function compile(Node $node, int $indentation = 0)
+    public function compile(Node $node, int $indentation = 0): static
     {
         $this->reset($indentation);
         $this->didUseEchoStack[] = $this->didUseEcho;
@@ -86,7 +86,7 @@ class Compiler
     /**
      * @return $this
      */
-    public function subcompile(Node $node, bool $raw = true)
+    public function subcompile(Node $node, bool $raw = true): static
     {
         if (!$raw) {
             $this->source .= str_repeat(' ', $this->indentation * 4);
@@ -113,7 +113,7 @@ class Compiler
      *
      * @return $this
      */
-    public function raw(string $string)
+    public function raw(string $string): static
     {
         $this->checkForEcho($string);
         $this->source .= $string;
@@ -126,7 +126,7 @@ class Compiler
      *
      * @return $this
      */
-    public function write(...$strings)
+    public function write(...$strings): static
     {
         foreach ($strings as $string) {
             $this->checkForEcho($string);
@@ -141,7 +141,7 @@ class Compiler
      *
      * @return $this
      */
-    public function string(string $value)
+    public function string(string $value): static
     {
         $this->source .= \sprintf('"%s"', addcslashes($value, "\0\t\"\$\\"));
 
@@ -153,7 +153,7 @@ class Compiler
      *
      * @return $this
      */
-    public function repr($value)
+    public function repr($value): static
     {
         if (\is_int($value) || \is_float($value)) {
             if (false !== $locale = setlocale(\LC_NUMERIC, '0')) {
@@ -192,13 +192,13 @@ class Compiler
     /**
      * @return $this
      */
-    public function addDebugInfo(Node $node)
+    public function addDebugInfo(Node $node): static
     {
         if ($node->getTemplateLine() != $this->lastLine) {
             $this->write(\sprintf("// line %d\n", $node->getTemplateLine()));
 
-            $this->sourceLine += substr_count($this->source, "\n", $this->sourceOffset);
-            $this->sourceOffset = \strlen($this->source);
+            $this->sourceLine += substr_count((string) $this->source, "\n", $this->sourceOffset);
+            $this->sourceOffset = \strlen((string) $this->source);
             $this->debugInfo[$this->sourceLine] = $node->getTemplateLine();
 
             $this->lastLine = $node->getTemplateLine();
@@ -217,7 +217,7 @@ class Compiler
     /**
      * @return $this
      */
-    public function indent(int $step = 1)
+    public function indent(int $step = 1): static
     {
         $this->indentation += $step;
 
@@ -229,7 +229,7 @@ class Compiler
      *
      * @throws \LogicException When trying to outdent too much so the indentation would become negative
      */
-    public function outdent(int $step = 1)
+    public function outdent(int $step = 1): static
     {
         // can't outdent by more steps than the current indentation level
         if ($this->indentation < $step) {

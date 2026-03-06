@@ -50,13 +50,12 @@ class ExpressionParser
     public const OPERATOR_RIGHT = 2;
 
     public function __construct(
-        private Parser $parser,
-        private Environment $env,
+        private readonly Parser $parser,
     ) {
-        trigger_deprecation('twig/twig', '3.21', 'Class "%s" is deprecated, use "Parser::parseExpression()" instead.', __CLASS__);
+        trigger_deprecation('twig/twig', '3.21', 'Class "%s" is deprecated, use "Parser::parseExpression()" instead.', self::class);
     }
 
-    public function parseExpression($precedence = 0)
+    public function parseExpression($precedence = 0): \Twig\Node\Expression\AbstractExpression
     {
         if (\func_num_args() > 1) {
             trigger_deprecation('twig/twig', '3.15', 'Passing a second argument ($allowArrow) to "%s()" is deprecated.', __METHOD__);
@@ -210,7 +209,7 @@ class ExpressionParser
      *
      * @deprecated since Twig 3.19 Use Twig\ExpressionParser\Infix\ArgumentsTrait::parseNamedArguments() instead
      */
-    public function parseArguments()
+    public function parseArguments(): \Twig\Node\Nodes
     {
         trigger_deprecation('twig/twig', '3.19', \sprintf('The "%s()" method is deprecated, use "Twig\ExpressionParser\Infix\ArgumentsTrait::parseNamedArguments()" instead.', __METHOD__));
 
@@ -296,7 +295,7 @@ class ExpressionParser
     /**
      * @deprecated since Twig 3.21, use "AbstractTokenParser::parseAssignmentExpression()" instead
      */
-    public function parseAssignmentExpression()
+    public function parseAssignmentExpression(): \Twig\Node\Nodes
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated, use "AbstractTokenParser::parseAssignmentExpression()" instead.', __METHOD__);
 
@@ -304,7 +303,7 @@ class ExpressionParser
         $targets = [];
         while (true) {
             $token = $this->parser->getCurrentToken();
-            if ($stream->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, $token->getValue())) {
+            if ($stream->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->getValue())) {
                 // in this context, string operators are variable names
                 $this->parser->getStream()->next();
             } else {
@@ -323,7 +322,7 @@ class ExpressionParser
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseMultitargetExpression()
+    public function parseMultitargetExpression(): \Twig\Node\Nodes
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
 

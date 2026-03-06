@@ -25,7 +25,7 @@ use Twig\Token;
  */
 final class ArrowExpressionParser extends AbstractExpressionParser implements InfixExpressionParserInterface, ExpressionParserDescriptionInterface
 {
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
+    public function parse(Parser $parser, AbstractExpression $expr, Token $token): \Twig\Node\Expression\ArrowFunctionExpression
     {
         // As the expression of the arrow function is independent from the current precedence, we want a precedence of 0
         return new ArrowFunctionExpression($parser->parseExpression(), $expr, $token->getLine());

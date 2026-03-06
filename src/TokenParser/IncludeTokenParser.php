@@ -40,7 +40,7 @@ class IncludeTokenParser extends AbstractTokenParser
     /**
      * @return array{0: ?AbstractExpression, 1: bool, 2: bool}
      */
-    protected function parseArguments()
+    protected function parseArguments(): array
     {
         $stream = $this->parser->getStream();
 

@@ -50,7 +50,7 @@ class DefaultFilter extends FilterExpression
             $default = new FilterExpression($node, $filter, $arguments, $node->getTemplateLine());
         } else {
             $name = $filter->getAttribute('value');
-            $default = new FilterExpression($node, new TwigFilter('default', [CoreExtension::class, 'default']), $arguments, $node->getTemplateLine());
+            $default = new FilterExpression($node, new TwigFilter('default', CoreExtension::default(...)), $arguments, $node->getTemplateLine());
         }
 
         if ('default' === $name && ($node instanceof ContextVariable || $node instanceof GetAttrExpression)) {

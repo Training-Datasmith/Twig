@@ -52,7 +52,7 @@ final class DotExpressionParser extends AbstractExpressionParser implements Infi
             if (
                 $token->test(Token::NAME_TYPE)
                 || $token->test(Token::NUMBER_TYPE)
-                || ($token->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, $token->getValue()))
+                || ($token->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->getValue()))
             ) {
                 $attribute = new ConstantExpression($token->getValue(), $token->getLine());
             } else {

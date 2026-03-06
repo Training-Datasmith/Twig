@@ -28,13 +28,13 @@ class BinaryOperatorExpressionParser extends AbstractExpressionParser implements
 {
     public function __construct(
         /** @var class-string<AbstractBinary> */
-        private string $nodeClass,
-        private string $name,
-        private int $precedence,
-        private InfixAssociativity $associativity = InfixAssociativity::Left,
-        private ?PrecedenceChange $precedenceChange = null,
-        private ?string $description = null,
-        private array $aliases = [],
+        private readonly string $nodeClass,
+        private readonly string $name,
+        private readonly int $precedence,
+        private readonly InfixAssociativity $associativity = InfixAssociativity::Left,
+        private readonly ?PrecedenceChange $precedenceChange = null,
+        private readonly ?string $description = null,
+        private readonly array $aliases = [],
     ) {
     }
 

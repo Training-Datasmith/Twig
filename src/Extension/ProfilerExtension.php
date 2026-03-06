@@ -16,26 +16,20 @@ use Twig\Profiler\Profile;
 
 class ProfilerExtension extends AbstractExtension
 {
-    private $actives = [];
+    private array $actives = [];
 
     public function __construct(Profile $profile)
     {
         $this->actives[] = $profile;
     }
 
-    /**
-     * @return void
-     */
-    public function enter(Profile $profile)
+    public function enter(Profile $profile): void
     {
         $this->actives[0]->addProfile($profile);
         array_unshift($this->actives, $profile);
     }
 
-    /**
-     * @return void
-     */
-    public function leave(Profile $profile)
+    public function leave(Profile $profile): void
     {
         $profile->leave();
         array_shift($this->actives);

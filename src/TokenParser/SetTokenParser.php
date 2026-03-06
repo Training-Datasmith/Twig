@@ -31,7 +31,7 @@ use Twig\Token;
  */
 final class SetTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\SetNode
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -55,7 +55,7 @@ final class SetTokenParser extends AbstractTokenParser
 
             $stream->expect(Token::BLOCK_END_TYPE);
 
-            $values = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+            $values = $this->parser->subparse($this->decideBlockEnd(...), true);
             $stream->expect(Token::BLOCK_END_TYPE);
         }
 

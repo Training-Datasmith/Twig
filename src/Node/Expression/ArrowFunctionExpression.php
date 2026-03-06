@@ -24,7 +24,7 @@ use Twig\Node\Node;
  */
 class ArrowFunctionExpression extends AbstractExpression
 {
-    public function __construct(AbstractExpression $expr, Node $names, $lineno)
+    public function __construct(AbstractExpression $expr, Node $names, int $lineno)
     {
         if ($names instanceof ContextVariable) {
             $names = new ListExpression([new AssignContextVariable($names->getAttribute('name'), $names->getTemplateLine())], $lineno);

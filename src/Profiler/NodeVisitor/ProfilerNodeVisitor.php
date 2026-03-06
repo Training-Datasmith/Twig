@@ -28,10 +28,10 @@ use Twig\Profiler\Profile;
  */
 final class ProfilerNodeVisitor implements NodeVisitorInterface
 {
-    private $varName;
+    private readonly string $varName;
 
     public function __construct(
-        private string $extensionName,
+        private readonly string $extensionName,
     ) {
         $this->varName = \sprintf('__internal_%s', hash(\PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128', $extensionName));
     }
@@ -41,7 +41,7 @@ final class ProfilerNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env): ?Node
+    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
     {
         if ($node instanceof ModuleNode) {
             $node->setNode('display_start', new Nodes([new EnterProfileNode($this->extensionName, Profile::TEMPLATE, $node->getTemplateName(), $this->varName), $node->getNode('display_start')]));

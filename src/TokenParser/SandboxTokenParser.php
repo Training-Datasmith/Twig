@@ -31,19 +31,19 @@ use Twig\Token;
  */
 final class SandboxTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\SandboxNode
     {
         $stream = $this->parser->getStream();
         trigger_deprecation('twig/twig', '3.15', \sprintf('The "sandbox" tag is deprecated in "%s" at line %d.', $stream->getSourceContext()->getName(), $token->getLine()));
 
         $stream->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
         $stream->expect(Token::BLOCK_END_TYPE);
 
         // in a sandbox tag, only include tags are allowed
         if (!$body instanceof IncludeNode) {
             foreach ($body as $node) {
-                if ($node instanceof TextNode && ctype_space($node->getAttribute('data'))) {
+                if ($node instanceof TextNode && ctype_space((string) $node->getAttribute('data'))) {
                     continue;
                 }
 

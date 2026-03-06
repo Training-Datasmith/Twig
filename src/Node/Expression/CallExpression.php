@@ -24,7 +24,7 @@ use Twig\Util\ReflectionCallable;
 
 abstract class CallExpression extends AbstractExpression
 {
-    private $reflector;
+    private ?\Twig\Util\ReflectionCallable $reflector = null;
 
     /**
      * @return void
@@ -50,7 +50,7 @@ abstract class CallExpression extends AbstractExpression
                     $compiler->raw(\sprintf('$this->env->getRuntime(\'%s\')->%s', $callable[0], $callable[1]));
                 }
             } elseif (\is_array($callable) && $callable[0] instanceof ExtensionInterface) {
-                $class = \get_class($callable[0]);
+                $class = $callable[0]::class;
                 if (!$compiler->getEnvironment()->hasExtension($class)) {
                     // Compile a non-optimized call to trigger a \Twig\Error\RuntimeError, which cannot be a compile-time error
                     $compiler->raw(\sprintf('$this->env->getExtension(\'%s\')', $class));
@@ -60,7 +60,7 @@ abstract class CallExpression extends AbstractExpression
 
                 $compiler->raw(\sprintf('->%s', $callable[1]));
             } else {
-                $compiler->raw(\sprintf('$this->env->get%s(\'%s\')->getCallable()', ucfirst($this->getAttribute('type')), $twigCallable->getDynamicName()));
+                $compiler->raw(\sprintf('$this->env->get%s(\'%s\')->getCallable()', ucfirst((string) $this->getAttribute('type')), $twigCallable->getDynamicName()));
             }
         }
 
@@ -168,7 +168,7 @@ abstract class CallExpression extends AbstractExpression
             throw new \LogicException($message);
         }
 
-        [$callableParameters, $isPhpVariadic] = $this->getCallableParameters($callable, $isVariadic);
+        [$callableParameters, $isPhpVariadic] = $this->getCallableParameters($isVariadic);
         $arguments = [];
         $names = [];
         $missingArguments = [];
@@ -266,11 +266,11 @@ abstract class CallExpression extends AbstractExpression
     {
         trigger_deprecation('twig/twig', '3.12', 'The "%s()" method is deprecated.', __METHOD__);
 
-        return strtolower(preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'], ['\\1_\\2', '\\1_\\2'], $name));
+        return strtolower((string) preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'], ['\\1_\\2', '\\1_\\2'], $name));
     }
 
     // To be removed in 4.0
-    private function getCallableParameters($callable, bool $isVariadic): array
+    private function getCallableParameters(bool $isVariadic): array
     {
         $twigCallable = $this->getAttribute('twig_callable');
         $rc = $this->reflectCallable($twigCallable);

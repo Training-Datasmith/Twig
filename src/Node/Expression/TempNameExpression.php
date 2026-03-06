@@ -21,7 +21,7 @@ class TempNameExpression extends AbstractExpression
     public function __construct(string|int|null $name, int $lineno)
     {
         // All names supported by ExpressionParser::parsePrimaryExpression() should be excluded
-        if ($name && \in_array(strtolower($name), ['true', 'false', 'none', 'null'], true)) {
+        if ($name && \in_array(strtolower((string) $name), ['true', 'false', 'none', 'null'], true)) {
             throw new SyntaxError(\sprintf('You cannot assign a value to "%s".', $name), $lineno);
         }
 

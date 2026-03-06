@@ -28,7 +28,7 @@ use Twig\TokenStream;
  */
 final class TypesTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\TypesNode
     {
         $stream = $this->parser->getStream();
         $types = $this->parseSimpleMappingExpression($stream);
@@ -52,7 +52,7 @@ final class TypesTokenParser extends AbstractTokenParser
                 $stream->expect(Token::PUNCTUATION_TYPE, ',', 'A type string must be followed by a comma');
 
                 // trailing ,?
-                if ($stream->test(Token::PUNCTUATION_TYPE, '}') || $stream->test(Token::BLOCK_END_TYPE)) {
+                if ($stream->test(Token::BLOCK_END_TYPE)) {
                     break;
                 }
             }

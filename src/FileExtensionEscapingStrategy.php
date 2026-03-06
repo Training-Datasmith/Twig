@@ -31,7 +31,7 @@ class FileExtensionEscapingStrategy
      *
      * @return string|false The escaping strategy name to use or false to disable
      */
-    public static function guess(string $name)
+    public static function guess(string $name): string|false
     {
         if (\in_array(substr($name, -1), ['/', '\\'], true)) {
             return 'html'; // return html for directories
@@ -43,19 +43,11 @@ class FileExtensionEscapingStrategy
 
         $extension = pathinfo($name, \PATHINFO_EXTENSION);
 
-        switch ($extension) {
-            case 'js':
-            case 'json':
-                return 'js';
-
-            case 'css':
-                return 'css';
-
-            case 'txt':
-                return false;
-
-            default:
-                return 'html';
-        }
+        return match ($extension) {
+            'js', 'json' => 'js',
+            'css' => 'css',
+            'txt' => false,
+            default => 'html',
+        };
     }
 }

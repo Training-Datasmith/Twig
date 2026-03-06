@@ -20,11 +20,11 @@ final class DeprecatedCallableInfo
     private string $name;
 
     public function __construct(
-        private string $package,
-        private string $version,
-        private ?string $altName = null,
-        private ?string $altPackage = null,
-        private ?string $altVersion = null,
+        private readonly string $package,
+        private readonly string $version,
+        private readonly ?string $altName = null,
+        private readonly ?string $altPackage = null,
+        private readonly ?string $altVersion = null,
     ) {
     }
 

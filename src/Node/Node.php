@@ -24,28 +24,26 @@ use Twig\Source;
  * @implements \IteratorAggregate<int|string, Node>
  */
 #[YieldReady]
-class Node implements \Countable, \IteratorAggregate
+class Node implements \Countable, \IteratorAggregate, \Stringable
 {
     /**
      * @var array<string|int, Node>
      */
     protected $nodes;
-    protected $attributes;
-    protected $lineno;
     protected $tag;
 
-    private $sourceContext;
+    private ?\Twig\Source $sourceContext = null;
     /** @var array<string, NameDeprecation> */
-    private $nodeNameDeprecations = [];
+    private array $nodeNameDeprecations = [];
     /** @var array<string, NameDeprecation> */
-    private $attributeNameDeprecations = [];
+    private array $attributeNameDeprecations = [];
 
     /**
      * @param array<string|int, Node> $nodes      An array of named nodes
      * @param array                   $attributes An array of attributes (should not be nodes)
      * @param int                     $lineno     The line number
      */
-    public function __construct(array $nodes = [], array $attributes = [], int $lineno = 0)
+    public function __construct(array $nodes = [], protected array $attributes = [], protected int $lineno = 0)
     {
         if (self::class === static::class) {
             trigger_deprecation('twig/twig', '3.15', \sprintf('Instantiating "%s" directly is deprecated; the class will become abstract in 4.0.', self::class));
@@ -57,8 +55,6 @@ class Node implements \Countable, \IteratorAggregate
             }
         }
         $this->nodes = $nodes;
-        $this->attributes = $attributes;
-        $this->lineno = $lineno;
 
         if (\func_num_args() > 3) {
             trigger_deprecation('twig/twig', '3.12', \sprintf('The "tag" constructor argument of the "%s" class is deprecated and ignored (check which TokenParser class set it to "%s"), the tag is now automatically set by the Parser when needed.', static::class, func_get_arg(3) ?: 'null'));
@@ -92,7 +88,7 @@ class Node implements \Countable, \IteratorAggregate
         if (\count($this->nodes)) {
             $repr .= "\n  nodes:";
             foreach ($this->nodes as $name => $node) {
-                $len = \strlen($name) + 6;
+                $len = \strlen((string) $name) + 6;
                 $noderepr = [];
                 foreach (explode("\n", (string) $node) as $line) {
                     $noderepr[] = str_repeat(' ', $len).$line;
@@ -112,10 +108,7 @@ class Node implements \Countable, \IteratorAggregate
         }
     }
 
-    /**
-     * @return void
-     */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         foreach ($this->nodes as $node) {
             $compiler->subcompile($node);
@@ -193,17 +186,11 @@ class Node implements \Countable, \IteratorAggregate
         unset($this->attributes[$name]);
     }
 
-    /**
-     * @param string|int $name
-     */
     public function hasNode(string $name): bool
     {
         return isset($this->nodes[$name]);
     }
 
-    /**
-     * @param string|int $name
-     */
     public function getNode(string $name): self
     {
         if (!isset($this->nodes[$name])) {
@@ -223,9 +210,6 @@ class Node implements \Countable, \IteratorAggregate
         return $this->nodes[$name];
     }
 
-    /**
-     * @param string|int $name
-     */
     public function setNode(string $name, self $node): void
     {
         $triggerDeprecation = \func_num_args() > 2 ? func_get_arg(2) : true;
@@ -244,17 +228,11 @@ class Node implements \Countable, \IteratorAggregate
         $this->nodes[$name] = $node;
     }
 
-    /**
-     * @param string|int $name
-     */
     public function removeNode(string $name): void
     {
         unset($this->nodes[$name]);
     }
 
-    /**
-     * @param string|int $name
-     */
     public function deprecateNode(string $name, NameDeprecation $dep): void
     {
         $this->nodeNameDeprecations[$name] = $dep;

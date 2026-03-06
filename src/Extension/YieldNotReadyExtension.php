@@ -19,7 +19,7 @@ use Twig\NodeVisitor\YieldNotReadyNodeVisitor;
 final class YieldNotReadyExtension extends AbstractExtension
 {
     public function __construct(
-        private bool $useYield,
+        private readonly bool $useYield,
     ) {
     }
 

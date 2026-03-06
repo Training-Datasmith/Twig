@@ -31,7 +31,7 @@ use Twig\Token;
  */
 final class ForTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\ForNode
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -40,11 +40,11 @@ final class ForTokenParser extends AbstractTokenParser
         $seq = $this->parser->parseExpression();
 
         $stream->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse([$this, 'decideForFork']);
+        $body = $this->parser->subparse($this->decideForFork(...));
         if ('else' == $stream->next()->getValue()) {
             $elseLineno = $stream->getCurrent()->getLine();
             $stream->expect(Token::BLOCK_END_TYPE);
-            $else = new ForElseNode($this->parser->subparse([$this, 'decideForEnd'], true), $elseLineno);
+            $else = new ForElseNode($this->parser->subparse($this->decideForEnd(...), true), $elseLineno);
         } else {
             $else = null;
         }

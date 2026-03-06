@@ -25,11 +25,11 @@ use Twig\TwigCallableInterface;
  */
 final class CallableArgumentsExtractor
 {
-    private ReflectionCallable $rc;
+    private readonly ReflectionCallable $rc;
 
     public function __construct(
-        private Node $node,
-        private TwigCallableInterface $twigCallable,
+        private readonly Node $node,
+        private readonly TwigCallableInterface $twigCallable,
     ) {
         $this->rc = new ReflectionCallable($twigCallable);
     }
@@ -99,7 +99,7 @@ final class CallableArgumentsExtractor
                 if (\count($missingArguments)) {
                     throw new SyntaxError(\sprintf(
                         'Argument "%s" could not be assigned for %s "%s(%s)" because it is mapped to an internal PHP function which cannot determine default value for optional argument%s "%s".',
-                        $callableParameterName, $this->twigCallable->getType(), $this->twigCallable->getName(), implode(', ', array_map([$this, 'toSnakeCase'], $callableParameterNames)), \count($missingArguments) > 1 ? 's' : '', implode('", "', $missingArguments)
+                        $callableParameterName, $this->twigCallable->getType(), $this->twigCallable->getName(), implode(', ', array_map($this->toSnakeCase(...), $callableParameterNames)), \count($missingArguments) > 1 ? 's' : '', implode('", "', $missingArguments)
                     ), $this->node->getTemplateLine(), $this->node->getSourceContext());
                 }
 
@@ -152,16 +152,14 @@ final class CallableArgumentsExtractor
         if ($extractedArguments) {
             $unknownArgument = null;
             foreach ($extractedArguments as $extractedArgument) {
-                if ($extractedArgument instanceof Node) {
-                    $unknownArgument = $extractedArgument;
-                    break;
-                }
+                $unknownArgument = $extractedArgument;
+                break;
             }
 
             throw new SyntaxError(
                 \sprintf(
                     'Unknown argument%s "%s" for %s "%s(%s)".',
-                    \count($extractedArguments) > 1 ? 's' : '', implode('", "', array_keys($extractedArguments)), $this->twigCallable->getType(), $this->twigCallable->getName(), implode(', ', array_map([$this, 'toSnakeCase'], $callableParameterNames))
+                    \count($extractedArguments) > 1 ? 's' : '', implode('", "', array_keys($extractedArguments)), $this->twigCallable->getType(), $this->twigCallable->getName(), implode(', ', array_map($this->toSnakeCase(...), $callableParameterNames))
                 ),
                 $unknownArgument ? $unknownArgument->getTemplateLine() : $this->node->getTemplateLine(),
                 $unknownArgument ? $unknownArgument->getSourceContext() : $this->node->getSourceContext()
@@ -178,7 +176,7 @@ final class CallableArgumentsExtractor
 
     private function toSnakeCase(string $name): string
     {
-        return strtolower(preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z0-9])([A-Z])/'], '\1_\2', $name));
+        return strtolower((string) preg_replace(['/([A-Z]+)([A-Z][a-z])/', '/([a-z0-9])([A-Z])/'], '\1_\2', $name));
     }
 
     private function getCallableParameters(): array

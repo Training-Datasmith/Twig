@@ -20,9 +20,9 @@ final class Profile implements \IteratorAggregate, \Serializable
     public const BLOCK = 'block';
     public const TEMPLATE = 'template';
     public const MACRO = 'macro';
-    private $starts = [];
-    private $ends = [];
-    private $profiles = [];
+    private array $starts = [];
+    private array $ends = [];
+    private array $profiles = [];
 
     public function __construct(
         private string $template = 'main',

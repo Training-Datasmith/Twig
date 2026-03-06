@@ -20,21 +20,13 @@ use Twig\Compiler;
 #[YieldReady]
 class CheckSecurityNode extends Node
 {
-    private $usedFilters;
-    private $usedTags;
-    private $usedFunctions;
-
     /**
      * @param array<string, int> $usedFilters
      * @param array<string, int> $usedTags
      * @param array<string, int> $usedFunctions
      */
-    public function __construct(array $usedFilters, array $usedTags, array $usedFunctions)
+    public function __construct(private readonly array $usedFilters, private readonly array $usedTags, private readonly array $usedFunctions)
     {
-        $this->usedFilters = $usedFilters;
-        $this->usedTags = $usedTags;
-        $this->usedFunctions = $usedFunctions;
-
         parent::__construct();
     }
 

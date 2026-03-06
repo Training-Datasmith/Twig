@@ -23,15 +23,13 @@ use Twig\NodeVisitor\NodeVisitorInterface;
  */
 final class NodeTraverser
 {
-    private $env;
-    private $visitors = [];
+    private array $visitors = [];
 
     /**
      * @param NodeVisitorInterface[] $visitors
      */
-    public function __construct(Environment $env, array $visitors = [])
+    public function __construct(private readonly Environment $env, array $visitors = [])
     {
-        $this->env = $env;
         foreach ($visitors as $visitor) {
             $this->addVisitor($visitor);
         }

@@ -45,14 +45,14 @@ final class OptimizerNodeVisitor implements NodeVisitorInterface
     public const OPTIMIZE_RAW_FILTER = 4;
     public const OPTIMIZE_TEXT_NODES = 8;
 
-    private $loops = [];
-    private $loopsTargets = [];
+    private array $loops = [];
+    private array $loopsTargets = [];
 
     /**
      * @param int $optimizers The optimizer mode
      */
     public function __construct(
-        private int $optimizers = -1,
+        private readonly int $optimizers = -1,
     ) {
         if ($optimizers > (self::OPTIMIZE_FOR | self::OPTIMIZE_RAW_FILTER | self::OPTIMIZE_TEXT_NODES)) {
             throw new \InvalidArgumentException(\sprintf('Optimizer mode "%s" is not valid.', $optimizers));
@@ -76,7 +76,7 @@ final class OptimizerNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env): ?Node
+    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
     {
         if (self::OPTIMIZE_FOR === (self::OPTIMIZE_FOR & $this->optimizers)) {
             $this->leaveOptimizeFor($node);

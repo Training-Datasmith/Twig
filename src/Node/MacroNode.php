@@ -89,8 +89,8 @@ class MacroNode extends Node
         foreach ($arguments->getKeyValuePairs() as $pair) {
             $name = $pair['key'];
             $var = $name->getAttribute('name');
-            if (str_starts_with($var, "\u{035C}")) {
-                $var = substr($var, \strlen("\u{035C}"));
+            if (str_starts_with((string) $var, "\u{035C}")) {
+                $var = substr((string) $var, \strlen("\u{035C}"));
             }
             $compiler
                 ->write('')

@@ -38,11 +38,11 @@ class_exists(BinaryOperatorExpressionParser::class);
  */
 final class ExtensionSet
 {
-    private $extensions;
-    private $initialized = false;
-    private $runtimeInitialized = false;
-    private $staging;
-    private $parsers;
+    private ?array $extensions = null;
+    private bool $initialized = false;
+    private bool $runtimeInitialized = false;
+    private readonly \Twig\Extension\StagingExtension $staging;
+    private ?array $parsers = null;
     private $visitors;
     /** @var array<string, TwigFilter> */
     private $filters;
@@ -58,15 +58,15 @@ final class ExtensionSet
     private $dynamicFunctions;
     private ExpressionParsers $expressionParsers;
     /** @var array<string, mixed>|null */
-    private $globals;
+    private ?array $globals = null;
     /** @var array<callable(string): (TwigFunction|false)> */
-    private $functionCallbacks = [];
+    private array $functionCallbacks = [];
     /** @var array<callable(string): (TwigFilter|false)> */
-    private $filterCallbacks = [];
+    private array $filterCallbacks = [];
     /** @var array<callable(string): (TwigTest|false)> */
-    private $testCallbacks = [];
+    private array $testCallbacks = [];
     /** @var array<callable(string): (TokenParserInterface|false)> */
-    private $parserCallbacks = [];
+    private array $parserCallbacks = [];
     private $lastModified = 0;
 
     public function __construct()
@@ -74,10 +74,7 @@ final class ExtensionSet
         $this->staging = new StagingExtension();
     }
 
-    /**
-     * @return void
-     */
-    public function initRuntime()
+    public function initRuntime(): void
     {
         $this->runtimeInitialized = true;
     }

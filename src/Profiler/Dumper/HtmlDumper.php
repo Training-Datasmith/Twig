@@ -18,7 +18,7 @@ use Twig\Profiler\Profile;
  */
 final class HtmlDumper extends BaseDumper
 {
-    private static $colors = [
+    private static array $colors = [
         'block' => '#dfd',
         'macro' => '#ddf',
         'template' => '#ffd',

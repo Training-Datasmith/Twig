@@ -22,7 +22,7 @@ use Twig\Token;
  */
 final class DoTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\DoNode
     {
         $expr = $this->parser->parseExpression();
 

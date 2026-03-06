@@ -24,9 +24,9 @@ final class Source
      * @param string $path The filesystem path of the template if any
      */
     public function __construct(
-        private string $code,
-        private string $name,
-        private string $path = '',
+        private readonly string $code,
+        private readonly string $name,
+        private readonly string $path = '',
     ) {
     }
 

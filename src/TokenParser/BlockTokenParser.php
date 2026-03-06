@@ -33,7 +33,7 @@ use Twig\Token;
  */
 final class BlockTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\BlockReferenceNode
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -43,7 +43,7 @@ final class BlockTokenParser extends AbstractTokenParser
         $this->parser->pushBlockStack($name);
 
         if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
-            $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+            $body = $this->parser->subparse($this->decideBlockEnd(...), true);
             if ($token = $stream->nextIf(Token::NAME_TYPE)) {
                 $value = $token->getValue();
 

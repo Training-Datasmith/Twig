@@ -37,10 +37,10 @@ abstract class Template
     protected $blocks = [];
     protected $traits = [];
     protected $traitAliases = [];
-    protected $extensions = [];
+    protected array $extensions;
     protected $sandbox;
 
-    private $useYield;
+    private readonly bool $useYield;
 
     public function __construct(
         protected Environment $env,
@@ -158,7 +158,7 @@ abstract class Template
             if ($this->env->isDebug()) {
                 ob_start();
             } else {
-                ob_start(static function () { return ''; });
+                ob_start(static fn() => '');
             }
             $this->displayParentBlock($name, $context, $blocks);
 
@@ -193,7 +193,7 @@ abstract class Template
             if ($this->env->isDebug()) {
                 ob_start();
             } else {
-                ob_start(static function () { return ''; });
+                ob_start(static fn() => '');
             }
             try {
                 $this->displayBlock($name, $context, $blocks, $useBlocks);
@@ -367,7 +367,7 @@ abstract class Template
             if ($this->env->isDebug()) {
                 ob_start();
             } else {
-                ob_start(static function () { return ''; });
+                ob_start(static fn() => '');
             }
             try {
                 $this->display($context);

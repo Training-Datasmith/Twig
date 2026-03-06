@@ -21,7 +21,7 @@ use Twig\Source;
 final class DeprecationCollector
 {
     public function __construct(
-        private Environment $twig,
+        private readonly Environment $twig,
     ) {
     }
 
@@ -54,7 +54,7 @@ final class DeprecationCollector
     public function collect(\Traversable $iterator): array
     {
         $deprecations = [];
-        set_error_handler(static function ($type, $msg) use (&$deprecations) {
+        set_error_handler(static function ($type, $msg) use (&$deprecations): bool {
             if (\E_USER_DEPRECATED === $type) {
                 $deprecations[] = $msg;
             }
@@ -65,7 +65,7 @@ final class DeprecationCollector
         foreach ($iterator as $name => $contents) {
             try {
                 $this->twig->parse($this->twig->tokenize(new Source($contents, $name)));
-            } catch (SyntaxError $e) {
+            } catch (SyntaxError) {
                 // ignore templates containing syntax errors
             }
         }

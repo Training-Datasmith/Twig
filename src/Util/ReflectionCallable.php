@@ -20,7 +20,7 @@ use Twig\TwigCallableInterface;
  */
 final class ReflectionCallable
 {
-    private $reflector;
+    private \ReflectionMethod|\ReflectionFunction $reflector;
     private $callable;
     private $name;
 

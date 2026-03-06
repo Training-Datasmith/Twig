@@ -36,24 +36,12 @@ final class LiteralExpressionParser extends AbstractExpressionParser implements 
         switch (true) {
             case $token->test(Token::NAME_TYPE):
                 $stream->next();
-                switch ($token->getValue()) {
-                    case 'true':
-                    case 'TRUE':
-                        return new ConstantExpression(true, $token->getLine());
-
-                    case 'false':
-                    case 'FALSE':
-                        return new ConstantExpression(false, $token->getLine());
-
-                    case 'none':
-                    case 'NONE':
-                    case 'null':
-                    case 'NULL':
-                        return new ConstantExpression(null, $token->getLine());
-
-                    default:
-                        return new ContextVariable($token->getValue(), $token->getLine());
-                }
+                return match ($token->getValue()) {
+                    'true', 'TRUE' => new ConstantExpression(true, $token->getLine()),
+                    'false', 'FALSE' => new ConstantExpression(false, $token->getLine()),
+                    'none', 'NONE', 'null', 'NULL' => new ConstantExpression(null, $token->getLine()),
+                    default => new ContextVariable($token->getValue(), $token->getLine()),
+                };
 
                 // no break
             case $token->test(Token::NUMBER_TYPE):
@@ -80,7 +68,7 @@ final class LiteralExpressionParser extends AbstractExpressionParser implements 
                     return $this->parseSequenceExpression($parser);
                 }
 
-                if (preg_match(Lexer::REGEX_NAME, $token->getValue(), $matches) && $matches[0] == $token->getValue()) {
+                if (preg_match(Lexer::REGEX_NAME, (string) $token->getValue(), $matches) && $matches[0] == $token->getValue()) {
                     // in this context, string operators are variable names
                     $stream->next();
 
@@ -142,7 +130,7 @@ final class LiteralExpressionParser extends AbstractExpressionParser implements 
         return $expr;
     }
 
-    private function parseSequenceExpression(Parser $parser)
+    private function parseSequenceExpression(Parser $parser): \Twig\Node\Expression\ArrayExpression
     {
         $stream = $parser->getStream();
         $stream->expect(Token::OPERATOR_TYPE, '[', 'A sequence element was expected');
@@ -172,7 +160,7 @@ final class LiteralExpressionParser extends AbstractExpressionParser implements 
         return $node;
     }
 
-    private function parseMappingExpression(Parser $parser)
+    private function parseMappingExpression(Parser $parser): \Twig\Node\Expression\ArrayExpression
     {
         $stream = $parser->getStream();
         $stream->expect(Token::PUNCTUATION_TYPE, '{', 'A mapping element was expected');

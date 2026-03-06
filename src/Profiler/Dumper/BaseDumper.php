@@ -18,7 +18,7 @@ use Twig\Profiler\Profile;
  */
 abstract class BaseDumper
 {
-    private $root;
+    private ?float $root = null;
 
     public function dump(Profile $profile): string
     {
@@ -31,7 +31,7 @@ abstract class BaseDumper
 
     abstract protected function formatTime(Profile $profile, $percent): string;
 
-    private function dumpProfile(Profile $profile, $prefix = '', $sibling = false): string
+    private function dumpProfile(Profile $profile, string $prefix = '', bool $sibling = false): string
     {
         if ($profile->isRoot()) {
             $this->root = $profile->getDuration();

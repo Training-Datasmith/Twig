@@ -30,7 +30,7 @@ class NullCoalesceExpression extends ConditionalExpression
      */
     public function __construct(Node $left, Node $right, int $lineno)
     {
-        trigger_deprecation('twig/twig', '3.17', \sprintf('"%s" is deprecated; use "%s" instead.', __CLASS__, NullCoalesceBinary::class));
+        trigger_deprecation('twig/twig', '3.17', \sprintf('"%s" is deprecated; use "%s" instead.', self::class, NullCoalesceBinary::class));
 
         if (!$left instanceof AbstractExpression) {
             trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "left" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $left::class);

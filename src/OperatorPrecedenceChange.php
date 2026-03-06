@@ -23,9 +23,9 @@ use Twig\ExpressionParser\PrecedenceChange;
 class OperatorPrecedenceChange extends PrecedenceChange
 {
     public function __construct(
-        private string $package,
-        private string $version,
-        private int $newPrecedence,
+        string $package,
+        string $version,
+        int $newPrecedence,
     ) {
         trigger_deprecation('twig/twig', '3.21', 'The "%s" class is deprecated since Twig 3.21. Use "%s" instead.', self::class, PrecedenceChange::class);
 

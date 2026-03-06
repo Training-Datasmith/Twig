@@ -26,7 +26,7 @@ use Twig\Token;
  */
 final class ImportTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\ImportNode
     {
         $macro = $this->parser->parseExpression();
         $this->parser->getStream()->expect(Token::NAME_TYPE, 'as');

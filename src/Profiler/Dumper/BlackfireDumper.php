@@ -53,7 +53,7 @@ EOF;
         }
     }
 
-    private function dumpProfile(string $edge, Profile $profile, &$data): void
+    private function dumpProfile(string $edge, Profile $profile, array &$data): void
     {
         if (isset($data[$edge])) {
             ++$data[$edge]['ct'];

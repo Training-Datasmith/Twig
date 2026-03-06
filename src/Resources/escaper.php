@@ -31,7 +31,7 @@ function twig_raw_filter($string)
  *
  * @deprecated since Twig 3.9
  */
-function twig_escape_filter(Environment $env, $string, $strategy = 'html', $charset = null, $autoescape = false)
+function twig_escape_filter(Environment $env, $string, string $strategy = 'html', ?string $charset = null, bool $autoescape = false)
 {
     trigger_deprecation('twig/twig', '3.9', 'Using the internal "%s" function is deprecated.', __FUNCTION__);
 

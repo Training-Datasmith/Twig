@@ -21,10 +21,10 @@ use Twig\Node\Node;
  */
 final class YieldNotReadyNodeVisitor implements NodeVisitorInterface
 {
-    private $yieldReadyNodes = [];
+    private array $yieldReadyNodes = [];
 
     public function __construct(
-        private bool $useYield,
+        private readonly bool $useYield,
     ) {
     }
 
@@ -47,7 +47,7 @@ final class YieldNotReadyNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env): ?Node
+    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
     {
         return $node;
     }

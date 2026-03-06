@@ -31,7 +31,7 @@ final class FunctionExpressionParser extends AbstractExpressionParser implements
 {
     use ArgumentsTrait;
 
-    private $readyNodes = [];
+    private array $readyNodes = [];
 
     public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
     {

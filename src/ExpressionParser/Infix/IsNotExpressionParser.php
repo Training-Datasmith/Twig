@@ -21,7 +21,7 @@ use Twig\Token;
  */
 final class IsNotExpressionParser extends IsExpressionParser
 {
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
+    public function parse(Parser $parser, AbstractExpression $expr, Token $token): \Twig\Node\Expression\Unary\NotUnary
     {
         return new NotUnary(parent::parse($parser, $expr, $token), $token->getLine());
     }

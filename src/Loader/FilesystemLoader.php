@@ -31,7 +31,7 @@ class FilesystemLoader implements LoaderInterface
     protected $cache = [];
     protected $errorCache = [];
 
-    private $rootPath;
+    private string $rootPath;
 
     /**
      * @param string|string[] $paths    A path or an array of paths where to look for templates

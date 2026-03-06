@@ -34,7 +34,7 @@ use Twig\Token;
  */
 final class UseTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\EmptyNode
     {
         $template = $this->parser->parseExpression();
         $stream = $this->parser->getStream();

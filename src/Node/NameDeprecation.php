@@ -18,15 +18,8 @@ namespace Twig\Node;
  */
 class NameDeprecation
 {
-    private $package;
-    private $version;
-    private $newName;
-
-    public function __construct(string $package = '', string $version = '', string $newName = '')
+    public function __construct(private readonly string $package = '', private readonly string $version = '', private readonly string $newName = '')
     {
-        $this->package = $package;
-        $this->version = $version;
-        $this->newName = $newName;
     }
 
     public function getPackage(): string

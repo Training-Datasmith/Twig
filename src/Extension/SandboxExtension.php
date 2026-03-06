@@ -21,16 +21,10 @@ use Twig\TokenParser\SandboxTokenParser;
 
 final class SandboxExtension extends AbstractExtension
 {
-    private $sandboxedGlobally;
-    private $sandboxed;
-    private $policy;
-    private $sourcePolicy;
+    private ?bool $sandboxed = null;
 
-    public function __construct(SecurityPolicyInterface $policy, $sandboxed = false, ?SourcePolicyInterface $sourcePolicy = null)
+    public function __construct(private SecurityPolicyInterface $policy, private $sandboxedGlobally = false, private readonly ?SourcePolicyInterface $sourcePolicy = null)
     {
-        $this->policy = $policy;
-        $this->sandboxedGlobally = $sandboxed;
-        $this->sourcePolicy = $sourcePolicy;
     }
 
     public function getTokenParsers(): array

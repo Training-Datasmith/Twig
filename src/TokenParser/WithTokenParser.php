@@ -24,7 +24,7 @@ use Twig\Token;
  */
 final class WithTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\WithNode
     {
         $stream = $this->parser->getStream();
 
@@ -37,7 +37,7 @@ final class WithTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $body = $this->parser->subparse([$this, 'decideWithEnd'], true);
+        $body = $this->parser->subparse($this->decideWithEnd(...), true);
 
         $stream->expect(Token::BLOCK_END_TYPE);
 

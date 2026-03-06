@@ -18,15 +18,13 @@ abstract class AbstractTwigCallable implements TwigCallableInterface
 {
     protected $options;
 
-    private $name;
-    private $dynamicName;
-    private $callable;
-    private $arguments;
+    private string $name;
+    private ?string $dynamicName = null;
+    private array $arguments;
 
-    public function __construct(string $name, $callable = null, array $options = [])
+    public function __construct(string $name, private $callable = null, array $options = [])
     {
         $this->name = $this->dynamicName = $name;
-        $this->callable = $callable;
         $this->arguments = [];
         $this->options = array_merge([
             'needs_environment' => false,

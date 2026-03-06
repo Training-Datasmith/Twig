@@ -133,8 +133,8 @@ final class CoreExtension extends AbstractExtension
     private const DEFAULT_TRIM_CHARS = " \t\n\r\0\x0B";
 
     private $dateFormats = ['F j, Y H:i', '%d days'];
-    private $numberFormat = [0, '.', ','];
-    private $timezone;
+    private array $numberFormat = [0, '.', ','];
+    private ?\DateTimeZone $timezone = null;
 
     /**
      * Sets the default format to be used by the date filter.
@@ -142,7 +142,7 @@ final class CoreExtension extends AbstractExtension
      * @param string|null $format             The default date format string
      * @param string|null $dateIntervalFormat The default date interval format string
      */
-    public function setDateFormat($format = null, $dateIntervalFormat = null)
+    public function setDateFormat($format = null, $dateIntervalFormat = null): void
     {
         if (null !== $format) {
             $this->dateFormats[0] = $format;
@@ -168,7 +168,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @param \DateTimeZone|string $timezone The default timezone string or a \DateTimeZone object
      */
-    public function setTimezone($timezone)
+    public function setTimezone($timezone): void
     {
         $this->timezone = $timezone instanceof \DateTimeZone ? $timezone : new \DateTimeZone($timezone);
     }
@@ -194,7 +194,7 @@ final class CoreExtension extends AbstractExtension
      * @param string $decimalPoint the character(s) to use for the decimal point
      * @param string $thousandSep  the character(s) to use for the thousands separator
      */
-    public function setNumberFormat($decimal, $decimalPoint, $thousandSep)
+    public function setNumberFormat($decimal, $decimalPoint, $thousandSep): void
     {
         $this->numberFormat = [$decimal, $decimalPoint, $thousandSep];
     }
@@ -237,73 +237,73 @@ final class CoreExtension extends AbstractExtension
     {
         return [
             // formatting filters
-            new TwigFilter('date', [$this, 'formatDate']),
-            new TwigFilter('date_modify', [$this, 'modifyDate']),
-            new TwigFilter('format', [self::class, 'sprintf']),
-            new TwigFilter('replace', [self::class, 'replace']),
-            new TwigFilter('number_format', [$this, 'formatNumber']),
+            new TwigFilter('date', $this->formatDate(...)),
+            new TwigFilter('date_modify', $this->modifyDate(...)),
+            new TwigFilter('format', self::sprintf(...)),
+            new TwigFilter('replace', self::replace(...)),
+            new TwigFilter('number_format', $this->formatNumber(...)),
             new TwigFilter('abs', 'abs'),
-            new TwigFilter('round', [self::class, 'round']),
+            new TwigFilter('round', self::round(...)),
 
             // encoding
-            new TwigFilter('url_encode', [self::class, 'urlencode']),
+            new TwigFilter('url_encode', self::urlencode(...)),
             new TwigFilter('json_encode', 'json_encode'),
-            new TwigFilter('convert_encoding', [self::class, 'convertEncoding']),
+            new TwigFilter('convert_encoding', self::convertEncoding(...)),
 
             // string filters
-            new TwigFilter('title', [self::class, 'titleCase'], ['needs_charset' => true]),
-            new TwigFilter('capitalize', [self::class, 'capitalize'], ['needs_charset' => true]),
-            new TwigFilter('upper', [self::class, 'upper'], ['needs_charset' => true]),
-            new TwigFilter('lower', [self::class, 'lower'], ['needs_charset' => true]),
-            new TwigFilter('striptags', [self::class, 'striptags']),
-            new TwigFilter('trim', [self::class, 'trim']),
-            new TwigFilter('nl2br', [self::class, 'nl2br'], ['pre_escape' => 'html', 'is_safe' => ['html']]),
-            new TwigFilter('spaceless', [self::class, 'spaceless'], ['is_safe' => ['html'], 'deprecation_info' => new DeprecatedCallableInfo('twig/twig', '3.12')]),
+            new TwigFilter('title', self::titleCase(...), ['needs_charset' => true]),
+            new TwigFilter('capitalize', self::capitalize(...), ['needs_charset' => true]),
+            new TwigFilter('upper', self::upper(...), ['needs_charset' => true]),
+            new TwigFilter('lower', self::lower(...), ['needs_charset' => true]),
+            new TwigFilter('striptags', self::striptags(...)),
+            new TwigFilter('trim', self::trim(...)),
+            new TwigFilter('nl2br', self::nl2br(...), ['pre_escape' => 'html', 'is_safe' => ['html']]),
+            new TwigFilter('spaceless', self::spaceless(...), ['is_safe' => ['html'], 'deprecation_info' => new DeprecatedCallableInfo('twig/twig', '3.12')]),
 
             // array helpers
-            new TwigFilter('join', [self::class, 'join']),
-            new TwigFilter('split', [self::class, 'split'], ['needs_charset' => true]),
-            new TwigFilter('sort', [self::class, 'sort'], ['needs_environment' => true]),
-            new TwigFilter('merge', [self::class, 'merge']),
-            new TwigFilter('batch', [self::class, 'batch']),
-            new TwigFilter('column', [self::class, 'column']),
-            new TwigFilter('filter', [self::class, 'filter'], ['needs_environment' => true]),
-            new TwigFilter('map', [self::class, 'map'], ['needs_environment' => true]),
-            new TwigFilter('reduce', [self::class, 'reduce'], ['needs_environment' => true]),
-            new TwigFilter('find', [self::class, 'find'], ['needs_environment' => true]),
+            new TwigFilter('join', self::join(...)),
+            new TwigFilter('split', self::split(...), ['needs_charset' => true]),
+            new TwigFilter('sort', self::sort(...), ['needs_environment' => true]),
+            new TwigFilter('merge', self::merge(...)),
+            new TwigFilter('batch', self::batch(...)),
+            new TwigFilter('column', self::column(...)),
+            new TwigFilter('filter', self::filter(...), ['needs_environment' => true]),
+            new TwigFilter('map', self::map(...), ['needs_environment' => true]),
+            new TwigFilter('reduce', self::reduce(...), ['needs_environment' => true]),
+            new TwigFilter('find', self::find(...), ['needs_environment' => true]),
 
             // string/array filters
-            new TwigFilter('reverse', [self::class, 'reverse'], ['needs_charset' => true]),
-            new TwigFilter('shuffle', [self::class, 'shuffle'], ['needs_charset' => true]),
-            new TwigFilter('length', [self::class, 'length'], ['needs_charset' => true]),
-            new TwigFilter('slice', [self::class, 'slice'], ['needs_charset' => true]),
-            new TwigFilter('first', [self::class, 'first'], ['needs_charset' => true]),
-            new TwigFilter('last', [self::class, 'last'], ['needs_charset' => true]),
+            new TwigFilter('reverse', self::reverse(...), ['needs_charset' => true]),
+            new TwigFilter('shuffle', self::shuffle(...), ['needs_charset' => true]),
+            new TwigFilter('length', self::length(...), ['needs_charset' => true]),
+            new TwigFilter('slice', self::slice(...), ['needs_charset' => true]),
+            new TwigFilter('first', self::first(...), ['needs_charset' => true]),
+            new TwigFilter('last', self::last(...), ['needs_charset' => true]),
 
             // iteration and runtime
-            new TwigFilter('default', [self::class, 'default'], ['node_class' => DefaultFilter::class]),
-            new TwigFilter('keys', [self::class, 'keys']),
-            new TwigFilter('invoke', [self::class, 'invoke']),
+            new TwigFilter('default', self::default(...), ['node_class' => DefaultFilter::class]),
+            new TwigFilter('keys', self::keys(...)),
+            new TwigFilter('invoke', self::invoke(...)),
         ];
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('parent', null, ['parser_callable' => [self::class, 'parseParentFunction']]),
-            new TwigFunction('block', null, ['parser_callable' => [self::class, 'parseBlockFunction']]),
-            new TwigFunction('attribute', null, ['parser_callable' => [self::class, 'parseAttributeFunction']]),
+            new TwigFunction('parent', null, ['parser_callable' => self::parseParentFunction(...)]),
+            new TwigFunction('block', null, ['parser_callable' => self::parseBlockFunction(...)]),
+            new TwigFunction('attribute', null, ['parser_callable' => self::parseAttributeFunction(...)]),
             new TwigFunction('max', 'max'),
             new TwigFunction('min', 'min'),
             new TwigFunction('range', 'range'),
-            new TwigFunction('constant', [self::class, 'constant']),
-            new TwigFunction('cycle', [self::class, 'cycle']),
-            new TwigFunction('random', [self::class, 'random'], ['needs_charset' => true]),
-            new TwigFunction('date', [$this, 'convertDate']),
-            new TwigFunction('include', [self::class, 'include'], ['needs_environment' => true, 'needs_context' => true, 'is_safe' => ['all']]),
-            new TwigFunction('source', [self::class, 'source'], ['needs_environment' => true, 'is_safe' => ['all']]),
-            new TwigFunction('enum_cases', [self::class, 'enumCases'], ['node_class' => EnumCasesFunction::class]),
-            new TwigFunction('enum', [self::class, 'enum'], ['node_class' => EnumFunction::class]),
+            new TwigFunction('constant', self::constant(...)),
+            new TwigFunction('cycle', self::cycle(...)),
+            new TwigFunction('random', self::random(...), ['needs_charset' => true]),
+            new TwigFunction('date', $this->convertDate(...)),
+            new TwigFunction('include', self::include(...), ['needs_environment' => true, 'needs_context' => true, 'is_safe' => ['all']]),
+            new TwigFunction('source', self::source(...), ['needs_environment' => true, 'is_safe' => ['all']]),
+            new TwigFunction('enum_cases', self::enumCases(...), ['node_class' => EnumCasesFunction::class]),
+            new TwigFunction('enum', self::enum(...), ['node_class' => EnumFunction::class]),
         ];
     }
 
@@ -318,10 +318,10 @@ final class CoreExtension extends AbstractExtension
             new TwigTest('null', null, ['node_class' => NullTest::class]),
             new TwigTest('divisible by', null, ['node_class' => DivisiblebyTest::class, 'one_mandatory_argument' => true]),
             new TwigTest('constant', null, ['node_class' => ConstantTest::class]),
-            new TwigTest('empty', [self::class, 'testEmpty']),
+            new TwigTest('empty', self::testEmpty(...)),
             new TwigTest('iterable', 'is_iterable'),
-            new TwigTest('sequence', [self::class, 'testSequence']),
-            new TwigTest('mapping', [self::class, 'testMapping']),
+            new TwigTest('sequence', self::testSequence(...)),
+            new TwigTest('mapping', self::testMapping(...)),
             new TwigTest('true', null, ['node_class' => TrueTest::class]),
         ];
     }
@@ -653,7 +653,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function round($value, $precision = 0, $method = 'common')
+    public static function round($value, $precision = 0, $method = 'common'): float
     {
         $value = (float) $value;
 
@@ -754,7 +754,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function slice(string $charset, $item, $start, $length = null, $preserveKeys = false)
+    public static function slice(string $charset, $item, $start, $length = null, $preserveKeys = false): array|string
     {
         if ($item instanceof \Traversable) {
             while ($item instanceof \IteratorAggregate) {
@@ -764,7 +764,7 @@ final class CoreExtension extends AbstractExtension
             if ($start >= 0 && $length >= 0 && $item instanceof \Iterator) {
                 try {
                     return iterator_to_array(new \LimitIterator($item, $start, $length ?? -1), $preserveKeys);
-                } catch (\OutOfBoundsException $e) {
+                } catch (\OutOfBoundsException) {
                     return [];
                 }
             }
@@ -877,7 +877,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function split(string $charset, $value, $delimiter, $limit = null): array
     {
-        $value = $value ?? '';
+        $value ??= '';
 
         if ('' !== $delimiter) {
             return null === $limit ? explode($delimiter, $value) : explode($delimiter, $value, $limit);
@@ -975,7 +975,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function reverse(string $charset, $item, $preserveKeys = false)
+    public static function reverse(string $charset, $item, $preserveKeys = false): array|string
     {
         if ($item instanceof \Traversable) {
             return array_reverse(iterator_to_array($item), $preserveKeys);
@@ -996,7 +996,7 @@ final class CoreExtension extends AbstractExtension
         $string = implode('', array_reverse($matches[0]));
 
         if ('UTF-8' !== $charset) {
-            $string = self::convertEncoding($string, $charset, 'UTF-8');
+            return self::convertEncoding($string, $charset, 'UTF-8');
         }
 
         return $string;
@@ -1022,7 +1022,7 @@ final class CoreExtension extends AbstractExtension
             $item = implode('', $item);
 
             if ('UTF-8' !== $charset) {
-                $item = self::convertEncoding($item, $charset, 'UTF-8');
+                return self::convertEncoding($item, $charset, 'UTF-8');
             }
 
             return $item;
@@ -1118,7 +1118,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function compare($a, $b)
+    public static function compare($a, $b): int
     {
         // int <=> string
         if (\is_int($a) && \is_string($b)) {
@@ -1179,7 +1179,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function matches(string $regexp, ?string $str): int
     {
-        set_error_handler(static function ($t, $m) use ($regexp) {
+        set_error_handler(static function ($t, $m) use ($regexp): never {
             throw new RuntimeError(\sprintf('Regexp "%s" passed to "matches" is not valid', $regexp).substr($m, 12));
         });
         try {
@@ -1238,7 +1238,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function spaceless($content): string
     {
-        return trim(preg_replace('/>\s+</', '><', $content ?? ''));
+        return trim((string) preg_replace('/>\s+</', '><', $content ?? ''));
     }
 
     /**
@@ -1274,7 +1274,7 @@ final class CoreExtension extends AbstractExtension
             return mb_strlen($thing, $charset);
         }
 
-        if ($thing instanceof \Countable || \is_array($thing) || $thing instanceof \SimpleXMLElement) {
+        if (is_countable($thing) || $thing instanceof \SimpleXMLElement) {
             return \count($thing);
         }
 
@@ -1380,7 +1380,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function ensureTraversable($seq)
+    public static function ensureTraversable($seq): iterable|array
     {
         if (is_iterable($seq)) {
             return $seq;
@@ -1539,7 +1539,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function source(Environment $env, $name, $ignoreMissing = false): string
+    public static function source(Environment $env, string $name, $ignoreMissing = false): string
     {
         $loader = $env->getLoader();
         try {
@@ -1694,7 +1694,7 @@ final class CoreExtension extends AbstractExtension
             if ($sandboxed && $object instanceof \ArrayAccess && !\in_array($object::class, self::ARRAY_LIKE_CLASSES, true)) {
                 try {
                     $env->getExtension(SandboxExtension::class)->checkPropertyAllowed($object, $arrayItem, $lineno, $source);
-                } catch (SecurityNotAllowedPropertyError $propertyNotAllowedError) {
+                } catch (SecurityNotAllowedPropertyError) {
                     goto methodCheck;
                 }
             }
@@ -1781,7 +1781,7 @@ final class CoreExtension extends AbstractExtension
             if ($sandboxed) {
                 try {
                     $env->getExtension(SandboxExtension::class)->checkPropertyAllowed($object, $item, $lineno, $source);
-                } catch (SecurityNotAllowedPropertyError $propertyNotAllowedError) {
+                } catch (SecurityNotAllowedPropertyError) {
                     goto methodCheck;
                 }
             }
@@ -1833,7 +1833,7 @@ final class CoreExtension extends AbstractExtension
                 $methods[] = '__invoke';
             }
             sort($methods);
-            $lcMethods = array_map('strtolower', $methods);
+            $lcMethods = array_map(strtolower(...), $methods);
             $classCache = [];
             foreach ($methods as $i => $method) {
                 $classCache[$method] = $method;
@@ -1964,7 +1964,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function filter(Environment $env, $array, $arrow)
+    public static function filter(Environment $env, $array, $arrow): array|\CallbackFilterIterator
     {
         if (!is_iterable($array)) {
             throw new RuntimeError(\sprintf('The "filter" filter expects a sequence/mapping or "Traversable", got "%s".', get_debug_type($array)));
@@ -2006,8 +2006,9 @@ final class CoreExtension extends AbstractExtension
      * @param \Closure $arrow
      *
      * @internal
+     * @return mixed[]
      */
-    public static function map(Environment $env, $array, $arrow)
+    public static function map(Environment $env, $array, $arrow): array
     {
         if (!is_iterable($array)) {
             throw new RuntimeError(\sprintf('The "map" filter expects a sequence or a mapping, got "%s".', get_debug_type($array)));
@@ -2049,7 +2050,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function arraySome(Environment $env, $array, $arrow)
+    public static function arraySome(Environment $env, $array, $arrow): bool
     {
         if (!is_iterable($array)) {
             throw new RuntimeError(\sprintf('The "has some" test expects a sequence or a mapping, got "%s".', get_debug_type($array)));
@@ -2071,7 +2072,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function arrayEvery(Environment $env, $array, $arrow)
+    public static function arrayEvery(Environment $env, $array, $arrow): bool
     {
         if (!is_iterable($array)) {
             throw new RuntimeError(\sprintf('The "has every" test expects a sequence or a mapping, got "%s".', get_debug_type($array)));
@@ -2091,7 +2092,7 @@ final class CoreExtension extends AbstractExtension
     /**
      * @internal
      */
-    public static function checkArrow(Environment $env, $arrow, $thing, $type)
+    public static function checkArrow(Environment $env, $arrow, string $thing, $type): void
     {
         if ($arrow instanceof \Closure) {
             return;
@@ -2130,7 +2131,7 @@ final class CoreExtension extends AbstractExtension
     /**
      * @internal
      */
-    public static function parseParentFunction(Parser $parser, Node $fakeNode, $args, int $line): AbstractExpression
+    public static function parseParentFunction(Parser $parser, Node $fakeNode, $args, int $line): \Twig\Node\Expression\ParentExpression
     {
         if (!$blockName = $parser->peekBlockStack()) {
             throw new SyntaxError('Calling the "parent" function outside of a block is forbidden.', $line, $parser->getStream()->getSourceContext());
@@ -2146,7 +2147,7 @@ final class CoreExtension extends AbstractExtension
     /**
      * @internal
      */
-    public static function parseBlockFunction(Parser $parser, Node $fakeNode, $args, int $line): AbstractExpression
+    public static function parseBlockFunction(Parser $parser, Node $fakeNode, $args, int $line): \Twig\Node\Expression\BlockReferenceExpression
     {
         $fakeFunction = new TwigFunction('block', static fn ($name, $template = null) => null);
         $args = (new CallableArgumentsExtractor($fakeNode, $fakeFunction))->extractArguments($args);
@@ -2157,7 +2158,7 @@ final class CoreExtension extends AbstractExtension
     /**
      * @internal
      */
-    public static function parseAttributeFunction(Parser $parser, Node $fakeNode, $args, int $line): AbstractExpression
+    public static function parseAttributeFunction(Parser $parser, Node $fakeNode, $args, int $line): \Twig\Node\Expression\GetAttrExpression
     {
         $fakeFunction = new TwigFunction('attribute', static fn ($variable, $attribute, $arguments = null) => null);
         $args = (new CallableArgumentsExtractor($fakeNode, $fakeFunction))->extractArguments($args);
@@ -2183,7 +2184,7 @@ final class CoreExtension extends AbstractExtension
         if (!$class->hasProperty($property)) {
             static $propertyExists;
 
-            return $propertyExists ??= \Closure::fromCallable('property_exists');
+            return $propertyExists ??= \property_exists(...);
         }
 
         $property = $class->getProperty($property);
@@ -2191,7 +2192,7 @@ final class CoreExtension extends AbstractExtension
         if (!$property->isPublic() || $property->isStatic()) {
             static $false;
 
-            return $false ??= static fn () => false;
+            return $false ??= static fn (): bool => false;
         }
 
         return static fn ($object) => $property->isInitialized($object);

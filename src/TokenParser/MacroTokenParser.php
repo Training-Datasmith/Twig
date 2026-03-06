@@ -34,7 +34,7 @@ use Twig\Token;
  */
 final class MacroTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token): Node
+    public function parse(Token $token): \Twig\Node\EmptyNode
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -43,7 +43,7 @@ final class MacroTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
         $this->parser->pushLocalScope();
-        $body = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
         if ($token = $stream->nextIf(Token::NAME_TYPE)) {
             $value = $token->getValue();
 

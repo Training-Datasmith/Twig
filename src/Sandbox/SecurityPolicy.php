@@ -21,19 +21,11 @@ use Twig\Template;
  */
 final class SecurityPolicy implements SecurityPolicyInterface
 {
-    private $allowedTags;
-    private $allowedFilters;
-    private $allowedMethods;
-    private $allowedProperties;
-    private $allowedFunctions;
+    private array $allowedMethods;
 
-    public function __construct(array $allowedTags = [], array $allowedFilters = [], array $allowedMethods = [], array $allowedProperties = [], array $allowedFunctions = [])
+    public function __construct(private array $allowedTags = [], private array $allowedFilters = [], array $allowedMethods = [], private array $allowedProperties = [], private array $allowedFunctions = [])
     {
-        $this->allowedTags = $allowedTags;
-        $this->allowedFilters = $allowedFilters;
         $this->setAllowedMethods($allowedMethods);
-        $this->allowedProperties = $allowedProperties;
-        $this->allowedFunctions = $allowedFunctions;
     }
 
     public function setAllowedTags(array $tags): void
@@ -50,7 +42,7 @@ final class SecurityPolicy implements SecurityPolicyInterface
     {
         $this->allowedMethods = [];
         foreach ($methods as $class => $m) {
-            $this->allowedMethods[$class] = array_map('strtolower', \is_array($m) ? $m : [$m]);
+            $this->allowedMethods[$class] = array_map(strtolower(...), \is_array($m) ? $m : [$m]);
         }
     }
 
