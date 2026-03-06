@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -11,7 +13,6 @@
 
 namespace Twig\TokenParser;
 
-use Twig\Node\Node;
 use Twig\Node\WithNode;
 use Twig\Token;
 

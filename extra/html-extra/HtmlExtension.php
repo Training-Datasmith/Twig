@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -110,7 +112,9 @@ final class HtmlExtension extends AbstractExtension
             }
         }
 
-        return implode(' ', array_unique(array_filter($classes, static function ($v) { return '' !== $v; })));
+        return implode(' ', array_unique(array_filter($classes, static function ($v) {
+            return '' !== $v;
+        })));
     }
 
     /**

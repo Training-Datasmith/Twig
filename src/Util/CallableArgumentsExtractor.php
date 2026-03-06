@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -99,7 +101,12 @@ final class CallableArgumentsExtractor
                 if (\count($missingArguments)) {
                     throw new SyntaxError(\sprintf(
                         'Argument "%s" could not be assigned for %s "%s(%s)" because it is mapped to an internal PHP function which cannot determine default value for optional argument%s "%s".',
-                        $callableParameterName, $this->twigCallable->getType(), $this->twigCallable->getName(), implode(', ', array_map($this->toSnakeCase(...), $callableParameterNames)), \count($missingArguments) > 1 ? 's' : '', implode('", "', $missingArguments)
+                        $callableParameterName,
+                        $this->twigCallable->getType(),
+                        $this->twigCallable->getName(),
+                        implode(', ', array_map($this->toSnakeCase(...), $callableParameterNames)),
+                        \count($missingArguments) > 1 ? 's' : '',
+                        implode('", "', $missingArguments)
                     ), $this->node->getTemplateLine(), $this->node->getSourceContext());
                 }
 
@@ -159,7 +166,11 @@ final class CallableArgumentsExtractor
             throw new SyntaxError(
                 \sprintf(
                     'Unknown argument%s "%s" for %s "%s(%s)".',
-                    \count($extractedArguments) > 1 ? 's' : '', implode('", "', array_keys($extractedArguments)), $this->twigCallable->getType(), $this->twigCallable->getName(), implode(', ', array_map($this->toSnakeCase(...), $callableParameterNames))
+                    \count($extractedArguments) > 1 ? 's' : '',
+                    implode('", "', array_keys($extractedArguments)),
+                    $this->twigCallable->getType(),
+                    $this->twigCallable->getName(),
+                    implode(', ', array_map($this->toSnakeCase(...), $callableParameterNames))
                 ),
                 $unknownArgument ? $unknownArgument->getTemplateLine() : $this->node->getTemplateLine(),
                 $unknownArgument ? $unknownArgument->getSourceContext() : $this->node->getSourceContext()

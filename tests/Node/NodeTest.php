@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -35,13 +37,17 @@ class NodeTest extends TestCase
     public function testToString()
     {
         // callable is not a supported type for a Node attribute, but Drupal uses some apparently
-        $node = new NodeForTest([], ['value' => static function () { return '1'; }], 1);
+        $node = new NodeForTest([], ['value' => static function () {
+            return '1';
+        }], 1);
 
-        $this->assertEquals(<<<EOF
+        $this->assertEquals(
+            <<<EOF
 Twig\Tests\Node\NodeForTest
   attributes:
     value: \Closure
-EOF, (string) $node
+EOF,
+            (string) $node
         );
     }
 

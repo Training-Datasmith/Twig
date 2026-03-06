@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -54,7 +56,8 @@ foreach ($expressionParsers as $expressionParser) {
     if ($expressionParser->getAliases()) {
         $operatorName .= ', ``'.implode('``, ``', $expressionParser->getAliases()).'``';
     }
-    fwrite($output, rtrim(sprintf("\n| %-10s | %-16s | %-7s | %-13s | %-{$descriptionLength}s |\n",
+    fwrite($output, rtrim(sprintf(
+        "\n| %-10s | %-16s | %-7s | %-13s | %-{$descriptionLength}s |\n",
         (!$previous || $previousPrecedence !== $precedence ? $precedence : '').($expressionParser->getPrecedenceChange() ? ' => '.$expressionParser->getPrecedenceChange()->getNewPrecedence() : ''),
         $operatorName,
         !$previous || ExpressionParserType::getType($previous) !== ExpressionParserType::getType($expressionParser) ? ExpressionParserType::getType($expressionParser)->value : '',
@@ -95,7 +98,8 @@ foreach ($expressionParsers as $expressionParser) {
     if ($expressionParser->getAliases()) {
         $operatorName .= ', ``'.implode('``, ``', $expressionParser->getAliases()).'``';
     }
-    fwrite($output, rtrim(sprintf("\n| %-10s | %-16s | %-7s | %-13s | %-{$descriptionLength}s |\n",
+    fwrite($output, rtrim(sprintf(
+        "\n| %-10s | %-16s | %-7s | %-13s | %-{$descriptionLength}s |\n",
         !$previous || $previousPrecedence !== $precedence ? $precedence : '',
         $operatorName,
         !$previous || ExpressionParserType::getType($previous) !== ExpressionParserType::getType($expressionParser) ? ExpressionParserType::getType($expressionParser)->value : '',

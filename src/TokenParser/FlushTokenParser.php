@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -12,7 +14,6 @@
 namespace Twig\TokenParser;
 
 use Twig\Node\FlushNode;
-use Twig\Node\Node;
 use Twig\Token;
 
 /**

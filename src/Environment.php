@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -130,7 +132,7 @@ class Environment
         $this->setCache($options['cache']);
         $this->extensionSet = new ExtensionSet();
         $this->defaultRuntimeLoader = new FactoryRuntimeLoader([
-            EscaperRuntime::class => fn() => new EscaperRuntime($this->charset),
+            EscaperRuntime::class => fn () => new EscaperRuntime($this->charset),
         ]);
 
         $this->addExtension(new CoreExtension());

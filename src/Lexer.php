@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -280,7 +282,7 @@ class Lexer
                 if (preg_match($this->regexes['lex_block_raw'], (string) $this->code, $match, 0, $this->cursor)) {
                     $this->moveCursor($match[0]);
                     $this->lexRawData();
-                // {% line \d+ %}
+                    // {% line \d+ %}
                 } elseif (preg_match($this->regexes['lex_block_line'], (string) $this->code, $match, 0, $this->cursor)) {
                     $this->moveCursor($match[0]);
                     $this->lineno = (int) $match[1];

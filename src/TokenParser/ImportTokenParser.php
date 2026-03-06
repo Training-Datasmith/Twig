@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -14,7 +16,6 @@ namespace Twig\TokenParser;
 use Twig\Node\Expression\Variable\AssignTemplateVariable;
 use Twig\Node\Expression\Variable\TemplateVariable;
 use Twig\Node\ImportNode;
-use Twig\Node\Node;
 use Twig\Token;
 
 /**

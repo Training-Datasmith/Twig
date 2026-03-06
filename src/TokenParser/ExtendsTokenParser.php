@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -14,7 +16,6 @@ namespace Twig\TokenParser;
 
 use Twig\Error\SyntaxError;
 use Twig\Node\EmptyNode;
-use Twig\Node\Node;
 use Twig\Token;
 
 /**

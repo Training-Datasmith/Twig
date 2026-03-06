@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -308,7 +310,8 @@ class EscaperRuntimeTest extends TestCase
                     $this->assertNotEquals(
                         $literal,
                         (new EscaperRuntime())->escape($literal, 'js'),
-                        "$literal should be escaped!");
+                        "$literal should be escaped!"
+                    );
                 }
             }
         }
@@ -331,7 +334,8 @@ class EscaperRuntimeTest extends TestCase
                     $this->assertNotEquals(
                         $literal,
                         (new EscaperRuntime())->escape($literal, 'html_attr'),
-                        "$literal should be escaped!");
+                        "$literal should be escaped!"
+                    );
                 }
             }
         }
@@ -371,7 +375,8 @@ class EscaperRuntimeTest extends TestCase
                 $this->assertNotEquals(
                     $literal,
                     (new EscaperRuntime())->escape($literal, 'css'),
-                    "$literal should be escaped!");
+                    "$literal should be escaped!"
+                );
             }
         }
     }

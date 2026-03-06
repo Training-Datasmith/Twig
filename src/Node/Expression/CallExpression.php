@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -194,7 +196,12 @@ abstract class CallExpression extends AbstractExpression
                 if (\count($missingArguments)) {
                     throw new SyntaxError(\sprintf(
                         'Argument "%s" could not be assigned for %s "%s(%s)" because it is mapped to an internal PHP function which cannot determine default value for optional argument%s "%s".',
-                        $name, $callType, $callName, implode(', ', $names), \count($missingArguments) > 1 ? 's' : '', implode('", "', $missingArguments)
+                        $name,
+                        $callType,
+                        $callName,
+                        implode(', ', $names),
+                        \count($missingArguments) > 1 ? 's' : '',
+                        implode('", "', $missingArguments)
                     ), $this->getTemplateLine(), $this->getSourceContext());
                 }
 
@@ -249,7 +256,11 @@ abstract class CallExpression extends AbstractExpression
             throw new SyntaxError(
                 \sprintf(
                     'Unknown argument%s "%s" for %s "%s(%s)".',
-                    \count($parameters) > 1 ? 's' : '', implode('", "', array_keys($parameters)), $callType, $callName, implode(', ', $names)
+                    \count($parameters) > 1 ? 's' : '',
+                    implode('", "', array_keys($parameters)),
+                    $callType,
+                    $callName,
+                    implode(', ', $names)
                 ),
                 $unknownParameter ? $unknownParameter->getTemplateLine() : $this->getTemplateLine(),
                 $unknownParameter ? $unknownParameter->getSourceContext() : $this->getSourceContext()

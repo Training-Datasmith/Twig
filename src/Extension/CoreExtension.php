@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -32,7 +34,6 @@ use Twig\ExpressionParser\Prefix\GroupingExpressionParser;
 use Twig\ExpressionParser\Prefix\LiteralExpressionParser;
 use Twig\ExpressionParser\Prefix\UnaryOperatorExpressionParser;
 use Twig\Markup;
-use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\Binary\AddBinary;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\BitwiseAndBinary;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -341,7 +343,8 @@ class ExpressionParser
     // to be removed in 4.0
     private function checkConstantExpression(Node $node): bool
     {
-        if (!($node instanceof ConstantExpression || $node instanceof ArrayExpression
+        if (!(
+            $node instanceof ConstantExpression || $node instanceof ArrayExpression
             || $node instanceof NegUnary || $node instanceof PosUnary
         )) {
             return false;

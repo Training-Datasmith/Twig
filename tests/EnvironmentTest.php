@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -192,7 +194,7 @@ class EnvironmentTest extends TestCase
 
         // force compilation
         $twig = new Environment($loader = new ArrayLoader(['index' => '{{ foo }}']), $options);
-        $twig->addExtension($extension = new class extends AbstractExtension {
+        $twig->addExtension($extension = new class () extends AbstractExtension {
             public bool $throw = false;
 
             public function getFilters(): array
@@ -398,7 +400,9 @@ class EnvironmentTest extends TestCase
         $twig = new Environment(new ArrayLoader());
         $twig->registerUndefinedFunctionCallback(static function (string $name) {
             if ('dynamic' === $name) {
-                return new TwigFunction('dynamic', static function () { return 'dynamic'; });
+                return new TwigFunction('dynamic', static function () {
+                    return 'dynamic';
+                });
             }
 
             return false;
@@ -414,7 +418,9 @@ class EnvironmentTest extends TestCase
         $twig = new Environment(new ArrayLoader());
         $twig->registerUndefinedFilterCallback(static function (string $name) {
             if ('dynamic' === $name) {
-                return new TwigFilter('dynamic', static function () { return 'dynamic'; });
+                return new TwigFilter('dynamic', static function () {
+                    return 'dynamic';
+                });
             }
 
             return false;
@@ -430,7 +436,9 @@ class EnvironmentTest extends TestCase
         $twig = new Environment(new ArrayLoader());
         $twig->registerUndefinedTestCallback(static function (string $name) {
             if ('dynamic' === $name) {
-                return new TwigTest('dynamic', static function () { return 'dynamic'; });
+                return new TwigTest('dynamic', static function () {
+                    return 'dynamic';
+                });
             }
 
             return false;
@@ -476,7 +484,8 @@ class EnvironmentTest extends TestCase
             $this->expectException(SyntaxError::class);
             $this->expectExceptionMessage('An exception has been thrown during the compilation of a template ("You cannot enable the "use_yield" option of Twig as node "Twig\Tests\EnvironmentTest_LegacyEchoingNode" is not marked as ready for it; please make it ready and then flag it with the #[\Twig\Attribute\YieldReady] attribute.") in "echo_bar".');
         } else {
-            $this->expectDeprecation(<<<'EOF'
+            $this->expectDeprecation(
+                <<<'EOF'
 Since twig/twig 3.9: Twig node "Twig\Tests\EnvironmentTest_LegacyEchoingNode" is not marked as ready for using "yield" instead of "echo"; please make it ready and then flag it with the #[\Twig\Attribute\YieldReady] attribute.
   Since twig/twig 3.9: Using "echo" is deprecated, use "yield" instead in "Twig\Tests\EnvironmentTest_LegacyEchoingNode", then flag the class with #[\Twig\Attribute\YieldReady].
 EOF
@@ -504,7 +513,7 @@ EOF
     public function testResettingGlobals()
     {
         $twig = new Environment(new ArrayLoader(['index' => '']));
-        $twig->addExtension(new class extends AbstractExtension implements GlobalsInterface {
+        $twig->addExtension(new class () extends AbstractExtension implements GlobalsInterface {
             public function getGlobals(): array
             {
                 return [

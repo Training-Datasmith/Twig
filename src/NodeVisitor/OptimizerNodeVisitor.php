@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -160,7 +162,8 @@ final class OptimizerNodeVisitor implements NodeVisitorInterface
         // include function without the with_context=false parameter
         elseif ($node instanceof FunctionExpression
             && 'include' === $node->getAttribute('name')
-            && (!$node->getNode('arguments')->hasNode('with_context')
+            && (
+                !$node->getNode('arguments')->hasNode('with_context')
                  || false !== $node->getNode('arguments')->getNode('with_context')->getAttribute('value')
             )
         ) {
@@ -169,11 +172,14 @@ final class OptimizerNodeVisitor implements NodeVisitorInterface
 
         // the loop variable is referenced via an attribute
         elseif ($node instanceof GetAttrExpression
-            && (!$node->getNode('attribute') instanceof ConstantExpression
+            && (
+                !$node->getNode('attribute') instanceof ConstantExpression
                 || 'parent' === $node->getNode('attribute')->getAttribute('value')
             )
-            && (true === $this->loops[0]->getAttribute('with_loop')
-             || ($node->getNode('node') instanceof ContextVariable
+            && (
+                true === $this->loops[0]->getAttribute('with_loop')
+             || (
+                 $node->getNode('node') instanceof ContextVariable
                  && 'loop' === $node->getNode('node')->getAttribute('name')
              )
             )

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -158,7 +160,7 @@ abstract class Template
             if ($this->env->isDebug()) {
                 ob_start();
             } else {
-                ob_start(static fn() => '');
+                ob_start(static fn () => '');
             }
             $this->displayParentBlock($name, $context, $blocks);
 
@@ -193,7 +195,7 @@ abstract class Template
             if ($this->env->isDebug()) {
                 ob_start();
             } else {
-                ob_start(static fn() => '');
+                ob_start(static fn () => '');
             }
             try {
                 $this->displayBlock($name, $context, $blocks, $useBlocks);
@@ -367,7 +369,7 @@ abstract class Template
             if ($this->env->isDebug()) {
                 ob_start();
             } else {
-                ob_start(static fn() => '');
+                ob_start(static fn () => '');
             }
             try {
                 $this->display($context);

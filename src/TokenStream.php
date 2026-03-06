@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -74,11 +76,15 @@ final class TokenStream implements \Stringable
         $token = $this->tokens[$this->current];
         if (!$token->test($type, $value)) {
             $line = $token->getLine();
-            throw new SyntaxError(\sprintf('%sUnexpected token "%s"%s ("%s" expected%s).',
-                $message ? $message.'. ' : '',
-                $token->toEnglish(),
-                $token->getValue() ? \sprintf(' of value "%s"', $token->getValue()) : '',
-                Token::typeToEnglish($type), $value ? \sprintf(' with value "%s"', $value) : ''),
+            throw new SyntaxError(
+                \sprintf(
+                    '%sUnexpected token "%s"%s ("%s" expected%s).',
+                    $message ? $message.'. ' : '',
+                    $token->toEnglish(),
+                    $token->getValue() ? \sprintf(' of value "%s"', $token->getValue()) : '',
+                    Token::typeToEnglish($type),
+                    $value ? \sprintf(' with value "%s"', $value) : ''
+                ),
                 $line,
                 $this->source
             );

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -16,7 +18,6 @@ use Twig\Error\SyntaxError;
 use Twig\Node\BlockNode;
 use Twig\Node\BlockReferenceNode;
 use Twig\Node\EmptyNode;
-use Twig\Node\Node;
 use Twig\Node\Nodes;
 use Twig\Node\PrintNode;
 use Twig\Token;

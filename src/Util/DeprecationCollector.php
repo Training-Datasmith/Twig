@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -37,8 +39,10 @@ final class DeprecationCollector
     {
         $iterator = new \RegexIterator(
             new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($dir), \RecursiveIteratorIterator::LEAVES_ONLY
-            ), '{'.preg_quote($ext).'$}'
+                new \RecursiveDirectoryIterator($dir),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            ),
+            '{'.preg_quote($ext).'$}'
         );
 
         return $this->collect(new TemplateDirIterator($iterator));

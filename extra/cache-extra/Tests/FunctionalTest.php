@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -29,7 +31,9 @@ class FunctionalTest extends TestCase
         $twig = $this->createEnvironment(['index' => '{% cache "city;v1" %}{{- city -}}{% endcache %}'], $cache);
 
         $this->assertSame('Paris', $twig->render('index', ['city' => 'Paris']));
-        $value = $cache->get('city;v1', static function () { throw new \RuntimeException('Key should be in the cache'); });
+        $value = $cache->get('city;v1', static function () {
+            throw new \RuntimeException('Key should be in the cache');
+        });
         $this->assertSame('Paris', $value);
     }
 
@@ -70,7 +74,7 @@ class FunctionalTest extends TestCase
         $twig = new Environment(new ArrayLoader($templates));
         $cache = $cache ?? new ArrayAdapter();
         $twig->addExtension(new CacheExtension());
-        $twig->addRuntimeLoader(new class($cache) implements RuntimeLoaderInterface {
+        $twig->addRuntimeLoader(new class ($cache) implements RuntimeLoaderInterface {
             private $cache;
 
             public function __construct(CacheInterface $cache)

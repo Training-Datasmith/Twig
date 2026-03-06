@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -15,7 +17,6 @@ namespace Twig\TokenParser;
 use Twig\Node\Expression\Variable\AssignContextVariable;
 use Twig\Node\ForElseNode;
 use Twig\Node\ForNode;
-use Twig\Node\Node;
 use Twig\Token;
 
 /**

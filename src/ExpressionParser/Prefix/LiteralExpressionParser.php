@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -43,7 +45,6 @@ final class LiteralExpressionParser extends AbstractExpressionParser implements 
                     default => new ContextVariable($token->getValue(), $token->getLine()),
                 };
 
-                // no break
             case $token->test(Token::NUMBER_TYPE):
                 $stream->next();
 

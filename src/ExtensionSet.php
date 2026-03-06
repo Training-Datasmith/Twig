@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -542,7 +544,7 @@ final class ExtensionSet
     {
         trigger_deprecation('twig/twig', '3.21', \sprintf('Using a non-ExpressionParserInterface object to define the "%s" binary operator is deprecated.', $operator));
 
-        return new class($nodeClass, $operator, $precedence, $associativity, $precedenceChange, $aliases, $callable) extends BinaryOperatorExpressionParser {
+        return new class ($nodeClass, $operator, $precedence, $associativity, $precedenceChange, $aliases, $callable) extends BinaryOperatorExpressionParser {
             public function __construct(
                 string $nodeClass,
                 string $operator,

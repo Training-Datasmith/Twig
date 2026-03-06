@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -240,7 +242,9 @@ class TwigTestExtension extends AbstractExtension
             new TwigFilter('*_path', [$this, 'dynamic_path']),
             new TwigFilter('*_foo_*_bar', [$this, 'dynamic_foo']),
             new TwigFilter('not', [$this, 'notFilter']),
-            new TwigFilter('anon_foo', static function ($name) { return '*'.$name.'*'; }),
+            new TwigFilter('anon_foo', static function ($name) {
+                return '*'.$name.'*';
+            }),
         ];
     }
 
@@ -254,8 +258,12 @@ class TwigTestExtension extends AbstractExtension
             new TwigFunction('static_call_array', ['Twig\Tests\TwigTestExtension', 'staticCall']),
             new TwigFunction('*_path', [$this, 'dynamic_path']),
             new TwigFunction('*_foo_*_bar', [$this, 'dynamic_foo']),
-            new TwigFunction('anon_foo', static function ($name) { return '*'.$name.'*'; }),
-            new TwigFunction('deprecated_function', static function () { return 'foo'; }, ['deprecation_info' => new DeprecatedCallableInfo('foo/bar', '1.1', 'not_deprecated_function')]),
+            new TwigFunction('anon_foo', static function ($name) {
+                return '*'.$name.'*';
+            }),
+            new TwigFunction('deprecated_function', static function () {
+                return 'foo';
+            }, ['deprecation_info' => new DeprecatedCallableInfo('foo/bar', '1.1', 'not_deprecated_function')]),
         ];
     }
 

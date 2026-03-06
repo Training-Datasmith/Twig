@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -106,7 +108,8 @@ final class MacroTokenParser extends AbstractTokenParser
     // checks that the node only contains "constant" elements
     private function checkConstantExpression(Node $node): bool
     {
-        if (!($node instanceof ConstantExpression || $node instanceof ArrayExpression
+        if (!(
+            $node instanceof ConstantExpression || $node instanceof ArrayExpression
             || $node instanceof NegUnary || $node instanceof PosUnary
         )) {
             return false;

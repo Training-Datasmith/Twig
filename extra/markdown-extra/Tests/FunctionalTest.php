@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -40,7 +42,7 @@ Great!
 EOF,
             ]));
             $twig->addExtension(new MarkdownExtension());
-            $twig->addRuntimeLoader(new class($class) implements RuntimeLoaderInterface {
+            $twig->addRuntimeLoader(new class ($class) implements RuntimeLoaderInterface {
                 private $class;
 
                 public function __construct(string $class)

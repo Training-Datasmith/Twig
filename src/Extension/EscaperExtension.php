@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -142,7 +144,7 @@ final class EscaperExtension extends AbstractExtension
         }
 
         $this->escapers[$strategy] = $callable;
-        $callable = (fn($string, $charset) => $callable($this->environment, $string, $charset));
+        $callable = (fn ($string, $charset) => $callable($this->environment, $string, $charset));
 
         $this->escaper->setEscaper($strategy, $callable);
     }

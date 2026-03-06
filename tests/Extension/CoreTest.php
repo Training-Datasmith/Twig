@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -70,7 +72,7 @@ class CoreTest extends TestCase
     {
         return [
             'empty' => [[]],
-            'non-countable' => [new class extends \ArrayObject {
+            'non-countable' => [new class () extends \ArrayObject {
             }],
         ];
     }
@@ -418,7 +420,7 @@ class CoreTest extends TestCase
     {
         $this->expectDeprecation('Since twig/twig 3.12: Passing a non-countable sequence of values to "Twig\Extension\CoreExtension::cycle()" is deprecated.');
 
-        $seq = new class implements \ArrayAccess, \IteratorAggregate {
+        $seq = new class () implements \ArrayAccess, \IteratorAggregate {
             public function offsetExists($offset): bool
             {
                 return true;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Twig.
  *
@@ -278,7 +280,7 @@ EOHTML,
         $twig->removeCache('no_line_and_context_exception.twig');
         $twig->removeCache('no_line_and_context_exception_include_line_5.twig');
         $twig->removeCache('no_line_and_context_exception_include_line_1.twig');
-        $twig->addTokenParser(new class($addDebugInfo, $exceptionWithLineAndContext) extends AbstractTokenParser {
+        $twig->addTokenParser(new class ($addDebugInfo, $exceptionWithLineAndContext) extends AbstractTokenParser {
             public function __construct(private bool $addDebugInfo, private bool $exceptionWithLineAndContext)
             {
             }
@@ -289,7 +291,7 @@ EOHTML,
                 $lineno = $stream->getCurrent()->getLine();
                 $stream->expect(Token::BLOCK_END_TYPE);
 
-                return new #[YieldReady] class($lineno, $this->addDebugInfo, $this->exceptionWithLineAndContext) extends Node {
+                return new #[YieldReady] class ($lineno, $this->addDebugInfo, $this->exceptionWithLineAndContext) extends Node {
                     public function __construct(int $lineno, private bool $addDebugInfo, private bool $exceptionWithLineAndContext)
                     {
                         parent::__construct([], [], $lineno);
