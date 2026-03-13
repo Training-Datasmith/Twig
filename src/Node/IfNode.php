@@ -31,9 +31,9 @@ class IfNode extends Node
     public function __construct(Node $tests, ?Node $else, int $lineno)
     {
         for ($i = 0, $count = \count($tests); $i < $count; $i += 2) {
-            $test = $tests->getNode((string) $i);
+            $test = $tests->getNode($i);
             if (!$test instanceof ReturnPrimitiveTypeInterface) {
-                $tests->setNode((string) $i, new TrueTest($test, new TwigTest('true'), null, $test->getTemplateLine()));
+                $tests->setNode($i, new TrueTest($test, new TwigTest('true'), null, $test->getTemplateLine()));
             }
         }
         $nodes = ['tests' => $tests];
@@ -60,13 +60,13 @@ class IfNode extends Node
             }
 
             $compiler
-                ->subcompile($this->getNode('tests')->getNode((string) $i))
+                ->subcompile($this->getNode('tests')->getNode($i))
                 ->raw(") {\n")
                 ->indent()
             ;
             // The node might not exists if the content is empty
-            if ($this->getNode('tests')->hasNode((string) ($i + 1))) {
-                $compiler->subcompile($this->getNode('tests')->getNode((string) ($i + 1)));
+            if ($this->getNode('tests')->hasNode($i + 1)) {
+                $compiler->subcompile($this->getNode('tests')->getNode($i + 1));
             }
         }
 

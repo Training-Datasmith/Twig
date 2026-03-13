@@ -159,15 +159,17 @@ abstract class IntegrationTestCase extends TestCase
         $tests = [];
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($fixturesDir), \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-            if (!preg_match('/\.test$/', (string) $file)) {
+            $filePath = $file->getPathname();
+
+            if (!preg_match('/\.test$/', $filePath)) {
                 continue;
             }
 
-            if ($legacyTests xor str_contains($file->getRealpath(), '.legacy.test')) {
+            if ($legacyTests xor str_contains($filePath, '.legacy.test')) {
                 continue;
             }
 
-            $test = file_get_contents($file->getRealpath());
+            $test = file_get_contents($filePath);
 
             if (preg_match('/--TEST--\s*(.*?)\s*(?:--CONDITION--\s*(.*))?\s*(?:--DEPRECATION--\s*(.*?))?\s*((?:--TEMPLATE(?:\(.*?\))?--(?:.*?))+)\s*(?:--DATA--\s*(.*))?\s*--EXCEPTION--\s*(.*)/sx', $test, $match)) {
                 $message = $match[1];
@@ -184,10 +186,11 @@ abstract class IntegrationTestCase extends TestCase
                 $exception = false;
                 preg_match_all('/--DATA--(.*?)(?:--CONFIG--(.*?))?--EXPECT--(.*?)(?=\-\-DATA\-\-|$)/s', $test, $outputs, \PREG_SET_ORDER);
             } else {
-                throw new \InvalidArgumentException(\sprintf('Test "%s" is not valid.', str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', (string) $file)));
+                throw new \InvalidArgumentException(\sprintf('Test "%s" is not valid.', str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', $filePath)));
             }
 
-            $tests[str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', (string) $file)] = [str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', (string) $file), $message, $condition, $templates, $exception, $outputs, $deprecation];
+            $testName = str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', $filePath);
+            $tests[$testName] = [$testName, $message, $condition, $templates, $exception, $outputs, $deprecation];
         }
 
         if ($legacyTests && !$tests) {

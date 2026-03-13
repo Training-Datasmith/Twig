@@ -115,7 +115,7 @@ final class SandboxNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    private function wrapNode(Node $node, string $name): void
+    private function wrapNode(Node $node, string|int $name): void
     {
         $expr = $node->getNode($name);
         if (($expr instanceof ContextVariable || $expr instanceof GetAttrExpression) && !$expr->isGenerator()) {
@@ -124,16 +124,16 @@ final class SandboxNodeVisitor implements NodeVisitorInterface
             $this->wrapNode($expr, 'node');
         } elseif ($expr instanceof ArrayExpression) {
             foreach ($expr as $name => $_) {
-                $this->wrapNode($expr, (string) $name);
+                $this->wrapNode($expr, $name);
             }
         }
     }
 
-    private function wrapArrayNode(Node $node, string $name): void
+    private function wrapArrayNode(Node $node, string|int $name): void
     {
         $args = $node->getNode($name);
         foreach ($args as $name => $_) {
-            $this->wrapNode($args, (string) $name);
+            $this->wrapNode($args, $name);
         }
     }
 

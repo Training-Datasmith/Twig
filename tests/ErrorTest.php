@@ -43,7 +43,7 @@ class ErrorTest extends TestCase
     public function testErrorWithObjectFilename()
     {
         $error = new Error('foo');
-        $error->setSourceContext(new Source('', (string) new \SplFileInfo(__FILE__)));
+        $error->setSourceContext(new Source('', (new \SplFileInfo(__FILE__))->getPathname()));
 
         $this->assertStringContainsString('tests'.\DIRECTORY_SEPARATOR.'ErrorTest.php', $error->getMessage());
     }

@@ -64,10 +64,10 @@ final class NodeTraverser
         foreach ($node as $k => $n) {
             if (null !== $m = $this->traverseForVisitor($visitor, $n)) {
                 if ($m !== $n) {
-                    $node->setNode((string) $k, $m);
+                    $node->setNode($k, $m);
                 }
             } else {
-                $node->removeNode((string) $k);
+                $node->removeNode($k);
             }
         }
 

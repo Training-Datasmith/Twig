@@ -581,7 +581,7 @@ class Parser
         $nested = $nested || (Node::class !== $node::class && !$node instanceof Nodes);
         foreach ($node as $k => $n) {
             if (null === $this->filterBodyNodes($n, $nested)) {
-                $node->removeNode((string) $k);
+                $node->removeNode($k);
             }
         }
 
