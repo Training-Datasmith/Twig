@@ -124,7 +124,7 @@ final class SandboxNodeVisitor implements NodeVisitorInterface
             $this->wrapNode($expr, 'node');
         } elseif ($expr instanceof ArrayExpression) {
             foreach ($expr as $name => $_) {
-                $this->wrapNode($expr, $name);
+                $this->wrapNode($expr, (string) $name);
             }
         }
     }
@@ -133,7 +133,7 @@ final class SandboxNodeVisitor implements NodeVisitorInterface
     {
         $args = $node->getNode($name);
         foreach ($args as $name => $_) {
-            $this->wrapNode($args, $name);
+            $this->wrapNode($args, (string) $name);
         }
     }
 

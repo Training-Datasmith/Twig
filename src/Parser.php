@@ -84,7 +84,7 @@ class Parser
     public function parse(TokenStream $stream, $test = null, bool $dropNeedle = false): ModuleNode
     {
         $vars = get_object_vars($this);
-        unset($vars['stack'], $vars['env'], $vars['handlers'], $vars['visitors'], $vars['expressionParser'], $vars['reservedMacroNames'], $vars['varNameSalt']);
+        unset($vars['stack'], $vars['env'], $vars['handlers'], $vars['visitors'], $vars['expressionParser'], $vars['reservedMacroNames'], $vars['varNameSalt'], $vars['parsers']);
         $this->stack[] = $vars;
 
         // node visitors
@@ -318,7 +318,7 @@ class Parser
 
     public function embedTemplate(ModuleNode $template): void
     {
-        $template->setIndex(\count($this->embeddedTemplates));
+        $template->setIndex(mt_rand());
 
         $this->embeddedTemplates[] = $template;
     }
@@ -581,7 +581,7 @@ class Parser
         $nested = $nested || (Node::class !== $node::class && !$node instanceof Nodes);
         foreach ($node as $k => $n) {
             if (null === $this->filterBodyNodes($n, $nested)) {
-                $node->removeNode($k);
+                $node->removeNode((string) $k);
             }
         }
 

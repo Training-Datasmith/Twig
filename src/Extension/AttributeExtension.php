@@ -80,7 +80,7 @@ final class AttributeExtension extends AbstractExtension
     {
         return max(
             filemtime(__FILE__),
-            is_file($filename = (new \ReflectionClass($this->getClass()))->getFileName()) ? filemtime($filename) : 0,
+            ($filename = (new \ReflectionClass($this->getClass()))->getFileName()) && is_file($filename) ? filemtime($filename) : 0,
         );
     }
 

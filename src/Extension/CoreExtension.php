@@ -1168,7 +1168,7 @@ final class CoreExtension extends AbstractExtension
         }
         if (\is_string($a) && \is_float($b)) {
             if (is_nan($b)) {
-                return -1;
+                return 1;
             }
             $aTrim = trim($a, " \t\n\r\v\f");
             if (!is_numeric($aTrim)) {
@@ -1217,9 +1217,9 @@ final class CoreExtension extends AbstractExtension
         }
 
         $trimmed = match ($side) {
-            'both' => trim($string ?? '', $characterMask),
-            'left' => ltrim($string ?? '', $characterMask),
-            'right' => rtrim($string ?? '', $characterMask),
+            'both' => trim((string) ($string ?? ''), $characterMask),
+            'left' => ltrim((string) ($string ?? ''), $characterMask),
+            'right' => rtrim((string) ($string ?? ''), $characterMask),
             default => throw new RuntimeError('Trimming side must be "left", "right" or "both".'),
         };
 
@@ -1281,7 +1281,7 @@ final class CoreExtension extends AbstractExtension
         }
 
         if (\is_scalar($thing)) {
-            return mb_strlen($thing, $charset);
+            return mb_strlen((string) $thing, $charset);
         }
 
         if (is_countable($thing) || $thing instanceof \SimpleXMLElement) {
@@ -1308,7 +1308,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function upper(string $charset, $string): string
     {
-        return mb_strtoupper($string ?? '', $charset);
+        return mb_strtoupper((string) ($string ?? ''), $charset);
     }
 
     /**
@@ -1320,7 +1320,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function lower(string $charset, $string): string
     {
-        return mb_strtolower($string ?? '', $charset);
+        return mb_strtolower((string) ($string ?? ''), $charset);
     }
 
     /**
@@ -1333,7 +1333,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function striptags($string, $allowable_tags = null): string
     {
-        return strip_tags($string ?? '', $allowable_tags);
+        return strip_tags((string) ($string ?? ''), $allowable_tags);
     }
 
     /**
@@ -1345,7 +1345,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function titleCase(string $charset, $string): string
     {
-        return mb_convert_case($string ?? '', \MB_CASE_TITLE, $charset);
+        return mb_convert_case((string) ($string ?? ''), \MB_CASE_TITLE, $charset);
     }
 
     /**
@@ -1357,7 +1357,7 @@ final class CoreExtension extends AbstractExtension
      */
     public static function capitalize(string $charset, $string): string
     {
-        return mb_strtoupper(mb_substr($string ?? '', 0, 1, $charset), $charset).mb_strtolower(mb_substr($string ?? '', 1, null, $charset), $charset);
+        return mb_strtoupper(mb_substr((string) ($string ?? ''), 0, 1, $charset), $charset).mb_strtolower(mb_substr((string) ($string ?? ''), 1, null, $charset), $charset);
     }
 
     /**
@@ -1708,7 +1708,8 @@ final class CoreExtension extends AbstractExtension
             if ($sandboxed && $object instanceof \ArrayAccess && !\in_array($object::class, self::ARRAY_LIKE_CLASSES, true)) {
                 try {
                     $env->getExtension(SandboxExtension::class)->checkPropertyAllowed($object, $arrayItem, $lineno, $source);
-                } catch (SecurityNotAllowedPropertyError) {
+                } catch (SecurityNotAllowedPropertyError $e) {
+                    $propertyNotAllowedError = $e;
                     goto methodCheck;
                 }
             }
@@ -1795,7 +1796,8 @@ final class CoreExtension extends AbstractExtension
             if ($sandboxed) {
                 try {
                     $env->getExtension(SandboxExtension::class)->checkPropertyAllowed($object, $item, $lineno, $source);
-                } catch (SecurityNotAllowedPropertyError) {
+                } catch (SecurityNotAllowedPropertyError $e) {
+                    $propertyNotAllowedError = $e;
                     goto methodCheck;
                 }
             }

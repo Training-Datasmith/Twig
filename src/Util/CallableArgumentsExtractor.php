@@ -51,7 +51,7 @@ final class CallableArgumentsExtractor
                 throw new SyntaxError(\sprintf('Positional arguments cannot be used after named arguments for %s "%s".', $this->twigCallable->getType(), $this->twigCallable->getName()), $this->node->getTemplateLine(), $this->node->getSourceContext());
             }
 
-            $extractedArguments[$normalizedName = $this->normalizeName($name)] = $node;
+            $extractedArguments[$normalizedName = $this->normalizeName((string) $name)] = $node;
             $extractedArgumentNameMap[$normalizedName] = $name;
         }
 

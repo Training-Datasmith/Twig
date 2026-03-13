@@ -53,7 +53,7 @@ final class TypesTokenParser extends AbstractTokenParser
                 $stream->expect(Token::PUNCTUATION_TYPE, ',', 'A type string must be followed by a comma');
 
                 // trailing ,?
-                if ($stream->test(Token::BLOCK_END_TYPE)) {
+                if ($stream->test(Token::BLOCK_END_TYPE) || $stream->test(Token::PUNCTUATION_TYPE, '}')) {
                     break;
                 }
             }

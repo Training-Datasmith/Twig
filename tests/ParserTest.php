@@ -201,11 +201,11 @@ EOF, 'index')));
             ->getNode('arguments')
         ;
 
-        $this->assertTrue($argumentNodes->getNode(1)->hasAttribute('is_implicit'));
-        $this->assertNull($argumentNodes->getNode(1)->getAttribute('value'));
+        $this->assertTrue($argumentNodes->getNode('1')->hasAttribute('is_implicit'));
+        $this->assertNull($argumentNodes->getNode('1')->getAttribute('value'));
 
-        $this->assertFalse($argumentNodes->getNode(3)->hasAttribute('is_implicit'));
-        $this->assertTrue($argumentNodes->getNode(3)->getAttribute('value'));
+        $this->assertFalse($argumentNodes->getNode('3')->hasAttribute('is_implicit'));
+        $this->assertTrue($argumentNodes->getNode('3')->getAttribute('value'));
     }
 
     protected function getParser()

@@ -159,7 +159,7 @@ abstract class IntegrationTestCase extends TestCase
         $tests = [];
 
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($fixturesDir), \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-            if (!preg_match('/\.test$/', $file)) {
+            if (!preg_match('/\.test$/', (string) $file)) {
                 continue;
             }
 
@@ -184,10 +184,10 @@ abstract class IntegrationTestCase extends TestCase
                 $exception = false;
                 preg_match_all('/--DATA--(.*?)(?:--CONFIG--(.*?))?--EXPECT--(.*?)(?=\-\-DATA\-\-|$)/s', $test, $outputs, \PREG_SET_ORDER);
             } else {
-                throw new \InvalidArgumentException(\sprintf('Test "%s" is not valid.', str_replace($fixturesDir.'/', '', $file)));
+                throw new \InvalidArgumentException(\sprintf('Test "%s" is not valid.', str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', (string) $file)));
             }
 
-            $tests[str_replace($fixturesDir.'/', '', $file)] = [str_replace($fixturesDir.'/', '', $file), $message, $condition, $templates, $exception, $outputs, $deprecation];
+            $tests[str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', (string) $file)] = [str_replace($fixturesDir.\DIRECTORY_SEPARATOR, '', (string) $file), $message, $condition, $templates, $exception, $outputs, $deprecation];
         }
 
         if ($legacyTests && !$tests) {

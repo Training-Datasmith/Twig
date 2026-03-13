@@ -108,7 +108,7 @@ abstract class NodeTestCase extends TestCase
         return self::createVariableGetter($name, $line);
     }
 
-    final protected static function createVariableGetter(string $name, bool $line = false): string
+    final protected static function createVariableGetter(string $name, int|bool $line = false): string
     {
         $line = $line > 0 ? "// line $line\n" : '';
 

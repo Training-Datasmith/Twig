@@ -46,7 +46,7 @@ class SandboxTest extends TestCase
         $traverser = new NodeTraverser($env, [new SandboxNodeVisitor($env)]);
         $node = $traverser->traverse($node);
 
-        $this->assertNotInstanceOf(CheckToStringNode::class, $node->getNode('body')->getNode(0)->getNode('expr'));
+        $this->assertNotInstanceOf(CheckToStringNode::class, $node->getNode('body')->getNode('0')->getNode('expr'));
         $this->assertSame("// line 1\nyield from (\$context[\"foo\"] ?? null);\n", $env->compile($node->getNode('body')));
     }
 }

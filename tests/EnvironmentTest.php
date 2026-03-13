@@ -25,6 +25,7 @@ namespace Twig\Tests;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\PhpUnit\ExpectDeprecationTrait;
 use Twig\Cache\CacheInterface;
+use Twig\Compiler;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
@@ -702,7 +703,7 @@ class EnvironmentTest_Runtime
 
 class EnvironmentTest_LegacyEchoingNode extends Node
 {
-    public function compile($compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)

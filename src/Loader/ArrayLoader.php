@@ -49,7 +49,7 @@ final class ArrayLoader implements LoaderInterface
             throw new LoaderError(\sprintf('Template "%s" is not defined.', $name));
         }
 
-        return new Source($this->templates[$name], $name);
+        return new Source((string) $this->templates[$name], $name);
     }
 
     public function exists(string $name): bool

@@ -387,6 +387,13 @@ class Environment
             if (!$this->isAutoReload() || $this->isTemplateFresh($name, $this->cache->getTimestamp($key))) {
                 $this->cache->load($key);
             }
+
+            if (class_exists($cls, false)) {
+                $this->extensionSet->initRuntime();
+
+                return $this->loadedTemplates[$cls] = new $cls($this);
+            }
+
             $source = $this->getLoader()->getSourceContext($name);
             $content = $this->compileSource($source);
             if (!isset($this->hotCache[$name])) {
@@ -404,6 +411,10 @@ class Environment
                 if (!class_exists($mainCls, false)) {
                     throw new RuntimeError(\sprintf('Failed to load Twig template "%s", index "%s": cache might be corrupted.', $name, $index), -1, $source);
                 }
+            }
+
+            if (!class_exists($cls, false)) {
+                throw new RuntimeError(\sprintf('Failed to load Twig template "%s", index "%s": cache might be corrupted.', $name, $index), -1, $source);
             }
         }
 

@@ -43,7 +43,7 @@ class ErrorTest extends TestCase
     public function testErrorWithObjectFilename()
     {
         $error = new Error('foo');
-        $error->setSourceContext(new Source('', new \SplFileInfo(__FILE__)));
+        $error->setSourceContext(new Source('', (string) new \SplFileInfo(__FILE__)));
 
         $this->assertStringContainsString('tests'.\DIRECTORY_SEPARATOR.'ErrorTest.php', $error->getMessage());
     }
@@ -340,7 +340,7 @@ EOHTML,
 
             $line = $addDebugInfo || $exceptionWithLineAndContext ? $errorLine : 1;
             if ($loader instanceof FilesystemLoader) {
-                $this->assertStringContainsString(\sprintf('errors/no_line_and_context_exception_include_line_%d.twig', $errorLine), $e->getFile());
+                $this->assertStringContainsString(\sprintf('errors%sno_line_and_context_exception_include_line_%d.twig', \DIRECTORY_SEPARATOR, $errorLine), $e->getFile());
                 $line = $addDebugInfo || $exceptionWithLineAndContext ? $errorLine : (1 === $errorLine ? -1 : 1);
                 $this->assertSame($line, $e->getLine());
             } else {

@@ -76,6 +76,9 @@ final class EscaperNodeVisitor implements NodeVisitorInterface
         } elseif ($node instanceof FilterExpression) {
             return $this->preEscapeFilterNode($node, $env);
         } elseif ($node instanceof PrintNode && false !== $type = $this->needEscaping()) {
+            if (true === $type) {
+                $type = 'html';
+            }
             $expression = $node->getNode('expr');
             if ($expression instanceof OperatorEscapeInterface) {
                 $this->escapeConditional($expression, $env, $type);
