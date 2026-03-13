@@ -44,4 +44,11 @@ interface SecurityPolicyInterface
      * @throws SecurityNotAllowedPropertyError
      */
     public function checkPropertyAllowed($obj, $property): void;
+
+    /**
+     * @param string $constant The fully-qualified constant name
+     *
+     * @throws SecurityNotAllowedConstantError
+     */
+    public function checkConstantAllowed(string $constant): void;
 }

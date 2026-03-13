@@ -31,6 +31,7 @@ use Twig\Extension\SandboxExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedConstantError;
 use Twig\Sandbox\SecurityNotAllowedFilterError;
 use Twig\Sandbox\SecurityNotAllowedFunctionError;
 use Twig\Sandbox\SecurityNotAllowedMethodError;
@@ -388,6 +389,40 @@ class SandboxTest extends TestCase
         }
     }
 
+    public function testSandboxUnallowedConstant()
+    {
+        $twig = $this->getEnvironment(true, [], ['index' => '{{ constant("PHP_INT_MAX") }}'], [], [], [], [], ['constant']);
+        try {
+            $twig->load('index')->render(self::$params);
+            $this->fail('Sandbox throws a SecurityError exception if an unallowed constant is accessed');
+        } catch (SecurityNotAllowedConstantError $e) {
+            $this->assertEquals('PHP_INT_MAX', $e->getConstantName(), 'Exception should be raised on the "PHP_INT_MAX" constant');
+        }
+    }
+
+    public function testSandboxAllowedConstant()
+    {
+        $twig = $this->getEnvironment(true, [], ['index' => '{{ constant("PHP_INT_MAX") }}'], [], [], [], [], ['constant'], null, ['PHP_INT_MAX']);
+        $this->assertEquals((string) \PHP_INT_MAX, $twig->load('index')->render(self::$params));
+    }
+
+    public function testSandboxUnallowedClassConstant()
+    {
+        $twig = $this->getEnvironment(true, [], ['index' => '{{ constant("Twig\\\\Environment::VERSION") }}'], [], [], [], [], ['constant']);
+        try {
+            $twig->load('index')->render(self::$params);
+            $this->fail('Sandbox throws a SecurityError exception if an unallowed class constant is accessed');
+        } catch (SecurityNotAllowedConstantError $e) {
+            $this->assertEquals('Twig\\Environment::VERSION', $e->getConstantName());
+        }
+    }
+
+    public function testSandboxConstantNotCheckedWhenSandboxDisabled()
+    {
+        $twig = $this->getEnvironment(false, [], ['index' => '{{ constant("PHP_INT_MAX") }}']);
+        $this->assertEquals((string) \PHP_INT_MAX, $twig->load('index')->render(self::$params));
+    }
+
     public function testSandboxUnallowedRangeOperator()
     {
         $twig = $this->getEnvironment(true, [], self::$templates);
@@ -564,11 +599,11 @@ EOF
         $this->expectNotToPerformAssertions();
     }
 
-    protected function getEnvironment($sandboxed, $options, $templates, $tags = [], $filters = [], $methods = [], $properties = [], $functions = [], $sourcePolicy = null)
+    protected function getEnvironment($sandboxed, $options, $templates, $tags = [], $filters = [], $methods = [], $properties = [], $functions = [], $sourcePolicy = null, $constants = [])
     {
         $loader = new ArrayLoader($templates);
         $twig = new Environment($loader, array_merge(['debug' => true, 'cache' => false, 'autoescape' => false], $options));
-        $policy = new SecurityPolicy($tags, $filters, $methods, $properties, $functions);
+        $policy = new SecurityPolicy($tags, $filters, $methods, $properties, $functions, $constants);
         $twig->addExtension(new SandboxExtension($policy, $sandboxed, $sourcePolicy));
 
         return $twig;

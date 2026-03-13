@@ -25,7 +25,7 @@ final class SecurityPolicy implements SecurityPolicyInterface
 {
     private array $allowedMethods;
 
-    public function __construct(private array $allowedTags = [], private array $allowedFilters = [], array $allowedMethods = [], private array $allowedProperties = [], private array $allowedFunctions = [])
+    public function __construct(private array $allowedTags = [], private array $allowedFilters = [], array $allowedMethods = [], private array $allowedProperties = [], private array $allowedFunctions = [], private array $allowedConstants = [])
     {
         $this->setAllowedMethods($allowedMethods);
     }
@@ -56,6 +56,11 @@ final class SecurityPolicy implements SecurityPolicyInterface
     public function setAllowedFunctions(array $functions): void
     {
         $this->allowedFunctions = $functions;
+    }
+
+    public function setAllowedConstants(array $constants): void
+    {
+        $this->allowedConstants = $constants;
     }
 
     public function checkSecurity($tags, $filters, $functions): void
@@ -103,6 +108,13 @@ final class SecurityPolicy implements SecurityPolicyInterface
         if (!$allowed) {
             $class = $obj::class;
             throw new SecurityNotAllowedMethodError(\sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, $class), $class, $method);
+        }
+    }
+
+    public function checkConstantAllowed(string $constant): void
+    {
+        if (!\in_array($constant, $this->allowedConstants, true)) {
+            throw new SecurityNotAllowedConstantError(\sprintf('Constant "%s" is not allowed.', $constant), $constant);
         }
     }
 

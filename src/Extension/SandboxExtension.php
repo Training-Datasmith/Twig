@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Twig\Extension;
 
 use Twig\NodeVisitor\SandboxNodeVisitor;
+use Twig\Sandbox\SecurityNotAllowedConstantError;
 use Twig\Sandbox\SecurityNotAllowedMethodError;
 use Twig\Sandbox\SecurityNotAllowedPropertyError;
 use Twig\Sandbox\SecurityPolicyInterface;
@@ -107,6 +108,20 @@ final class SandboxExtension extends AbstractExtension
             try {
                 $this->policy->checkPropertyAllowed($obj, $property);
             } catch (SecurityNotAllowedPropertyError $e) {
+                $e->setSourceContext($source);
+                $e->setTemplateLine($lineno);
+
+                throw $e;
+            }
+        }
+    }
+
+    public function checkConstantAllowed(string $constant, int $lineno = -1, ?Source $source = null): void
+    {
+        if ($this->isSandboxed($source)) {
+            try {
+                $this->policy->checkConstantAllowed($constant);
+            } catch (SecurityNotAllowedConstantError $e) {
                 $e->setSourceContext($source);
                 $e->setTemplateLine($lineno);
 

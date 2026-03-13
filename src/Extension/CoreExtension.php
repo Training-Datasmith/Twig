@@ -297,7 +297,7 @@ final class CoreExtension extends AbstractExtension
             new TwigFunction('max', 'max'),
             new TwigFunction('min', 'min'),
             new TwigFunction('range', 'range'),
-            new TwigFunction('constant', self::constant(...)),
+            new TwigFunction('constant', self::constant(...), ['needs_environment' => true]),
             new TwigFunction('cycle', self::cycle(...)),
             new TwigFunction('random', self::random(...), ['needs_charset' => true]),
             new TwigFunction('date', $this->convertDate(...)),
@@ -1624,7 +1624,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function constant($constant, $object = null, bool $checkDefined = false)
+    public static function constant(Environment $env, $constant, $object = null, bool $checkDefined = false)
     {
         if (null !== $object) {
             if ('class' === $constant) {
@@ -1632,6 +1632,10 @@ final class CoreExtension extends AbstractExtension
             }
 
             $constant = $object::class.'::'.$constant;
+        }
+
+        if ($env->hasExtension(SandboxExtension::class)) {
+            $env->getExtension(SandboxExtension::class)->checkConstantAllowed($constant);
         }
 
         if (!\defined($constant)) {
