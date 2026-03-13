@@ -318,7 +318,7 @@ class Parser
 
     public function embedTemplate(ModuleNode $template): void
     {
-        $template->setIndex(mt_rand());
+        $template->setIndex(\count($this->embeddedTemplates));
 
         $this->embeddedTemplates[] = $template;
     }

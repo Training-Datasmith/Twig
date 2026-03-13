@@ -61,18 +61,16 @@ class FilesystemCache implements CacheInterface, RemovableCacheInterface
         if (false !== @file_put_contents($tmpFile, $content) && @rename($tmpFile, $key)) {
             @chmod($key, 0666 & ~umask());
 
-            if (self::FORCE_BYTECODE_INVALIDATION == ($this->options & self::FORCE_BYTECODE_INVALIDATION)) {
-                // Compile cached file into bytecode cache
+            if (self::FORCE_BYTECODE_INVALIDATION === ($this->options & self::FORCE_BYTECODE_INVALIDATION)) {
                 if (\function_exists('opcache_invalidate') && filter_var(\ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
                     @opcache_invalidate($key, true);
-                } elseif (\function_exists('apc_compile_file')) {
-                    apc_compile_file($key);
                 }
             }
 
             return;
         }
 
+        @unlink($tmpFile);
         throw new \RuntimeException(\sprintf('Failed to write cache file "%s".', $key));
     }
 

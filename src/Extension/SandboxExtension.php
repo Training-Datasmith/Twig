@@ -23,7 +23,7 @@ use Twig\TokenParser\SandboxTokenParser;
 
 final class SandboxExtension extends AbstractExtension
 {
-    private ?bool $sandboxed = null;
+    private int $sandboxCount = 0;
 
     public function __construct(private SecurityPolicyInterface $policy, private $sandboxedGlobally = false, private readonly ?SourcePolicyInterface $sourcePolicy = null)
     {
@@ -41,17 +41,19 @@ final class SandboxExtension extends AbstractExtension
 
     public function enableSandbox(): void
     {
-        $this->sandboxed = true;
+        ++$this->sandboxCount;
     }
 
     public function disableSandbox(): void
     {
-        $this->sandboxed = false;
+        if ($this->sandboxCount > 0) {
+            --$this->sandboxCount;
+        }
     }
 
     public function isSandboxed(?Source $source = null): bool
     {
-        return $this->sandboxedGlobally || $this->sandboxed || $this->isSourceSandboxed($source);
+        return $this->sandboxedGlobally || $this->sandboxCount > 0 || $this->isSourceSandboxed($source);
     }
 
     public function isSandboxedGlobally(): bool
@@ -119,7 +121,9 @@ final class SandboxExtension extends AbstractExtension
     public function ensureToStringAllowed($obj, int $lineno = -1, ?Source $source = null)
     {
         if (\is_array($obj)) {
-            $this->ensureToStringAllowedForArray($obj, $lineno, $source);
+            if ($this->isSandboxed($source)) {
+                $this->ensureToStringAllowedForArray($obj, $lineno, $source);
+            }
 
             return $obj;
         }
@@ -141,7 +145,7 @@ final class SandboxExtension extends AbstractExtension
     private function ensureToStringAllowedForArray(array $obj, int $lineno, ?Source $source, array &$stack = []): void
     {
         foreach ($obj as $k => $v) {
-            if (!$v) {
+            if (null === $v || \is_scalar($v)) {
                 continue;
             }
 

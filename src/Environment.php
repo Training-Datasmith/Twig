@@ -400,8 +400,11 @@ class Environment
                  * the cache.
                  */
                 eval('?>'.$content);
+
+                if (!class_exists($mainCls, false)) {
+                    throw new RuntimeError(\sprintf('Failed to load Twig template "%s", index "%s": cache might be corrupted.', $name, $index), -1, $source);
+                }
             }
-            throw new RuntimeError(\sprintf('Failed to load Twig template "%s", index "%s": cache might be corrupted.', $name, $index), -1, $source);
         }
 
         $this->extensionSet->initRuntime();

@@ -90,7 +90,6 @@ class Lexer
             return;
         }
 
-        // when PHP 7.3 is the min version, we will be able to remove the '#' part in preg_quote as it's part of the default
         $this->regexes = [
             // }}
             'lex_var' => '{
@@ -120,9 +119,9 @@ class Lexer
             'lex_raw_data' => '{'.
                 preg_quote((string) $this->options['tag_block'][0], '#'). // {%
                 '('.
-                    $this->options['whitespace_trim']. // -
+                    preg_quote($this->options['whitespace_trim'], '#'). // -
                     '|'.
-                    $this->options['whitespace_line_trim']. // ~
+                    preg_quote($this->options['whitespace_line_trim'], '#'). // ~
                 ')?\s*endverbatim\s*'.
                 '(?:'.
                     preg_quote($this->options['whitespace_trim'].$this->options['tag_block'][1], '#').'\s*'. // -%}
@@ -195,6 +194,7 @@ class Lexer
         $this->states = [];
         $this->brackets = [];
         $this->position = -1;
+        $this->currentVarBlockLine = 0;
 
         // find all token starts in one go
         preg_match_all($this->regexes['lex_tokens_start'], $this->code, $matches, \PREG_OFFSET_CAPTURE);

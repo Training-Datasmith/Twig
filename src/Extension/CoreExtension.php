@@ -544,7 +544,13 @@ final class CoreExtension extends AbstractExtension
      */
     public function modifyDate($date, $modifier)
     {
-        return $this->convertDate($date, false)->modify($modifier);
+        $date = $this->convertDate($date, false);
+        $modified = $date->modify($modifier);
+        if (false === $modified) {
+            throw new RuntimeError(\sprintf('Invalid modifier "%s" for the "date_modify" filter.', $modifier));
+        }
+
+        return $modified;
     }
 
     /**
@@ -666,7 +672,10 @@ final class CoreExtension extends AbstractExtension
             throw new RuntimeError('The "round" filter only supports the "common", "ceil", and "floor" methods.');
         }
 
-        return $method($value * 10 ** $precision) / 10 ** $precision;
+        return match ($method) {
+            'ceil' => ceil($value * 10 ** $precision) / 10 ** $precision,
+            'floor' => floor($value * 10 ** $precision) / 10 ** $precision,
+        };
     }
 
     /**
@@ -1078,7 +1087,7 @@ final class CoreExtension extends AbstractExtension
 
         if (\is_string($compare)) {
             if (\is_string($value) || \is_int($value) || \is_float($value)) {
-                return '' === $value || str_contains($compare, (string) $value);
+                return str_contains($compare, (string) $value);
             }
 
             return false;
@@ -1159,7 +1168,7 @@ final class CoreExtension extends AbstractExtension
         }
         if (\is_string($a) && \is_float($b)) {
             if (is_nan($b)) {
-                return 1;
+                return -1;
             }
             $aTrim = trim($a, " \t\n\r\v\f");
             if (!is_numeric($aTrim)) {
@@ -1381,7 +1390,7 @@ final class CoreExtension extends AbstractExtension
      *
      * @internal
      */
-    public static function ensureTraversable($seq): iterable|array
+    public static function ensureTraversable($seq): iterable
     {
         if (is_iterable($seq)) {
             return $seq;
@@ -1425,7 +1434,11 @@ final class CoreExtension extends AbstractExtension
         }
 
         if ($value instanceof \Traversable) {
-            return !iterator_count($value);
+            foreach ($value as $_) {
+                return false;
+            }
+
+            return true;
         }
 
         if ($value instanceof \Stringable) {
@@ -1790,6 +1803,10 @@ final class CoreExtension extends AbstractExtension
             static $propertyCheckers = [];
 
             if ($object instanceof \Closure && '__invoke' === $item) {
+                if ($sandboxed) {
+                    $env->getExtension(SandboxExtension::class)->checkMethodAllowed($object, '__invoke', $lineno, $source);
+                }
+
                 return $isDefinedTest ? true : $object();
             }
 
