@@ -37,7 +37,7 @@
 {% endfor %}
 
 {% set coll = ['a', 'b']|filter(v => v is same as('a')) %}
-{% if coll|length > 0 %}
+{% if coll is not empty %}
     {{- coll|join(', ') }}
 {% endif %}
 --DATA--
