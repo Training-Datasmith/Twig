@@ -56,6 +56,7 @@ class Parser
     private $importedSymbols;
     private $traits;
     private $embeddedTemplates = [];
+    private static int $embedIndex = 1;
     private $varNameSalt = 0;
     private $ignoreUnknownTwigCallables = false;
     private readonly ExpressionParsers $parsers;
@@ -318,7 +319,7 @@ class Parser
 
     public function embedTemplate(ModuleNode $template): void
     {
-        $template->setIndex(mt_rand());
+        $template->setIndex(self::$embedIndex++);
 
         $this->embeddedTemplates[] = $template;
     }
