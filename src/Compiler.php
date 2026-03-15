@@ -157,15 +157,22 @@ class Compiler
      */
     public function repr($value): static
     {
-        if (\is_int($value) || \is_float($value)) {
-            if (false !== $locale = setlocale(\LC_NUMERIC, '0')) {
-                setlocale(\LC_NUMERIC, 'C');
-            }
-
-            $this->raw(var_export($value, true));
-
-            if (false !== $locale) {
-                setlocale(\LC_NUMERIC, $locale);
+        if (\is_int($value)) {
+            $this->raw((string) $value);
+        } elseif (\is_float($value)) {
+            if (is_nan($value)) {
+                $this->raw('NAN');
+            } elseif (\INF === $value) {
+                $this->raw('INF');
+            } elseif (-\INF === $value) {
+                $this->raw('-INF');
+            } else {
+                $repr = json_encode($value);
+                // json_encode omits ".0" for whole floats (e.g. 1.0 → "1")
+                if (false !== $repr && !str_contains($repr, '.') && !str_contains($repr, 'e')) {
+                    $repr .= '.0';
+                }
+                $this->raw($repr);
             }
         } elseif (null === $value) {
             $this->raw('null');

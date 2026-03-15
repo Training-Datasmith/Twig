@@ -1168,7 +1168,7 @@ final class CoreExtension extends AbstractExtension
         }
         if (\is_string($a) && \is_float($b)) {
             if (is_nan($b)) {
-                return 1;
+                return -1;
             }
             $aTrim = trim($a, " \t\n\r\v\f");
             if (!is_numeric($aTrim)) {

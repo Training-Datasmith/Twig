@@ -311,9 +311,9 @@ class CoreTest extends TestCase
     public function testCompareNAN()
     {
         $this->assertSame(1, CoreExtension::compare(\NAN, 'NAN'));
-        $this->assertSame(1, CoreExtension::compare('NAN', \NAN));
+        $this->assertSame(-1, CoreExtension::compare('NAN', \NAN));
         $this->assertSame(1, CoreExtension::compare(\NAN, 'foo'));
-        $this->assertSame(1, CoreExtension::compare('foo', \NAN));
+        $this->assertSame(-1, CoreExtension::compare('foo', \NAN));
     }
 
     public static function provideCompareCases()

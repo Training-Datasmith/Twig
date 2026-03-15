@@ -226,8 +226,8 @@ class ChainTest extends TestCase
     public static function provideInput()
     {
         return [
-            ['Twig\Tests\Cache\ChainTest#_test_', '_test_'],
-            ['Twig\Tests\Cache\ChainTest#_test#with#hashtag_', '_test#with#hashtag_'],
+            ["Twig\Tests\Cache\ChainTest\0_test_", '_test_'],
+            ["Twig\Tests\Cache\ChainTest\0_test#with#hashtag_", '_test#with#hashtag_'],
         ];
     }
 

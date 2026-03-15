@@ -33,7 +33,7 @@ final class ChainCache implements CacheInterface, RemovableCacheInterface
 
     public function generateKey(string $name, string $className): string
     {
-        return $className.'#'.$name;
+        return $className."\0".$name;
     }
 
     public function write(string $key, string $content): void
@@ -85,6 +85,6 @@ final class ChainCache implements CacheInterface, RemovableCacheInterface
      */
     private function splitKey(string $key): array
     {
-        return array_reverse(explode('#', $key, 2));
+        return array_reverse(explode("\0", $key, 2));
     }
 }

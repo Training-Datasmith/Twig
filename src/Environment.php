@@ -301,7 +301,7 @@ class Environment
     {
         $key = ($this->hotCache[$name] ?? $this->getLoader()->getCacheKey($name)).$this->optionsHash;
 
-        return '__TwigTemplate_'.hash(\PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128', $key).(null === $index ? '' : '___'.$index);
+        return '__TwigTemplate_'.hash('xxh128', $key).(null === $index ? '' : '___'.$index);
     }
 
     /**
@@ -436,7 +436,7 @@ class Environment
      */
     public function createTemplate(string $template, ?string $name = null): TemplateWrapper
     {
-        $hash = hash(\PHP_VERSION_ID < 80100 ? 'sha256' : 'xxh128', $template, false);
+        $hash = hash('xxh128', $template, false);
         if (null !== $name) {
             $name = \sprintf('%s (string template %s)', $name, $hash);
         } else {
