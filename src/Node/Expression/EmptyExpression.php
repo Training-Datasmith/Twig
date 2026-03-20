@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,11 +9,9 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
-
 /**
  * Represents an empty slot in an array.
  *
@@ -22,13 +19,12 @@ use Twig\Compiler;
  *
  * @internal
  */
-final class EmptyExpression extends AbstractExpression
+final class Empty_Expression extends Abstract_Expression
 {
     public function __construct(int $lineno)
     {
         parent::__construct([], [], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
     }

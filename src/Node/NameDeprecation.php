@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node;
 
 /**
@@ -18,24 +16,21 @@ namespace Twig\Node;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class NameDeprecation
+class Name_Deprecation
 {
-    public function __construct(private readonly string $package = '', private readonly string $version = '', private readonly string $newName = '')
+    public function __construct(private readonly string $package = '', private readonly string $version = '', private readonly string $new_name = '')
     {
     }
-
-    public function getPackage(): string
+    public function get_package(): string
     {
         return $this->package;
     }
-
-    public function getVersion(): string
+    public function get_version(): string
     {
         return $this->version;
     }
-
-    public function getNewName(): string
+    public function get_new_name(): string
     {
-        return $this->newName;
+        return $this->new_name;
     }
 }

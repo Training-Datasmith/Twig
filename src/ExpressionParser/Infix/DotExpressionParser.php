@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,98 +9,76 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Infix;
 
-namespace Twig\ExpressionParser\Infix;
-
-use Twig\Error\SyntaxError;
-use Twig\ExpressionParser\AbstractExpressionParser;
-use Twig\ExpressionParser\ExpressionParserDescriptionInterface;
-use Twig\ExpressionParser\InfixAssociativity;
-use Twig\ExpressionParser\InfixExpressionParserInterface;
+use Twig\Error\Syntax_Error;
+use Twig\Expression_Parser\Abstract_Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Description_Interface;
+use Twig\Expression_Parser\Infix_Associativity;
+use Twig\Expression_Parser\Infix_Expression_Parser_Interface;
 use Twig\Lexer;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\GetAttrExpression;
-use Twig\Node\Expression\MacroReferenceExpression;
-use Twig\Node\Expression\NameExpression;
-use Twig\Node\Expression\Variable\TemplateVariable;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Array_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Get_Attr_Expression;
+use Twig\Node\Expression\Macro_Reference_Expression;
+use Twig\Node\Expression\Name_Expression;
+use Twig\Node\Expression\Variable\Template_Variable;
 use Twig\Parser;
 use Twig\Template;
 use Twig\Token;
-
 /**
  * @internal
  */
-final class DotExpressionParser extends AbstractExpressionParser implements InfixExpressionParserInterface, ExpressionParserDescriptionInterface
+final class Dot_Expression_Parser extends Abstract_Expression_Parser implements Infix_Expression_Parser_Interface, Expression_Parser_Description_Interface
 {
-    use ArgumentsTrait;
-
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
+    use Arguments_Trait;
+    public function parse(Parser $parser, Abstract_Expression $expr, Token $token): Abstract_Expression
     {
-        $nullSafe = '?.' === $token->getValue();
-        $stream = $parser->getStream();
-        $token = $stream->getCurrent();
-        $lineno = $token->getLine();
-        $arguments = new ArrayExpression([], $lineno);
+        $null_safe = '?.' === $token->get_value();
+        $stream = $parser->get_stream();
+        $token = $stream->get_current();
+        $lineno = $token->get_line();
+        $arguments = new Array_Expression([], $lineno);
         $type = Template::ANY_CALL;
-
-        if ($stream->nextIf(Token::OPERATOR_TYPE, '(')) {
-            $attribute = $parser->parseExpression();
+        if ($stream->next_if(Token::OPERATOR_TYPE, '(')) {
+            $attribute = $parser->parse_expression();
             $stream->expect(Token::PUNCTUATION_TYPE, ')');
         } else {
             $token = $stream->next();
-            if (
-                $token->test(Token::NAME_TYPE)
-                || $token->test(Token::NUMBER_TYPE)
-                || ($token->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->getValue()))
-            ) {
-                $attribute = new ConstantExpression($token->getValue(), $token->getLine());
+            if ($token->test(Token::NAME_TYPE) || $token->test(Token::NUMBER_TYPE) || $token->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->get_value())) {
+                $attribute = new Constant_Expression($token->get_value(), $token->get_line());
             } else {
-                throw new SyntaxError(\sprintf('Expected name or number, got value "%s" of type "%s".', $token->getValue(), $token->toEnglish()), $token->getLine(), $stream->getSourceContext());
+                throw new Syntax_Error(\sprintf('Expected name or number, got value "%s" of type "%s".', $token->get_value(), $token->to_english()), $token->get_line(), $stream->get_source_context());
             }
         }
-
         if ($stream->test(Token::OPERATOR_TYPE, '(')) {
             $type = Template::METHOD_CALL;
-            $arguments = $this->parseCallableArguments($parser, $token->getLine());
+            $arguments = $this->parse_callable_arguments($parser, $token->get_line());
         }
-
-        if (
-            $expr instanceof NameExpression
-            && (
-                null !== $parser->getImportedSymbol('template', $expr->getAttribute('name'))
-                || '_self' === $expr->getAttribute('name') && $attribute instanceof ConstantExpression
-            )
-        ) {
-            return new MacroReferenceExpression(new TemplateVariable($expr->getAttribute('name'), $expr->getTemplateLine()), 'macro_'.$attribute->getAttribute('value'), $arguments, $expr->getTemplateLine());
+        if ($expr instanceof Name_Expression && (null !== $parser->get_imported_symbol('template', $expr->get_attribute('name')) || '_self' === $expr->get_attribute('name') && $attribute instanceof Constant_Expression)) {
+            return new Macro_Reference_Expression(new Template_Variable($expr->get_attribute('name'), $expr->get_template_line()), 'macro_' . $attribute->get_attribute('value'), $arguments, $expr->get_template_line());
         }
-
-        return new GetAttrExpression($expr, $attribute, $arguments, $type, $lineno, $nullSafe);
+        return new Get_Attr_Expression($expr, $attribute, $arguments, $type, $lineno, $null_safe);
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return '.';
     }
-
-    public function getAliases(): array
+    public function get_aliases(): array
     {
         return ['?.'];
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
         return 'Get an attribute on a variable';
     }
-
-    public function getPrecedence(): int
+    public function get_precedence(): int
     {
         return 512;
     }
-
-    public function getAssociativity(): InfixAssociativity
+    public function get_associativity(): Infix_Associativity
     {
-        return InfixAssociativity::Left;
+        return Infix_Associativity::Left;
     }
 }

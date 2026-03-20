@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,23 +9,19 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Extension;
 
-use Twig\NodeVisitor\YieldNotReadyNodeVisitor;
-
+use Twig\Node_Visitor\Yield_Not_Ready_Node_Visitor;
 /**
  * @internal to be removed in Twig 4
  */
-final class YieldNotReadyExtension extends AbstractExtension
+final class Yield_Not_Ready_Extension extends Abstract_Extension
 {
-    public function __construct(
-        private readonly bool $useYield,
-    ) {
-    }
-
-    public function getNodeVisitors(): array
+    public function __construct(private readonly bool $use_yield)
     {
-        return [new YieldNotReadyNodeVisitor($this->useYield)];
+    }
+    public function get_node_visitors(): array
+    {
+        return [new Yield_Not_Ready_Node_Visitor($this->use_yield)];
     }
 }

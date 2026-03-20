@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Cache;
 
 /**
@@ -22,27 +20,24 @@ namespace Twig\Cache;
  *
  * @author Andrew Tch <andrew@noop.lv>
  */
-interface CacheInterface
+interface Cache_Interface
 {
     /**
      * Generates a cache key for the given template class name.
      */
-    public function generateKey(string $name, string $className): string;
-
+    public function generate_key(string $name, string $class_name): string;
     /**
      * Writes the compiled template to cache.
      *
      * @param string $content The template representation as a PHP class
      */
     public function write(string $key, string $content): void;
-
     /**
      * Loads a template from the cache.
      */
     public function load(string $key): void;
-
     /**
      * Returns the modification timestamp of a key.
      */
-    public function getTimestamp(string $key): int;
+    public function get_timestamp(string $key): int;
 }

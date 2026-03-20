@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,43 +9,35 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\Node\Expression\FunctionNode;
+namespace Twig\Node\Expression\Function_Node;
 
 use Twig\Compiler;
-use Twig\Error\SyntaxError;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\FunctionExpression;
-
-class EnumCasesFunction extends FunctionExpression
+use Twig\Error\Syntax_Error;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Function_Expression;
+class Enum_Cases_Function extends Function_Expression
 {
     public function compile(Compiler $compiler): void
     {
-        $arguments = $this->getNode('arguments');
-        if ($arguments->hasNode('enum')) {
-            $firstArgument = $arguments->getNode('enum');
-        } elseif ($arguments->hasNode('0')) {
-            $firstArgument = $arguments->getNode('0');
+        $arguments = $this->get_node('arguments');
+        if ($arguments->has_node('enum')) {
+            $first_argument = $arguments->get_node('enum');
+        } elseif ($arguments->has_node('0')) {
+            $first_argument = $arguments->get_node('0');
         } else {
-            $firstArgument = null;
+            $first_argument = null;
         }
-
-        if (!$firstArgument instanceof ConstantExpression || 1 !== \count($arguments)) {
+        if (!$first_argument instanceof Constant_Expression || 1 !== \count($arguments)) {
             parent::compile($compiler);
-
             return;
         }
-
-        $value = $firstArgument->getAttribute('value');
-
+        $value = $first_argument->get_attribute('value');
         if (!\is_string($value)) {
-            throw new SyntaxError('The first argument of the "enum_cases" function must be a string.', $this->getTemplateLine(), $this->getSourceContext());
+            throw new Syntax_Error('The first argument of the "enum_cases" function must be a string.', $this->get_template_line(), $this->get_source_context());
         }
-
         if (!enum_exists($value)) {
-            throw new SyntaxError(\sprintf('The first argument of the "enum_cases" function must be the name of an enum, "%s" given.', $value), $this->getTemplateLine(), $this->getSourceContext());
+            throw new Syntax_Error(\sprintf('The first argument of the "enum_cases" function must be the name of an enum, "%s" given.', $value), $this->get_template_line(), $this->get_source_context());
         }
-
         $compiler->raw(\sprintf('%s::cases()', $value));
     }
 }

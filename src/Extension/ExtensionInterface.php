@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,20 +9,18 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Extension;
 
-use Twig\ExpressionParser;
-use Twig\ExpressionParser\ExpressionParserInterface;
-use Twig\ExpressionParser\PrecedenceChange;
-use Twig\Node\Expression\Binary\AbstractBinary;
-use Twig\Node\Expression\Unary\AbstractUnary;
-use Twig\NodeVisitor\NodeVisitorInterface;
-use Twig\TokenParser\TokenParserInterface;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
-use Twig\TwigTest;
-
+use Twig\Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Interface;
+use Twig\Expression_Parser\Precedence_Change;
+use Twig\Node\Expression\Binary\Abstract_Binary;
+use Twig\Node\Expression\Unary\Abstract_Unary;
+use Twig\Node_Visitor\Node_Visitor_Interface;
+use Twig\Token_Parser\Token_Parser_Interface;
+use Twig\Twig_Filter;
+use Twig\Twig_Function;
+use Twig\Twig_Test;
 /**
  * Interface implemented by extension classes.
  *
@@ -31,43 +28,38 @@ use Twig\TwigTest;
  *
  * @method array<ExpressionParserInterface> getExpressionParsers()
  */
-interface ExtensionInterface
+interface Extension_Interface
 {
     /**
      * Returns the token parser instances to add to the existing list.
      *
      * @return TokenParserInterface[]
      */
-    public function getTokenParsers();
-
+    public function get_token_parsers();
     /**
      * Returns the node visitor instances to add to the existing list.
      *
      * @return NodeVisitorInterface[]
      */
-    public function getNodeVisitors();
-
+    public function get_node_visitors();
     /**
      * Returns a list of filters to add to the existing list.
      *
      * @return TwigFilter[]
      */
-    public function getFilters();
-
+    public function get_filters();
     /**
      * Returns a list of tests to add to the existing list.
      *
      * @return TwigTest[]
      */
-    public function getTests();
-
+    public function get_tests();
     /**
      * Returns a list of functions to add to the existing list.
      *
      * @return TwigFunction[]
      */
-    public function getFunctions();
-
+    public function get_functions();
     /**
      * Returns a list of operators to add to the existing list.
      *
@@ -78,5 +70,5 @@ interface ExtensionInterface
      *     array<string, array{precedence: int, precedence_change?: PrecedenceChange, class?: class-string<AbstractBinary>, associativity: ExpressionParser::OPERATOR_*}>
      * }
      */
-    public function getOperators();
+    public function get_operators();
 }

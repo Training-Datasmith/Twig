@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,78 +9,64 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Infix;
 
-namespace Twig\ExpressionParser\Infix;
-
-use Twig\Attribute\FirstClassTwigCallableReady;
-use Twig\ExpressionParser\AbstractExpressionParser;
-use Twig\ExpressionParser\ExpressionParserDescriptionInterface;
-use Twig\ExpressionParser\InfixAssociativity;
-use Twig\ExpressionParser\InfixExpressionParserInterface;
-use Twig\ExpressionParser\PrecedenceChange;
-use Twig\Node\EmptyNode;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ConstantExpression;
+use Twig\Attribute\First_Class_Twig_Callable_Ready;
+use Twig\Expression_Parser\Abstract_Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Description_Interface;
+use Twig\Expression_Parser\Infix_Associativity;
+use Twig\Expression_Parser\Infix_Expression_Parser_Interface;
+use Twig\Expression_Parser\Precedence_Change;
+use Twig\Node\Empty_Node;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Constant_Expression;
 use Twig\Parser;
 use Twig\Token;
-
 /**
  * @internal
  */
-final class FilterExpressionParser extends AbstractExpressionParser implements InfixExpressionParserInterface, ExpressionParserDescriptionInterface
+final class Filter_Expression_Parser extends Abstract_Expression_Parser implements Infix_Expression_Parser_Interface, Expression_Parser_Description_Interface
 {
-    use ArgumentsTrait;
-
-    private array $readyNodes = [];
-
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
+    use Arguments_Trait;
+    private array $ready_nodes = [];
+    public function parse(Parser $parser, Abstract_Expression $expr, Token $token): Abstract_Expression
     {
-        $stream = $parser->getStream();
+        $stream = $parser->get_stream();
         $token = $stream->expect(Token::NAME_TYPE);
-        $line = $token->getLine();
-
+        $line = $token->get_line();
         if (!$stream->test(Token::OPERATOR_TYPE, '(')) {
-            $arguments = new EmptyNode();
+            $arguments = new Empty_Node();
         } else {
-            $arguments = $this->parseNamedArguments($parser);
+            $arguments = $this->parse_named_arguments($parser);
         }
-
-        $filter = $parser->getFilter($token->getValue(), $line);
-
+        $filter = $parser->get_filter($token->get_value(), $line);
         $ready = true;
-        if (!isset($this->readyNodes[$class = $filter->getNodeClass()])) {
-            $this->readyNodes[$class] = (bool) (new \ReflectionClass($class))->getConstructor()->getAttributes(FirstClassTwigCallableReady::class);
+        if (!isset($this->ready_nodes[$class = $filter->get_node_class()])) {
+            $this->ready_nodes[$class] = (bool) (new \ReflectionClass($class))->get_constructor()->get_attributes(First_Class_Twig_Callable_Ready::class);
         }
-
-        if (!$ready = $this->readyNodes[$class]) {
+        if (!$ready = $this->ready_nodes[$class]) {
             trigger_deprecation('twig/twig', '3.12', 'Twig node "%s" is not marked as ready for passing a "TwigFilter" in the constructor instead of its name; please update your code and then add #[FirstClassTwigCallableReady] attribute to the constructor.', $class);
         }
-
-        return new $class($expr, $ready ? $filter : new ConstantExpression($filter->getName(), $line), $arguments, $line);
+        return new $class($expr, $ready ? $filter : new Constant_Expression($filter->get_name(), $line), $arguments, $line);
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return '|';
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
         return 'Twig filter call';
     }
-
-    public function getPrecedence(): int
+    public function get_precedence(): int
     {
         return 512;
     }
-
-    public function getPrecedenceChange(): \Twig\ExpressionParser\PrecedenceChange
+    public function get_precedence_change(): \Twig\Expression_Parser\Precedence_Change
     {
-        return new PrecedenceChange('twig/twig', '3.21', 300);
+        return new Precedence_Change('twig/twig', '3.21', 300);
     }
-
-    public function getAssociativity(): InfixAssociativity
+    public function get_associativity(): Infix_Associativity
     {
-        return InfixAssociativity::Left;
+        return Infix_Associativity::Left;
     }
 }

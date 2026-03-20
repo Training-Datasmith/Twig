@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,64 +9,57 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Prefix;
 
-namespace Twig\ExpressionParser\Prefix;
-
-use Twig\ExpressionParser\AbstractExpressionParser;
-use Twig\ExpressionParser\ExpressionParserDescriptionInterface;
-use Twig\ExpressionParser\PrecedenceChange;
-use Twig\ExpressionParser\PrefixExpressionParserInterface;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\Unary\AbstractUnary;
+use Twig\Expression_Parser\Abstract_Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Description_Interface;
+use Twig\Expression_Parser\Precedence_Change;
+use Twig\Expression_Parser\Prefix_Expression_Parser_Interface;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Unary\Abstract_Unary;
 use Twig\Parser;
 use Twig\Token;
-
 /**
  * @internal
  */
-final class UnaryOperatorExpressionParser extends AbstractExpressionParser implements PrefixExpressionParserInterface, ExpressionParserDescriptionInterface
+final class Unary_Operator_Expression_Parser extends Abstract_Expression_Parser implements Prefix_Expression_Parser_Interface, Expression_Parser_Description_Interface
 {
     public function __construct(
         /** @var class-string<AbstractUnary> */
-        private readonly string $nodeClass,
+        private readonly string $node_class,
         private readonly string $name,
         private readonly int $precedence,
-        private readonly ?PrecedenceChange $precedenceChange = null,
+        private readonly ?Precedence_Change $precedence_change = null,
         private readonly ?string $description = null,
         private readonly array $aliases = [],
-        private readonly ?int $operandPrecedence = null,
-    ) {
+        private readonly ?int $operand_precedence = null
+    )
+    {
     }
-
     /**
      * @return AbstractUnary
      */
-    public function parse(Parser $parser, Token $token): AbstractExpression
+    public function parse(Parser $parser, Token $token): Abstract_Expression
     {
-        return new ($this->nodeClass)($parser->parseExpression($this->operandPrecedence ?? $this->precedence), $token->getLine());
+        return new $this->node_class($parser->parse_expression($this->operand_precedence ?? $this->precedence), $token->get_line());
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return $this->name;
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
         return $this->description ?? '';
     }
-
-    public function getPrecedence(): int
+    public function get_precedence(): int
     {
         return $this->precedence;
     }
-
-    public function getPrecedenceChange(): ?PrecedenceChange
+    public function get_precedence_change(): ?Precedence_Change
     {
-        return $this->precedenceChange;
+        return $this->precedence_change;
     }
-
-    public function getAliases(): array
+    public function get_aliases(): array
     {
         return $this->aliases;
     }

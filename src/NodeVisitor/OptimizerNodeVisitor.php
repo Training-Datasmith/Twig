@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,23 +9,21 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\NodeVisitor;
+namespace Twig\Node_Visitor;
 
 use Twig\Environment;
-use Twig\Node\BlockReferenceNode;
-use Twig\Node\Expression\BlockReferenceExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\FunctionExpression;
-use Twig\Node\Expression\GetAttrExpression;
-use Twig\Node\Expression\ParentExpression;
-use Twig\Node\Expression\Variable\ContextVariable;
-use Twig\Node\ForNode;
-use Twig\Node\IncludeNode;
+use Twig\Node\Block_Reference_Node;
+use Twig\Node\Expression\Block_Reference_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Function_Expression;
+use Twig\Node\Expression\Get_Attr_Expression;
+use Twig\Node\Expression\Parent_Expression;
+use Twig\Node\Expression\Variable\Context_Variable;
+use Twig\Node\For_Node;
+use Twig\Node\Include_Node;
 use Twig\Node\Node;
-use Twig\Node\PrintNode;
-use Twig\Node\TextNode;
-
+use Twig\Node\Print_Node;
+use Twig\Node\Text_Node;
 /**
  * Tries to optimize the AST.
  *
@@ -39,56 +36,45 @@ use Twig\Node\TextNode;
  *
  * @internal
  */
-final class OptimizerNodeVisitor implements NodeVisitorInterface
+final class Optimizer_Node_Visitor implements Node_Visitor_Interface
 {
     public const OPTIMIZE_ALL = -1;
     public const OPTIMIZE_NONE = 0;
     public const OPTIMIZE_FOR = 2;
     public const OPTIMIZE_RAW_FILTER = 4;
     public const OPTIMIZE_TEXT_NODES = 8;
-
     private array $loops = [];
-    private array $loopsTargets = [];
-
+    private array $loops_targets = [];
     /**
      * @param int $optimizers The optimizer mode
      */
-    public function __construct(
-        private readonly int $optimizers = -1,
-    ) {
+    public function __construct(private readonly int $optimizers = -1)
+    {
         if ($optimizers > (self::OPTIMIZE_FOR | self::OPTIMIZE_RAW_FILTER | self::OPTIMIZE_TEXT_NODES)) {
             throw new \InvalidArgumentException(\sprintf('Optimizer mode "%s" is not valid.', $optimizers));
         }
-
         if (-1 !== $optimizers && self::OPTIMIZE_RAW_FILTER === (self::OPTIMIZE_RAW_FILTER & $optimizers)) {
             trigger_deprecation('twig/twig', '3.11', 'The "Twig\NodeVisitor\OptimizerNodeVisitor::OPTIMIZE_RAW_FILTER" option is deprecated and does nothing.');
         }
-
         if (-1 !== $optimizers && self::OPTIMIZE_TEXT_NODES === (self::OPTIMIZE_TEXT_NODES & $optimizers)) {
             trigger_deprecation('twig/twig', '3.12', 'The "Twig\NodeVisitor\OptimizerNodeVisitor::OPTIMIZE_TEXT_NODES" option is deprecated and does nothing.');
         }
     }
-
-    public function enterNode(Node $node, Environment $env): Node
+    public function enter_node(Node $node, Environment $env): Node
     {
         if (self::OPTIMIZE_FOR === (self::OPTIMIZE_FOR & $this->optimizers)) {
-            $this->enterOptimizeFor($node);
+            $this->enter_optimize_for($node);
         }
-
         return $node;
     }
-
-    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
+    public function leave_node(Node $node, Environment $env): \Twig\Node\Node
     {
         if (self::OPTIMIZE_FOR === (self::OPTIMIZE_FOR & $this->optimizers)) {
-            $this->leaveOptimizeFor($node);
+            $this->leave_optimize_for($node);
         }
-
-        $node = $this->optimizePrintNode($node);
-
+        $node = $this->optimize_print_node($node);
         return $node;
     }
-
     /**
      * Optimizes print nodes.
      *
@@ -96,123 +82,72 @@ final class OptimizerNodeVisitor implements NodeVisitorInterface
      *
      *   * "echo $this->render(Parent)Block()" with "$this->display(Parent)Block()"
      */
-    private function optimizePrintNode(Node $node): Node
+    private function optimize_print_node(Node $node): Node
     {
-        if (!$node instanceof PrintNode) {
+        if (!$node instanceof Print_Node) {
             return $node;
         }
-
-        $exprNode = $node->getNode('expr');
-
-        if ($exprNode instanceof ConstantExpression && \is_string($exprNode->getAttribute('value'))) {
-            return new TextNode($exprNode->getAttribute('value'), $exprNode->getTemplateLine());
+        $expr_node = $node->get_node('expr');
+        if ($expr_node instanceof Constant_Expression && \is_string($expr_node->get_attribute('value'))) {
+            return new Text_Node($expr_node->get_attribute('value'), $expr_node->get_template_line());
         }
-
-        if (
-            $exprNode instanceof BlockReferenceExpression
-            || $exprNode instanceof ParentExpression
-        ) {
-            $exprNode->setAttribute('output', true);
-
-            return $exprNode;
+        if ($expr_node instanceof Block_Reference_Expression || $expr_node instanceof Parent_Expression) {
+            $expr_node->set_attribute('output', true);
+            return $expr_node;
         }
-
         return $node;
     }
-
     /**
      * Optimizes "for" tag by removing the "loop" variable creation whenever possible.
      */
-    private function enterOptimizeFor(Node $node): void
+    private function enter_optimize_for(Node $node): void
     {
-        if ($node instanceof ForNode) {
+        if ($node instanceof For_Node) {
             // disable the loop variable by default
-            $node->setAttribute('with_loop', false);
+            $node->set_attribute('with_loop', false);
             array_unshift($this->loops, $node);
-            array_unshift($this->loopsTargets, $node->getNode('value_target')->getAttribute('name'));
-            array_unshift($this->loopsTargets, $node->getNode('key_target')->getAttribute('name'));
+            array_unshift($this->loops_targets, $node->get_node('value_target')->get_attribute('name'));
+            array_unshift($this->loops_targets, $node->get_node('key_target')->get_attribute('name'));
         } elseif (!$this->loops) {
             // we are outside a loop
             return;
-        }
-
-        // when do we need to add the loop variable back?
-
-        // the loop variable is referenced for the current loop
-        elseif ($node instanceof ContextVariable && 'loop' === $node->getAttribute('name')) {
-            $node->setAttribute('always_defined', true);
-            $this->addLoopToCurrent();
-        }
-
-        // optimize access to loop targets
-        elseif ($node instanceof ContextVariable && \in_array($node->getAttribute('name'), $this->loopsTargets, true)) {
-            $node->setAttribute('always_defined', true);
-        }
-
-        // block reference
-        elseif ($node instanceof BlockReferenceNode || $node instanceof BlockReferenceExpression) {
-            $this->addLoopToCurrent();
-        }
-
-        // include without the only attribute
-        elseif ($node instanceof IncludeNode && !$node->getAttribute('only')) {
-            $this->addLoopToAll();
-        }
-
-        // include function without the with_context=false parameter
-        elseif ($node instanceof FunctionExpression
-            && 'include' === $node->getAttribute('name')
-            && (
-                !$node->getNode('arguments')->hasNode('with_context')
-                 || false !== $node->getNode('arguments')->getNode('with_context')->getAttribute('value')
-            )
-        ) {
-            $this->addLoopToAll();
-        }
-
-        // the loop variable is referenced via an attribute
-        elseif ($node instanceof GetAttrExpression
-            && (
-                !$node->getNode('attribute') instanceof ConstantExpression
-                || 'parent' === $node->getNode('attribute')->getAttribute('value')
-            )
-            && (
-                true === $this->loops[0]->getAttribute('with_loop')
-             || (
-                 $node->getNode('node') instanceof ContextVariable
-                 && 'loop' === $node->getNode('node')->getAttribute('name')
-             )
-            )
-        ) {
-            $this->addLoopToAll();
+        } elseif ($node instanceof Context_Variable && 'loop' === $node->get_attribute('name')) {
+            $node->set_attribute('always_defined', true);
+            $this->add_loop_to_current();
+        } elseif ($node instanceof Context_Variable && \in_array($node->get_attribute('name'), $this->loops_targets, true)) {
+            $node->set_attribute('always_defined', true);
+        } elseif ($node instanceof Block_Reference_Node || $node instanceof Block_Reference_Expression) {
+            $this->add_loop_to_current();
+        } elseif ($node instanceof Include_Node && !$node->get_attribute('only')) {
+            $this->add_loop_to_all();
+        } elseif ($node instanceof Function_Expression && 'include' === $node->get_attribute('name') && (!$node->get_node('arguments')->has_node('with_context') || false !== $node->get_node('arguments')->get_node('with_context')->get_attribute('value'))) {
+            $this->add_loop_to_all();
+        } elseif ($node instanceof Get_Attr_Expression && (!$node->get_node('attribute') instanceof Constant_Expression || 'parent' === $node->get_node('attribute')->get_attribute('value')) && (true === $this->loops[0]->get_attribute('with_loop') || $node->get_node('node') instanceof Context_Variable && 'loop' === $node->get_node('node')->get_attribute('name'))) {
+            $this->add_loop_to_all();
         }
     }
-
     /**
      * Optimizes "for" tag by removing the "loop" variable creation whenever possible.
      */
-    private function leaveOptimizeFor(Node $node): void
+    private function leave_optimize_for(Node $node): void
     {
-        if ($node instanceof ForNode) {
+        if ($node instanceof For_Node) {
             array_shift($this->loops);
-            array_shift($this->loopsTargets);
-            array_shift($this->loopsTargets);
+            array_shift($this->loops_targets);
+            array_shift($this->loops_targets);
         }
     }
-
-    private function addLoopToCurrent(): void
+    private function add_loop_to_current(): void
     {
-        $this->loops[0]->setAttribute('with_loop', true);
+        $this->loops[0]->set_attribute('with_loop', true);
     }
-
-    private function addLoopToAll(): void
+    private function add_loop_to_all(): void
     {
         foreach ($this->loops as $loop) {
-            $loop->setAttribute('with_loop', true);
+            $loop->set_attribute('with_loop', true);
         }
     }
-
-    public function getPriority(): int
+    public function get_priority(): int
     {
         return 255;
     }

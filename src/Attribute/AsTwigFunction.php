@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,12 +9,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Attribute;
 
-use Twig\DeprecatedCallableInfo;
-use Twig\TwigFunction;
-
+use Twig\Deprecated_Callable_Info;
+use Twig\Twig_Function;
 /**
  * Registers a method as template function.
  *
@@ -30,7 +27,7 @@ use Twig\TwigFunction;
  * @see TwigFunction
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-final class AsTwigFunction
+final class As_Twig_Function
 {
     /**
      * @param non-empty-string            $name             The name of the function in Twig
@@ -41,14 +38,7 @@ final class AsTwigFunction
      * @param string|array|null           $isSafeCallback   Function called at compilation time to determine if the function is safe
      * @param DeprecatedCallableInfo|null $deprecationInfo  Information about the deprecation
      */
-    public function __construct(
-        public string $name,
-        public ?bool $needsCharset = null,
-        public ?bool $needsEnvironment = null,
-        public ?bool $needsContext = null,
-        public ?array $isSafe = null,
-        public string|array|null $isSafeCallback = null,
-        public ?DeprecatedCallableInfo $deprecationInfo = null,
-    ) {
+    public function __construct(public string $name, public ?bool $needs_charset = null, public ?bool $needs_environment = null, public ?bool $needs_context = null, public ?array $is_safe = null, public string|array|null $is_safe_callback = null, public ?Deprecated_Callable_Info $deprecation_info = null)
+    {
     }
 }

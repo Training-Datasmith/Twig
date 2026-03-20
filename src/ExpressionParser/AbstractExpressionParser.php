@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,28 +9,24 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser;
 
-namespace Twig\ExpressionParser;
-
-abstract class AbstractExpressionParser implements ExpressionParserInterface
+abstract class Abstract_Expression_Parser implements Expression_Parser_Interface
 {
     public function __toString(): string
     {
-        return \sprintf('%s(%s)', ExpressionParserType::getType($this)->value, $this->getName());
+        return \sprintf('%s(%s)', Expression_Parser_Type::get_type($this)->value, $this->get_name());
     }
-
-    public function getPrecedenceChange(): ?PrecedenceChange
+    public function get_precedence_change(): ?Precedence_Change
     {
         return null;
     }
-
-    public function getAliases(): array
+    public function get_aliases(): array
     {
         return [];
     }
-
-    public function getOperatorTokens(): array
+    public function get_operator_tokens(): array
     {
-        return [$this->getName(), ...$this->getAliases()];
+        return [$this->get_name(), ...$this->get_aliases()];
     }
 }

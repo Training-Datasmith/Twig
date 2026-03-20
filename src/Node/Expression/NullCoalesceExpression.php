@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,21 +9,19 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
-use Twig\Node\EmptyNode;
-use Twig\Node\Expression\Binary\AndBinary;
-use Twig\Node\Expression\Binary\NullCoalesceBinary;
-use Twig\Node\Expression\Test\DefinedTest;
-use Twig\Node\Expression\Test\NullTest;
-use Twig\Node\Expression\Unary\NotUnary;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Node\Empty_Node;
+use Twig\Node\Expression\Binary\And_Binary;
+use Twig\Node\Expression\Binary\Null_Coalesce_Binary;
+use Twig\Node\Expression\Test\Defined_Test;
+use Twig\Node\Expression\Test\Null_Test;
+use Twig\Node\Expression\Unary\Not_Unary;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Node\Node;
-use Twig\TwigTest;
-
-class NullCoalesceExpression extends ConditionalExpression
+use Twig\Twig_Test;
+class Null_Coalesce_Expression extends Conditional_Expression
 {
     /**
      * @param AbstractExpression $left
@@ -32,28 +29,20 @@ class NullCoalesceExpression extends ConditionalExpression
      */
     public function __construct(Node $left, Node $right, int $lineno)
     {
-        trigger_deprecation('twig/twig', '3.17', \sprintf('"%s" is deprecated; use "%s" instead.', self::class, NullCoalesceBinary::class));
-
-        if (!$left instanceof AbstractExpression) {
-            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "left" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $left::class);
+        trigger_deprecation('twig/twig', '3.17', \sprintf('"%s" is deprecated; use "%s" instead.', self::class, Null_Coalesce_Binary::class));
+        if (!$left instanceof Abstract_Expression) {
+            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "left" argument of "%s" is deprecated ("%s" given).', Abstract_Expression::class, static::class, $left::class);
         }
-        if (!$right instanceof AbstractExpression) {
-            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "right" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $right::class);
+        if (!$right instanceof Abstract_Expression) {
+            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "right" argument of "%s" is deprecated ("%s" given).', Abstract_Expression::class, static::class, $right::class);
         }
-
-        $test = new DefinedTest(clone $left, new TwigTest('defined'), new EmptyNode(), $left->getTemplateLine());
+        $test = new Defined_Test(clone $left, new Twig_Test('defined'), new Empty_Node(), $left->get_template_line());
         // for "block()", we don't need the null test as the return value is always a string
-        if (!$left instanceof BlockReferenceExpression) {
-            $test = new AndBinary(
-                $test,
-                new NotUnary(new NullTest($left, new TwigTest('null'), new EmptyNode(), $left->getTemplateLine()), $left->getTemplateLine()),
-                $left->getTemplateLine()
-            );
+        if (!$left instanceof Block_Reference_Expression) {
+            $test = new And_Binary($test, new Not_Unary(new Null_Test($left, new Twig_Test('null'), new Empty_Node(), $left->get_template_line()), $left->get_template_line()), $left->get_template_line());
         }
-
         parent::__construct($test, $left, $right, $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
         /*
@@ -63,15 +52,9 @@ class NullCoalesceExpression extends ConditionalExpression
          * cases might be implemented as an optimizer node visitor, but has not been done
          * as benefits are probably not worth the added complexity.
          */
-        if ($this->getNode('expr2') instanceof ContextVariable) {
-            $this->getNode('expr2')->setAttribute('always_defined', true);
-            $compiler
-                ->raw('((')
-                ->subcompile($this->getNode('expr2'))
-                ->raw(') ?? (')
-                ->subcompile($this->getNode('expr3'))
-                ->raw('))')
-            ;
+        if ($this->get_node('expr2') instanceof Context_Variable) {
+            $this->get_node('expr2')->set_attribute('always_defined', true);
+            $compiler->raw('((')->subcompile($this->get_node('expr2'))->raw(') ?? (')->subcompile($this->get_node('expr3'))->raw('))');
         } else {
             parent::compile($compiler);
         }

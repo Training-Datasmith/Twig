@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,7 +10,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Error;
 
 /**
@@ -19,7 +17,7 @@ namespace Twig\Error;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class SyntaxError extends Error
+class Syntax_Error extends Error
 {
     /**
      * Tweaks the error message to include suggestions.
@@ -27,7 +25,7 @@ class SyntaxError extends Error
      * @param string $name  The original name of the item that does not exist
      * @param array  $items An array of possible items
      */
-    public function addSuggestions(string $name, array $items): void
+    public function add_suggestions(string $name, array $items): void
     {
         $alternatives = [];
         foreach ($items as $item) {
@@ -36,13 +34,10 @@ class SyntaxError extends Error
                 $alternatives[$item] = $lev;
             }
         }
-
         if (!$alternatives) {
             return;
         }
-
         asort($alternatives);
-
-        $this->appendMessage(\sprintf(' Did you mean "%s"?', implode('", "', array_keys($alternatives))));
+        $this->append_message(\sprintf(' Did you mean "%s"?', implode('", "', array_keys($alternatives))));
     }
 }

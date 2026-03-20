@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,44 +10,27 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
-use Twig\Node\Expression\Ternary\ConditionalTernary;
-
-class ConditionalExpression extends AbstractExpression implements OperatorEscapeInterface
+use Twig\Node\Expression\Ternary\Conditional_Ternary;
+class Conditional_Expression extends Abstract_Expression implements Operator_Escape_Interface
 {
-    public function __construct(AbstractExpression $expr1, AbstractExpression $expr2, AbstractExpression $expr3, int $lineno)
+    public function __construct(Abstract_Expression $expr1, Abstract_Expression $expr2, Abstract_Expression $expr3, int $lineno)
     {
-        trigger_deprecation('twig/twig', '3.17', \sprintf('"%s" is deprecated; use "%s" instead.', self::class, ConditionalTernary::class));
-
+        trigger_deprecation('twig/twig', '3.17', \sprintf('"%s" is deprecated; use "%s" instead.', self::class, Conditional_Ternary::class));
         parent::__construct(['expr1' => $expr1, 'expr2' => $expr2, 'expr3' => $expr3], [], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
         // Ternary with no then uses Elvis operator
-        if ($this->getNode('expr1') === $this->getNode('expr2')) {
-            $compiler
-                ->raw('((')
-                ->subcompile($this->getNode('expr1'))
-                ->raw(') ?: (')
-                ->subcompile($this->getNode('expr3'))
-                ->raw('))');
+        if ($this->get_node('expr1') === $this->get_node('expr2')) {
+            $compiler->raw('((')->subcompile($this->get_node('expr1'))->raw(') ?: (')->subcompile($this->get_node('expr3'))->raw('))');
         } else {
-            $compiler
-                ->raw('((')
-                ->subcompile($this->getNode('expr1'))
-                ->raw(') ? (')
-                ->subcompile($this->getNode('expr2'))
-                ->raw(') : (')
-                ->subcompile($this->getNode('expr3'))
-                ->raw('))');
+            $compiler->raw('((')->subcompile($this->get_node('expr1'))->raw(') ? (')->subcompile($this->get_node('expr2'))->raw(') : (')->subcompile($this->get_node('expr3'))->raw('))');
         }
     }
-
-    public function getOperandNamesToEscape(): array
+    public function get_operand_names_to_escape(): array
     {
         return ['expr2', 'expr3'];
     }

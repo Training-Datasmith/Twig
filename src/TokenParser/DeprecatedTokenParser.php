@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,13 +9,11 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\DeprecatedNode;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Deprecated_Node;
 use Twig\Token;
-
 /**
  * Deprecates a section of a template.
  *
@@ -29,32 +26,27 @@ use Twig\Token;
  *
  * @internal
  */
-final class DeprecatedTokenParser extends AbstractTokenParser
+final class Deprecated_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\DeprecatedNode
+    public function parse(Token $token): \Twig\Node\Deprecated_Node
     {
-        $stream = $this->parser->getStream();
-        $expr = $this->parser->parseExpression();
-        $node = new DeprecatedNode($expr, $token->getLine());
-
+        $stream = $this->parser->get_stream();
+        $expr = $this->parser->parse_expression();
+        $node = new Deprecated_Node($expr, $token->get_line());
         while ($stream->test(Token::NAME_TYPE)) {
-            $k = $stream->getCurrent()->getValue();
+            $k = $stream->get_current()->get_value();
             $stream->next();
             $stream->expect(Token::OPERATOR_TYPE, '=');
-
             match ($k) {
-                'package' => $node->setNode('package', $this->parser->parseExpression()),
-                'version' => $node->setNode('version', $this->parser->parseExpression()),
-                default => throw new SyntaxError(\sprintf('Unknown "%s" option.', $k), $stream->getCurrent()->getLine(), $stream->getSourceContext()),
+                'package' => $node->set_node('package', $this->parser->parse_expression()),
+                'version' => $node->set_node('version', $this->parser->parse_expression()),
+                default => throw new Syntax_Error(\sprintf('Unknown "%s" option.', $k), $stream->get_current()->get_line(), $stream->get_source_context()),
             };
         }
-
         $stream->expect(Token::BLOCK_END_TYPE);
-
         return $node;
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'deprecated';
     }

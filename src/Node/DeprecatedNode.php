@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,66 +9,50 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node;
 
-use Twig\Attribute\YieldReady;
+use Twig\Attribute\Yield_Ready;
 use Twig\Compiler;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ConstantExpression;
-
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Constant_Expression;
 /**
  * Represents a deprecated node.
  *
  * @author Yonel Ceruto <yonelceruto@gmail.com>
  */
-#[YieldReady]
-class DeprecatedNode extends Node
+#[Yield_Ready]
+class Deprecated_Node extends Node
 {
-    public function __construct(AbstractExpression $expr, int $lineno)
+    public function __construct(Abstract_Expression $expr, int $lineno)
     {
         parent::__construct(['expr' => $expr], [], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        $compiler->addDebugInfo($this);
-
-        $expr = $this->getNode('expr');
-
-        if (!$expr instanceof ConstantExpression) {
-            $varName = $compiler->getVarName();
-            $compiler
-                ->write(\sprintf('$%s = ', $varName))
-                ->subcompile($expr)
-                ->raw(";\n")
-            ;
+        $compiler->add_debug_info($this);
+        $expr = $this->get_node('expr');
+        if (!$expr instanceof Constant_Expression) {
+            $var_name = $compiler->get_var_name();
+            $compiler->write(\sprintf('$%s = ', $var_name))->subcompile($expr)->raw(";\n");
         }
-
         $compiler->write('trigger_deprecation(');
-        if ($this->hasNode('package')) {
-            $compiler->subcompile($this->getNode('package'));
+        if ($this->has_node('package')) {
+            $compiler->subcompile($this->get_node('package'));
         } else {
             $compiler->raw("''");
         }
         $compiler->raw(', ');
-        if ($this->hasNode('version')) {
-            $compiler->subcompile($this->getNode('version'));
+        if ($this->has_node('version')) {
+            $compiler->subcompile($this->get_node('version'));
         } else {
             $compiler->raw("''");
         }
         $compiler->raw(', ');
-
-        if ($expr instanceof ConstantExpression) {
+        if ($expr instanceof Constant_Expression) {
             $compiler->subcompile($expr);
         } else {
-            $compiler->write(\sprintf('$%s', $varName));
+            $compiler->write(\sprintf('$%s', $var_name));
         }
-
-        $compiler
-            ->raw('.')
-            ->string(\sprintf(' in "%s" at line %d.', $this->getTemplateName(), $this->getTemplateLine()))
-            ->raw(");\n")
-        ;
+        $compiler->raw('.')->string(\sprintf(' in "%s" at line %d.', $this->get_template_name(), $this->get_template_line()))->raw(");\n");
     }
 }

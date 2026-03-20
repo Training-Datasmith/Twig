@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,33 +9,29 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\NodeVisitor;
+namespace Twig\Node_Visitor;
 
 use Twig\Environment;
 use Twig\Node\Node;
-
 /**
  * Interface for node visitor classes.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface NodeVisitorInterface
+interface Node_Visitor_Interface
 {
     /**
      * Called before child nodes are visited.
      *
      * @return Node The modified node
      */
-    public function enterNode(Node $node, Environment $env): Node;
-
+    public function enter_node(Node $node, Environment $env): Node;
     /**
      * Called after child nodes are visited.
      *
      * @return Node|null The modified node or null if the node must be removed
      */
-    public function leaveNode(Node $node, Environment $env): ?Node;
-
+    public function leave_node(Node $node, Environment $env): ?Node;
     /**
      * Returns the priority for this visitor.
      *
@@ -44,5 +39,5 @@ interface NodeVisitorInterface
      *
      * @return int The priority level
      */
-    public function getPriority();
+    public function get_priority();
 }

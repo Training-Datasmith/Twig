@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,68 +9,60 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Infix;
 
-namespace Twig\ExpressionParser\Infix;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\Binary\SetBinary;
-use Twig\Node\Expression\Unary\SpreadUnary;
-use Twig\Node\Expression\Variable\ContextVariable;
-use Twig\Node\Expression\Variable\LocalVariable;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Expression\Array_Expression;
+use Twig\Node\Expression\Binary\Set_Binary;
+use Twig\Node\Expression\Unary\Spread_Unary;
+use Twig\Node\Expression\Variable\Context_Variable;
+use Twig\Node\Expression\Variable\Local_Variable;
 use Twig\Node\Nodes;
 use Twig\Parser;
 use Twig\Token;
-
-trait ArgumentsTrait
+trait Arguments_Trait
 {
-    private function parseCallableArguments(Parser $parser, int $line, bool $parseOpenParenthesis = true): ArrayExpression
+    private function parse_callable_arguments(Parser $parser, int $line, bool $parse_open_parenthesis = true): Array_Expression
     {
-        $arguments = new ArrayExpression([], $line);
-        foreach ($this->parseNamedArguments($parser, $parseOpenParenthesis) as $k => $n) {
-            $arguments->addElement($n, new LocalVariable($k, $line));
+        $arguments = new Array_Expression([], $line);
+        foreach ($this->parse_named_arguments($parser, $parse_open_parenthesis) as $k => $n) {
+            $arguments->add_element($n, new Local_Variable($k, $line));
         }
-
         return $arguments;
     }
-
-    private function parseNamedArguments(Parser $parser, bool $parseOpenParenthesis = true): Nodes
+    private function parse_named_arguments(Parser $parser, bool $parse_open_parenthesis = true): Nodes
     {
         $args = [];
-        $stream = $parser->getStream();
-        if ($parseOpenParenthesis) {
+        $stream = $parser->get_stream();
+        if ($parse_open_parenthesis) {
             $stream->expect(Token::OPERATOR_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');
         }
-        $hasSpread = false;
+        $has_spread = false;
         while (!$stream->test(Token::PUNCTUATION_TYPE, ')')) {
             if ($args) {
                 $stream->expect(Token::PUNCTUATION_TYPE, ',', 'Arguments must be separated by a comma');
-
                 // if the comma above was a trailing comma, early exit the argument parse loop
                 if ($stream->test(Token::PUNCTUATION_TYPE, ')')) {
                     break;
                 }
             }
-
-            $value = $parser->parseExpression();
-            if ($value instanceof SpreadUnary) {
-                $hasSpread = true;
-            } elseif ($hasSpread) {
-                throw new SyntaxError('Normal arguments must be placed before argument unpacking.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
+            $value = $parser->parse_expression();
+            if ($value instanceof Spread_Unary) {
+                $has_spread = true;
+            } elseif ($has_spread) {
+                throw new Syntax_Error('Normal arguments must be placed before argument unpacking.', $stream->get_current()->get_line(), $stream->get_source_context());
             }
-
             $name = null;
-            if ($value instanceof SetBinary) {
-                $name = $value->getNode('left')->getAttribute('name');
-                $value = $value->getNode('right');
-            } elseif (($token = $stream->nextIf(Token::OPERATOR_TYPE, '=')) || ($token = $stream->nextIf(Token::PUNCTUATION_TYPE, ':'))) {
-                if (!$value instanceof ContextVariable) {
-                    throw new SyntaxError(\sprintf('A parameter name must be a string, "%s" given.', $value::class), $token->getLine(), $stream->getSourceContext());
+            if ($value instanceof Set_Binary) {
+                $name = $value->get_node('left')->get_attribute('name');
+                $value = $value->get_node('right');
+            } elseif (($token = $stream->next_if(Token::OPERATOR_TYPE, '=')) || $token = $stream->next_if(Token::PUNCTUATION_TYPE, ':')) {
+                if (!$value instanceof Context_Variable) {
+                    throw new Syntax_Error(\sprintf('A parameter name must be a string, "%s" given.', $value::class), $token->get_line(), $stream->get_source_context());
                 }
-                $name = $value->getAttribute('name');
-                $value = $parser->parseExpression();
+                $name = $value->get_attribute('name');
+                $value = $parser->parse_expression();
             }
-
             if (null === $name) {
                 $args[] = $value;
             } else {
@@ -79,7 +70,6 @@ trait ArgumentsTrait
             }
         }
         $stream->expect(Token::PUNCTUATION_TYPE, ')', 'A list of arguments must be closed by a parenthesis');
-
         return new Nodes($args);
     }
 }

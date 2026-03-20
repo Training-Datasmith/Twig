@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 /**
@@ -21,27 +19,22 @@ namespace Twig;
 class Markup implements \Countable, \JsonSerializable, \Stringable
 {
     private readonly string $content;
-
     public function __construct($content, private readonly ?string $charset)
     {
         $this->content = (string) $content;
     }
-
     public function __toString(): string
     {
         return $this->content;
     }
-
-    public function getCharset(): string
+    public function get_charset(): string
     {
         return $this->charset;
     }
-
     public function count(): int
     {
         return mb_strlen($this->content, $this->charset);
     }
-
     public function jsonSerialize(): mixed
     {
         return $this->content;

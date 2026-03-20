@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,79 +9,67 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Runtime;
 
-use Twig\Error\RuntimeError;
-use Twig\Extension\RuntimeExtensionInterface;
+use Twig\Error\Runtime_Error;
+use Twig\Extension\Runtime_Extension_Interface;
 use Twig\Markup;
-
-final class EscaperRuntime implements RuntimeExtensionInterface
+final class Escaper_Runtime implements Runtime_Extension_Interface
 {
     /** @var array<string, callable(string, string): string> */
     private array $escapers = [];
-
     /** @internal */
-    public $safeClasses = [];
-
+    public $safe_classes = [];
     /** @internal */
-    public $safeLookup = [];
-
-    public function __construct(
-        private $charset = 'UTF-8',
-    ) {
+    public $safe_lookup = [];
+    public function __construct(private $charset = 'UTF-8')
+    {
     }
-
     /**
      * Defines a new escaper to be used via the escape filter.
      *
      * @param string                                            $strategy The strategy name that should be used as a strategy in the escape call
      * @param callable(string $string, string $charset): string $callable A valid PHP callable
      */
-    public function setEscaper(string $strategy, callable $callable): void
+    public function set_escaper(string $strategy, callable $callable): void
     {
         $this->escapers[$strategy] = $callable;
     }
-
     /**
      * Gets all defined escapers.
      *
      * @return array<string, callable(string $string, string $charset): string> An array of escapers
      */
-    public function getEscapers()
+    public function get_escapers()
     {
         return $this->escapers;
     }
-
     /**
      * @param array<class-string<\Stringable>, string[]> $safeClasses
      */
-    public function setSafeClasses(array $safeClasses = []): void
+    public function set_safe_classes(array $safe_classes = []): void
     {
-        $this->safeClasses = [];
-        $this->safeLookup = [];
-        foreach ($safeClasses as $class => $strategies) {
-            $this->addSafeClass($class, $strategies);
+        $this->safe_classes = [];
+        $this->safe_lookup = [];
+        foreach ($safe_classes as $class => $strategies) {
+            $this->add_safe_class($class, $strategies);
         }
     }
-
     /**
      * @param class-string<\Stringable> $class
      * @param string[]                  $strategies
      */
-    public function addSafeClass(string $class, array $strategies): void
+    public function add_safe_class(string $class, array $strategies): void
     {
         $class = ltrim($class, '\\');
-        if (!isset($this->safeClasses[$class])) {
-            $this->safeClasses[$class] = [];
+        if (!isset($this->safe_classes[$class])) {
+            $this->safe_classes[$class] = [];
         }
-        $this->safeClasses[$class] = array_merge($this->safeClasses[$class], $strategies);
-
+        $this->safe_classes[$class] = array_merge($this->safe_classes[$class], $strategies);
         foreach ($strategies as $strategy) {
-            $this->safeLookup[$strategy][$class] = true;
+            $this->safe_lookup[$strategy][$class] = true;
         }
     }
-
     /**
      * Escapes a string.
      *
@@ -98,174 +85,127 @@ final class EscaperRuntime implements RuntimeExtensionInterface
         if ($autoescape && $string instanceof Markup) {
             return $string;
         }
-
         if (!\is_string($string)) {
             if ($string instanceof \Stringable) {
                 if ($autoescape) {
                     $c = $string::class;
-                    if (!isset($this->safeClasses[$c])) {
-                        $this->safeClasses[$c] = [];
+                    if (!isset($this->safe_classes[$c])) {
+                        $this->safe_classes[$c] = [];
                         foreach (class_parents($string) + class_implements($string) as $class) {
-                            if (isset($this->safeClasses[$class])) {
-                                $this->safeClasses[$c] = array_unique(array_merge($this->safeClasses[$c], $this->safeClasses[$class]));
-                                foreach ($this->safeClasses[$class] as $s) {
-                                    $this->safeLookup[$s][$c] = true;
+                            if (isset($this->safe_classes[$class])) {
+                                $this->safe_classes[$c] = array_unique(array_merge($this->safe_classes[$c], $this->safe_classes[$class]));
+                                foreach ($this->safe_classes[$class] as $s) {
+                                    $this->safe_lookup[$s][$c] = true;
                                 }
                             }
                         }
                     }
-                    if (isset($this->safeLookup[$strategy][$c]) || isset($this->safeLookup['all'][$c])) {
+                    if (isset($this->safe_lookup[$strategy][$c]) || isset($this->safe_lookup['all'][$c])) {
                         return (string) $string;
                     }
                 }
-
                 $string = (string) $string;
             } elseif (\in_array($strategy, ['html', 'js', 'css', 'html_attr', 'html_attr_relaxed', 'url'], true)) {
                 // we return the input as is (which can be of any type)
                 return $string;
             }
         }
-
         if ('' === $string) {
             return '';
         }
-
         $charset = $charset ?: $this->charset;
-
         switch ($strategy) {
             case 'html':
                 // see https://www.php.net/htmlspecialchars
-
                 if ('UTF-8' === $charset) {
                     return htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
                 }
-
                 // Using a static variable to avoid initializing the array
                 // each time the function is called. Moving the declaration on the
                 // top of the function slow downs other escaping strategies.
-                static $htmlspecialcharsCharsets = [
-                    'ISO-8859-1' => true, 'ISO8859-1' => true,
-                    'ISO-8859-15' => true, 'ISO8859-15' => true,
-                    'utf-8' => true, 'UTF-8' => true,
-                    'CP866' => true, 'IBM866' => true, '866' => true,
-                    'CP1251' => true, 'WINDOWS-1251' => true, 'WIN-1251' => true,
-                    '1251' => true,
-                    'CP1252' => true, 'WINDOWS-1252' => true, '1252' => true,
-                    'KOI8-R' => true, 'KOI8-RU' => true, 'KOI8R' => true,
-                    'BIG5' => true, '950' => true,
-                    'GB2312' => true, '936' => true,
-                    'BIG5-HKSCS' => true,
-                    'SHIFT_JIS' => true, 'SJIS' => true, '932' => true,
-                    'EUC-JP' => true, 'EUCJP' => true,
-                    'ISO8859-5' => true, 'ISO-8859-5' => true, 'MACROMAN' => true,
-                ];
-
-                if (isset($htmlspecialcharsCharsets[$charset])) {
+                static $htmlspecialchars_charsets = ['ISO-8859-1' => true, 'ISO8859-1' => true, 'ISO-8859-15' => true, 'ISO8859-15' => true, 'utf-8' => true, 'UTF-8' => true, 'CP866' => true, 'IBM866' => true, '866' => true, 'CP1251' => true, 'WINDOWS-1251' => true, 'WIN-1251' => true, '1251' => true, 'CP1252' => true, 'WINDOWS-1252' => true, '1252' => true, 'KOI8-R' => true, 'KOI8-RU' => true, 'KOI8R' => true, 'BIG5' => true, '950' => true, 'GB2312' => true, '936' => true, 'BIG5-HKSCS' => true, 'SHIFT_JIS' => true, 'SJIS' => true, '932' => true, 'EUC-JP' => true, 'EUCJP' => true, 'ISO8859-5' => true, 'ISO-8859-5' => true, 'MACROMAN' => true];
+                if (isset($htmlspecialchars_charsets[$charset])) {
                     return htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, $charset);
                 }
-
-                if (isset($htmlspecialcharsCharsets[strtoupper((string) $charset)])) {
+                if (isset($htmlspecialchars_charsets[strtoupper((string) $charset)])) {
                     // cache the lowercase variant for future iterations
-                    $htmlspecialcharsCharsets[$charset] = true;
-
+                    $htmlspecialchars_charsets[$charset] = true;
                     return htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, $charset);
                 }
-
-                $string = $this->convertEncoding($string, 'UTF-8', $charset);
+                $string = $this->convert_encoding($string, 'UTF-8', $charset);
                 $string = htmlspecialchars((string) $string, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
-
                 return iconv('UTF-8', (string) $charset, $string);
-
             case 'js':
                 // escape all non-alphanumeric characters
                 // into their \x or \uHHHH representations
                 if ('UTF-8' !== $charset) {
-                    $string = $this->convertEncoding($string, 'UTF-8', $charset);
+                    $string = $this->convert_encoding($string, 'UTF-8', $charset);
                 }
-
                 if (!preg_match('//u', (string) $string)) {
-                    throw new RuntimeError('The string to escape is not a valid UTF-8 string.');
+                    throw new Runtime_Error('The string to escape is not a valid UTF-8 string.');
                 }
-
                 $string = preg_replace_callback('#[^a-zA-Z0-9,\._]#Su', static function ($matches): string {
                     $char = $matches[0];
-
                     /*
-                    * A few characters have short escape sequences in JSON and JavaScript.
-                    * Escape sequences supported only by JavaScript, not JSON, are omitted.
-                    * \" is also supported but omitted, because the resulting string is not HTML safe.
-                    */
+                     * A few characters have short escape sequences in JSON and JavaScript.
+                     * Escape sequences supported only by JavaScript, not JSON, are omitted.
+                     * \" is also supported but omitted, because the resulting string is not HTML safe.
+                     */
                     $short = match ($char) {
                         '\\' => '\\\\',
-                        '/' => '\\/',
+                        '/' => '\/',
                         "\x08" => '\b',
-                        "\x0C" => '\f',
-                        "\x0A" => '\n',
-                        "\x0D" => '\r',
-                        "\x09" => '\t',
+                        "\f" => '\f',
+                        "\n" => '\n',
+                        "\r" => '\r',
+                        "\t" => '\t',
                         default => false,
                     };
-
                     if ($short) {
                         return $short;
                     }
-
                     $codepoint = mb_ord($char, 'UTF-8');
                     if (0x10000 > $codepoint) {
                         return \sprintf('\u%04X', $codepoint);
                     }
-
                     // Split characters outside the BMP into surrogate pairs
                     // https://tools.ietf.org/html/rfc2781.html#section-2.1
                     $u = $codepoint - 0x10000;
-                    $high = 0xD800 | ($u >> 10);
-                    $low = 0xDC00 | ($u & 0x3FF);
-
+                    $high = 0xd800 | $u >> 10;
+                    $low = 0xdc00 | $u & 0x3ff;
                     return \sprintf('\u%04X\u%04X', $high, $low);
                 }, (string) $string);
-
                 if ('UTF-8' !== $charset) {
                     return iconv('UTF-8', (string) $charset, $string);
                 }
-
                 return $string;
-
             case 'css':
                 if ('UTF-8' !== $charset) {
-                    $string = $this->convertEncoding($string, 'UTF-8', $charset);
+                    $string = $this->convert_encoding($string, 'UTF-8', $charset);
                 }
-
                 if (!preg_match('//u', (string) $string)) {
-                    throw new RuntimeError('The string to escape is not a valid UTF-8 string.');
+                    throw new Runtime_Error('The string to escape is not a valid UTF-8 string.');
                 }
-
                 $string = preg_replace_callback('#[^a-zA-Z0-9]#Su', static function ($matches): string {
                     $char = $matches[0];
-
-                    return \sprintf('\\%X ', 1 === \strlen($char) ? \ord($char) : mb_ord($char, 'UTF-8'));
+                    return \sprintf('\%X ', 1 === \strlen($char) ? \ord($char) : mb_ord($char, 'UTF-8'));
                 }, (string) $string);
-
                 if ('UTF-8' !== $charset) {
                     return iconv('UTF-8', (string) $charset, $string);
                 }
-
                 return $string;
-
             case 'html_attr':
             case 'html_attr_relaxed':
                 if ('UTF-8' !== $charset) {
-                    $string = $this->convertEncoding($string, 'UTF-8', $charset);
+                    $string = $this->convert_encoding($string, 'UTF-8', $charset);
                 }
-
                 if (!preg_match('//u', (string) $string)) {
-                    throw new RuntimeError('The string to escape is not a valid UTF-8 string.');
+                    throw new Runtime_Error('The string to escape is not a valid UTF-8 string.');
                 }
-
                 $regex = match ($strategy) {
                     'html_attr' => '#[^a-zA-Z0-9,\.\-_]#Su',
                     'html_attr_relaxed' => '#[^a-zA-Z0-9,\.\-_:@\[\]]#Su',
                 };
-
                 $string = preg_replace_callback($regex, static function ($matches): string {
                     /**
                      * This function is adapted from code coming from Zend Framework.
@@ -275,68 +215,61 @@ final class EscaperRuntime implements RuntimeExtensionInterface
                      */
                     $chr = $matches[0];
                     $ord = \ord($chr[0]);
-
                     /*
-                    * The following replaces characters undefined in HTML with the
-                    * hex entity for the Unicode replacement character.
-                    */
-                    if (($ord <= 0x1F && "\t" != $chr && "\n" != $chr && "\r" != $chr) || ($ord >= 0x7F && $ord <= 0x9F)) {
+                     * The following replaces characters undefined in HTML with the
+                     * hex entity for the Unicode replacement character.
+                     */
+                    if ($ord <= 0x1f && "\t" != $chr && "\n" != $chr && "\r" != $chr || $ord >= 0x7f && $ord <= 0x9f) {
                         return '&#xFFFD;';
                     }
-
                     /*
-                    * Check if the current character to escape has a name entity we should
-                    * replace it with while grabbing the hex value of the character.
-                    */
+                     * Check if the current character to escape has a name entity we should
+                     * replace it with while grabbing the hex value of the character.
+                     */
                     if (1 === \strlen($chr)) {
                         /*
-                        * While HTML supports far more named entities, the lowest common denominator
-                        * has become HTML5's XML Serialisation which is restricted to the those named
-                        * entities that XML supports. Using HTML entities would result in this error:
-                        *     XML Parsing Error: undefined entity
-                        */
+                         * While HTML supports far more named entities, the lowest common denominator
+                         * has become HTML5's XML Serialisation which is restricted to the those named
+                         * entities that XML supports. Using HTML entities would result in this error:
+                         *     XML Parsing Error: undefined entity
+                         */
                         return match ($ord) {
-                            34 => '&quot;', /* quotation mark */
-                            38 => '&amp;',  /* ampersand */
-                            60 => '&lt;',   /* less-than sign */
-                            62 => '&gt;',   /* greater-than sign */
+                            34 => '&quot;',
+                            /* quotation mark */
+                            38 => '&amp;',
+                            /* ampersand */
+                            60 => '&lt;',
+                            /* less-than sign */
+                            62 => '&gt;',
+                            /* greater-than sign */
                             default => \sprintf('&#x%02X;', $ord),
                         };
                     }
-
                     /*
-                    * Per OWASP recommendations, we'll use hex entities for any other
-                    * characters where a named entity does not exist.
-                    */
+                     * Per OWASP recommendations, we'll use hex entities for any other
+                     * characters where a named entity does not exist.
+                     */
                     return \sprintf('&#x%04X;', mb_ord($chr, 'UTF-8'));
                 }, (string) $string);
-
                 if ('UTF-8' !== $charset) {
                     return iconv('UTF-8', (string) $charset, $string);
                 }
-
                 return $string;
-
             case 'url':
                 return rawurlencode((string) $string);
-
             default:
                 if (\array_key_exists($strategy, $this->escapers)) {
                     return $this->escapers[$strategy]($string, $charset);
                 }
-
-                $validStrategies = implode('", "', array_merge(['html', 'js', 'url', 'css', 'html_attr', 'html_attr_relaxed'], array_keys($this->escapers)));
-
-                throw new RuntimeError(\sprintf('Invalid escaping strategy "%s" (valid ones: "%s").', $strategy, $validStrategies));
+                $valid_strategies = implode('", "', array_merge(['html', 'js', 'url', 'css', 'html_attr', 'html_attr_relaxed'], array_keys($this->escapers)));
+                throw new Runtime_Error(\sprintf('Invalid escaping strategy "%s" (valid ones: "%s").', $strategy, $valid_strategies));
         }
     }
-
-    private function convertEncoding(string $string, string $to, string $from): string|false
+    private function convert_encoding(string $string, string $to, string $from): string|false
     {
         if (!\function_exists('iconv')) {
-            throw new RuntimeError('Unable to convert encoding: required function iconv() does not exist. You should install ext-iconv or symfony/polyfill-iconv.');
+            throw new Runtime_Error('Unable to convert encoding: required function iconv() does not exist. You should install ext-iconv or symfony/polyfill-iconv.');
         }
-
         return iconv($from, $to, $string);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,12 +9,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 use Twig\Node\Node;
-use Twig\NodeVisitor\NodeVisitorInterface;
-
+use Twig\Node_Visitor\Node_Visitor_Interface;
 /**
  * A node traverser.
  *
@@ -23,25 +20,22 @@ use Twig\NodeVisitor\NodeVisitorInterface;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-final class NodeTraverser
+final class Node_Traverser
 {
     private array $visitors = [];
-
     /**
      * @param NodeVisitorInterface[] $visitors
      */
     public function __construct(private readonly Environment $env, array $visitors = [])
     {
         foreach ($visitors as $visitor) {
-            $this->addVisitor($visitor);
+            $this->add_visitor($visitor);
         }
     }
-
-    public function addVisitor(NodeVisitorInterface $visitor): void
+    public function add_visitor(Node_Visitor_Interface $visitor): void
     {
-        $this->visitors[$visitor->getPriority()][] = $visitor;
+        $this->visitors[$visitor->get_priority()][] = $visitor;
     }
-
     /**
      * Traverses a node and calls the registered visitors.
      */
@@ -50,27 +44,23 @@ final class NodeTraverser
         ksort($this->visitors);
         foreach ($this->visitors as $visitors) {
             foreach ($visitors as $visitor) {
-                $node = $this->traverseForVisitor($visitor, $node);
+                $node = $this->traverse_for_visitor($visitor, $node);
             }
         }
-
         return $node;
     }
-
-    private function traverseForVisitor(NodeVisitorInterface $visitor, Node $node): ?Node
+    private function traverse_for_visitor(Node_Visitor_Interface $visitor, Node $node): ?Node
     {
-        $node = $visitor->enterNode($node, $this->env);
-
+        $node = $visitor->enter_node($node, $this->env);
         foreach ($node as $k => $n) {
-            if (null !== $m = $this->traverseForVisitor($visitor, $n)) {
+            if (null !== $m = $this->traverse_for_visitor($visitor, $n)) {
                 if ($m !== $n) {
-                    $node->setNode($k, $m);
+                    $node->set_node($k, $m);
                 }
             } else {
-                $node->removeNode($k);
+                $node->remove_node($k);
             }
         }
-
-        return $visitor->leaveNode($node, $this->env);
+        return $visitor->leave_node($node, $this->env);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,40 +9,29 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Profiler\Dumper;
 
 use Twig\Profiler\Profile;
-
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-final class HtmlDumper extends BaseDumper
+final class Html_Dumper extends Base_Dumper
 {
-    private static array $colors = [
-        'block' => '#dfd',
-        'macro' => '#ddf',
-        'template' => '#ffd',
-        'big' => '#d44',
-    ];
-
+    private static array $colors = ['block' => '#dfd', 'macro' => '#ddf', 'template' => '#ffd', 'big' => '#d44'];
     public function dump(Profile $profile): string
     {
-        return '<pre>'.parent::dump($profile).'</pre>';
+        return '<pre>' . parent::dump($profile) . '</pre>';
     }
-
-    protected function formatTemplate(Profile $profile, $prefix): string
+    protected function format_template(Profile $profile, $prefix): string
     {
-        return \sprintf('%s└ <span style="background-color: %s">%s</span>', $prefix, self::$colors['template'], $profile->getTemplate());
+        return \sprintf('%s└ <span style="background-color: %s">%s</span>', $prefix, self::$colors['template'], $profile->get_template());
     }
-
-    protected function formatNonTemplate(Profile $profile, $prefix): string
+    protected function format_non_template(Profile $profile, $prefix): string
     {
-        return \sprintf('%s└ %s::%s(<span style="background-color: %s">%s</span>)', $prefix, $profile->getTemplate(), $profile->getType(), self::$colors[$profile->getType()] ?? 'auto', $profile->getName());
+        return \sprintf('%s└ %s::%s(<span style="background-color: %s">%s</span>)', $prefix, $profile->get_template(), $profile->get_type(), self::$colors[$profile->get_type()] ?? 'auto', $profile->get_name());
     }
-
-    protected function formatTime(Profile $profile, $percent): string
+    protected function format_time(Profile $profile, $percent): string
     {
-        return \sprintf('<span style="color: %s">%.2fms/%.0f%%</span>', $percent > 20 ? self::$colors['big'] : 'auto', $profile->getDuration() * 1000, $percent);
+        return \sprintf('<span style="color: %s">%.2fms/%.0f%%</span>', $percent > 20 ? self::$colors['big'] : 'auto', $profile->get_duration() * 1000, $percent);
     }
 }

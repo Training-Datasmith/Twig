@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,29 +9,24 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Node\DoNode;
+use Twig\Node\Do_Node;
 use Twig\Token;
-
 /**
  * Evaluates an expression, discarding the returned value.
  *
  * @internal
  */
-final class DoTokenParser extends AbstractTokenParser
+final class Do_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\DoNode
+    public function parse(Token $token): \Twig\Node\Do_Node
     {
-        $expr = $this->parser->parseExpression();
-
-        $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
-
-        return new DoNode($expr, $token->getLine());
+        $expr = $this->parser->parse_expression();
+        $this->parser->get_stream()->expect(Token::BLOCK_END_TYPE);
+        return new Do_Node($expr, $token->get_line());
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'do';
     }

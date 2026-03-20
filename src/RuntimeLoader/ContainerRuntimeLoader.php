@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,11 +9,9 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Runtime_Loader;
 
-namespace Twig\RuntimeLoader;
-
-use Psr\Container\ContainerInterface;
-
+use Psr\Container\Container_Interface;
 /**
  * Lazily loads Twig runtime implementations from a PSR-11 container.
  *
@@ -23,13 +20,11 @@ use Psr\Container\ContainerInterface;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Robin Chalas <robin.chalas@gmail.com>
  */
-class ContainerRuntimeLoader implements RuntimeLoaderInterface
+class Container_Runtime_Loader implements Runtime_Loader_Interface
 {
-    public function __construct(
-        private readonly ContainerInterface $container,
-    ) {
+    public function __construct(private readonly Container_Interface $container)
+    {
     }
-
     public function load(string $class)
     {
         return $this->container->has($class) ? $this->container->get($class) : null;

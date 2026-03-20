@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,12 +9,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node;
 
-use Twig\Attribute\YieldReady;
+use Twig\Attribute\Yield_Ready;
 use Twig\Compiler;
-
 /**
  * Represents an autoescape node.
  *
@@ -27,16 +24,15 @@ use Twig\Compiler;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-#[YieldReady]
-class AutoEscapeNode extends Node
+#[Yield_Ready]
+class Auto_Escape_Node extends Node
 {
     public function __construct($value, Node $body, int $lineno)
     {
         parent::__construct(['body' => $body], ['value' => $value], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        $compiler->subcompile($this->getNode('body'));
+        $compiler->subcompile($this->get_node('body'));
     }
 }

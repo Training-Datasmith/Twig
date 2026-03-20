@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,180 +9,154 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\NodeVisitor;
+namespace Twig\Node_Visitor;
 
 use Twig\Environment;
-use Twig\Extension\EscaperExtension;
-use Twig\Node\AutoEscapeNode;
-use Twig\Node\BlockNode;
-use Twig\Node\BlockReferenceNode;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\FilterExpression;
-use Twig\Node\Expression\OperatorEscapeInterface;
-use Twig\Node\ImportNode;
-use Twig\Node\ModuleNode;
+use Twig\Extension\Escaper_Extension;
+use Twig\Node\Auto_Escape_Node;
+use Twig\Node\Block_Node;
+use Twig\Node\Block_Reference_Node;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Filter_Expression;
+use Twig\Node\Expression\Operator_Escape_Interface;
+use Twig\Node\Import_Node;
+use Twig\Node\Module_Node;
 use Twig\Node\Node;
 use Twig\Node\Nodes;
-use Twig\Node\PrintNode;
-use Twig\NodeTraverser;
-
+use Twig\Node\Print_Node;
+use Twig\Node_Traverser;
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @internal
  */
-final class EscaperNodeVisitor implements NodeVisitorInterface
+final class Escaper_Node_Visitor implements Node_Visitor_Interface
 {
-    private array $statusStack = [];
+    private array $status_stack = [];
     private array $blocks = [];
-    private readonly \Twig\NodeVisitor\SafeAnalysisNodeVisitor $safeAnalysis;
-    private ?\Twig\NodeTraverser $traverser = null;
-    private $defaultStrategy = false;
-    private array $safeVars = [];
-
+    private readonly \Twig\Node_Visitor\Safe_Analysis_Node_Visitor $safe_analysis;
+    private ?\Twig\Node_Traverser $traverser = null;
+    private $default_strategy = false;
+    private array $safe_vars = [];
     public function __construct()
     {
-        $this->safeAnalysis = new SafeAnalysisNodeVisitor();
+        $this->safe_analysis = new Safe_Analysis_Node_Visitor();
     }
-
-    public function enterNode(Node $node, Environment $env): Node
+    public function enter_node(Node $node, Environment $env): Node
     {
-        if ($node instanceof ModuleNode) {
-            if ($env->hasExtension(EscaperExtension::class) && $defaultStrategy = $env->getExtension(EscaperExtension::class)->getDefaultStrategy($node->getTemplateName())) {
-                $this->defaultStrategy = $defaultStrategy;
+        if ($node instanceof Module_Node) {
+            if ($env->has_extension(Escaper_Extension::class) && $default_strategy = $env->get_extension(Escaper_Extension::class)->get_default_strategy($node->get_template_name())) {
+                $this->default_strategy = $default_strategy;
             }
-            $this->safeVars = [];
+            $this->safe_vars = [];
             $this->blocks = [];
-        } elseif ($node instanceof AutoEscapeNode) {
-            $this->statusStack[] = $node->getAttribute('value');
-        } elseif ($node instanceof BlockNode) {
-            $this->statusStack[] = $this->blocks[$node->getAttribute('name')] ?? $this->needEscaping();
-        } elseif ($node instanceof ImportNode) {
-            $this->safeVars[] = $node->getNode('var')->getNode('var')->getAttribute('name');
+        } elseif ($node instanceof Auto_Escape_Node) {
+            $this->status_stack[] = $node->get_attribute('value');
+        } elseif ($node instanceof Block_Node) {
+            $this->status_stack[] = $this->blocks[$node->get_attribute('name')] ?? $this->need_escaping();
+        } elseif ($node instanceof Import_Node) {
+            $this->safe_vars[] = $node->get_node('var')->get_node('var')->get_attribute('name');
         }
-
         return $node;
     }
-
-    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
+    public function leave_node(Node $node, Environment $env): \Twig\Node\Node
     {
-        if ($node instanceof ModuleNode) {
-            $this->defaultStrategy = false;
-            $this->safeVars = [];
+        if ($node instanceof Module_Node) {
+            $this->default_strategy = false;
+            $this->safe_vars = [];
             $this->blocks = [];
-        } elseif ($node instanceof FilterExpression) {
-            return $this->preEscapeFilterNode($node, $env);
-        } elseif ($node instanceof PrintNode && false !== $type = $this->needEscaping()) {
+        } elseif ($node instanceof Filter_Expression) {
+            return $this->pre_escape_filter_node($node, $env);
+        } elseif ($node instanceof Print_Node && false !== $type = $this->need_escaping()) {
             if (true === $type) {
                 $type = 'html';
             }
-            $expression = $node->getNode('expr');
-            if ($expression instanceof OperatorEscapeInterface) {
-                $this->escapeConditional($expression, $env, $type);
+            $expression = $node->get_node('expr');
+            if ($expression instanceof Operator_Escape_Interface) {
+                $this->escape_conditional($expression, $env, $type);
             } else {
-                $node->setNode('expr', $this->escapeExpression($expression, $env, $type));
+                $node->set_node('expr', $this->escape_expression($expression, $env, $type));
             }
-
             return $node;
         }
-
-        if ($node instanceof AutoEscapeNode || $node instanceof BlockNode) {
-            array_pop($this->statusStack);
-        } elseif ($node instanceof BlockReferenceNode) {
-            $this->blocks[$node->getAttribute('name')] = $this->needEscaping();
+        if ($node instanceof Auto_Escape_Node || $node instanceof Block_Node) {
+            array_pop($this->status_stack);
+        } elseif ($node instanceof Block_Reference_Node) {
+            $this->blocks[$node->get_attribute('name')] = $this->need_escaping();
         }
-
         return $node;
     }
-
     /**
      * @param AbstractExpression&OperatorEscapeInterface $expression
      */
-    private function escapeConditional($expression, Environment $env, string $type): void
+    private function escape_conditional($expression, Environment $env, string $type): void
     {
-        foreach ($expression->getOperandNamesToEscape() as $name) {
+        foreach ($expression->get_operand_names_to_escape() as $name) {
             /** @var AbstractExpression $operand */
-            $operand = $expression->getNode($name);
-            if ($operand instanceof OperatorEscapeInterface) {
-                $this->escapeConditional($operand, $env, $type);
+            $operand = $expression->get_node($name);
+            if ($operand instanceof Operator_Escape_Interface) {
+                $this->escape_conditional($operand, $env, $type);
             } else {
-                $expression->setNode($name, $this->escapeExpression($operand, $env, $type));
+                $expression->set_node($name, $this->escape_expression($operand, $env, $type));
             }
         }
     }
-
-    private function escapeExpression(AbstractExpression $expression, Environment $env, string $type): AbstractExpression
+    private function escape_expression(Abstract_Expression $expression, Environment $env, string $type): Abstract_Expression
     {
-        return $this->isSafeFor($type, $expression, $env) ? $expression : $this->getEscaperFilter($env, $type, $expression);
+        return $this->is_safe_for($type, $expression, $env) ? $expression : $this->get_escaper_filter($env, $type, $expression);
     }
-
-    private function preEscapeFilterNode(FilterExpression $filter, Environment $env): FilterExpression
+    private function pre_escape_filter_node(Filter_Expression $filter, Environment $env): Filter_Expression
     {
-        if ($filter->hasAttribute('twig_callable')) {
-            $type = $filter->getAttribute('twig_callable')->getPreEscape();
+        if ($filter->has_attribute('twig_callable')) {
+            $type = $filter->get_attribute('twig_callable')->get_pre_escape();
         } else {
             // legacy
-            $name = $filter->getNode('filter', false)->getAttribute('value');
-            $type = $env->getFilter($name)->getPreEscape();
+            $name = $filter->get_node('filter', false)->get_attribute('value');
+            $type = $env->get_filter($name)->get_pre_escape();
         }
-
         if (null === $type) {
             return $filter;
         }
-
         /** @var AbstractExpression $node */
-        $node = $filter->getNode('node');
-        if ($this->isSafeFor($type, $node, $env)) {
+        $node = $filter->get_node('node');
+        if ($this->is_safe_for($type, $node, $env)) {
             return $filter;
         }
-
-        $filter->setNode('node', $this->getEscaperFilter($env, $type, $node));
-
+        $filter->set_node('node', $this->get_escaper_filter($env, $type, $node));
         return $filter;
     }
-
-    private function isSafeFor(string $type, AbstractExpression $expression, Environment $env): bool
+    private function is_safe_for(string $type, Abstract_Expression $expression, Environment $env): bool
     {
-        $safe = $this->safeAnalysis->getSafe($expression);
-
+        $safe = $this->safe_analysis->get_safe($expression);
         if (!$safe) {
             if (null === $this->traverser) {
-                $this->traverser = new NodeTraverser($env, [$this->safeAnalysis]);
+                $this->traverser = new Node_Traverser($env, [$this->safe_analysis]);
             }
-
-            $this->safeAnalysis->setSafeVars($this->safeVars);
-
+            $this->safe_analysis->set_safe_vars($this->safe_vars);
             $this->traverser->traverse($expression);
-            $safe = $this->safeAnalysis->getSafe($expression);
+            $safe = $this->safe_analysis->get_safe($expression);
         }
-
         return \in_array($type, $safe, true) || \in_array('all', $safe, true);
     }
-
     /**
      * @return string|false
      */
-    private function needEscaping(): string|bool
+    private function need_escaping(): string|bool
     {
-        if (\count($this->statusStack)) {
-            return $this->statusStack[\count($this->statusStack) - 1];
+        if (\count($this->status_stack)) {
+            return $this->status_stack[\count($this->status_stack) - 1];
         }
-
-        return $this->defaultStrategy ?: false;
+        return $this->default_strategy ?: false;
     }
-
-    private function getEscaperFilter(Environment $env, string $type, AbstractExpression $node): FilterExpression
+    private function get_escaper_filter(Environment $env, string $type, Abstract_Expression $node): Filter_Expression
     {
-        $line = $node->getTemplateLine();
-        $filter = $env->getFilter('escape');
-        $args = new Nodes([new ConstantExpression($type, $line), new ConstantExpression(null, $line), new ConstantExpression(true, $line)]);
-
-        return new FilterExpression($node, $filter, $args, $line);
+        $line = $node->get_template_line();
+        $filter = $env->get_filter('escape');
+        $args = new Nodes([new Constant_Expression($type, $line), new Constant_Expression(null, $line), new Constant_Expression(true, $line)]);
+        return new Filter_Expression($node, $filter, $args, $line);
     }
-
-    public function getPriority(): int
+    public function get_priority(): int
     {
         return 0;
     }

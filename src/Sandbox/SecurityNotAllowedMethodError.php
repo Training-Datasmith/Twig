@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Sandbox;
 
 /**
@@ -18,20 +16,18 @@ namespace Twig\Sandbox;
  *
  * @author Kit Burton-Senior <mail@kitbs.com>
  */
-final class SecurityNotAllowedMethodError extends SecurityError
+final class Security_Not_Allowed_Method_Error extends Security_Error
 {
-    public function __construct(string $message, private readonly string $className, private readonly string $methodName)
+    public function __construct(string $message, private readonly string $class_name, private readonly string $method_name)
     {
         parent::__construct($message);
     }
-
-    public function getClassName(): string
+    public function get_class_name(): string
     {
-        return $this->className;
+        return $this->class_name;
     }
-
-    public function getMethodName(): string
+    public function get_method_name(): string
     {
-        return $this->methodName;
+        return $this->method_name;
     }
 }

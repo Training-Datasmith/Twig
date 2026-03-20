@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,15 +9,13 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Extension;
 
-use Twig\NodeVisitor\NodeVisitorInterface;
-use Twig\TokenParser\TokenParserInterface;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
-use Twig\TwigTest;
-
+use Twig\Node_Visitor\Node_Visitor_Interface;
+use Twig\Token_Parser\Token_Parser_Interface;
+use Twig\Twig_Filter;
+use Twig\Twig_Function;
+use Twig\Twig_Test;
 /**
  * Used by \Twig\Environment as a staging area.
  *
@@ -26,76 +23,62 @@ use Twig\TwigTest;
  *
  * @internal
  */
-final class StagingExtension extends AbstractExtension
+final class Staging_Extension extends Abstract_Extension
 {
     private array $functions = [];
     private array $filters = [];
     private array $visitors = [];
-    private array $tokenParsers = [];
+    private array $token_parsers = [];
     private array $tests = [];
-
-    public function addFunction(TwigFunction $function): void
+    public function add_function(Twig_Function $function): void
     {
-        if (isset($this->functions[$function->getName()])) {
-            throw new \LogicException(\sprintf('Function "%s" is already registered.', $function->getName()));
+        if (isset($this->functions[$function->get_name()])) {
+            throw new \LogicException(\sprintf('Function "%s" is already registered.', $function->get_name()));
         }
-
-        $this->functions[$function->getName()] = $function;
+        $this->functions[$function->get_name()] = $function;
     }
-
-    public function getFunctions(): array
+    public function get_functions(): array
     {
         return $this->functions;
     }
-
-    public function addFilter(TwigFilter $filter): void
+    public function add_filter(Twig_Filter $filter): void
     {
-        if (isset($this->filters[$filter->getName()])) {
-            throw new \LogicException(\sprintf('Filter "%s" is already registered.', $filter->getName()));
+        if (isset($this->filters[$filter->get_name()])) {
+            throw new \LogicException(\sprintf('Filter "%s" is already registered.', $filter->get_name()));
         }
-
-        $this->filters[$filter->getName()] = $filter;
+        $this->filters[$filter->get_name()] = $filter;
     }
-
-    public function getFilters(): array
+    public function get_filters(): array
     {
         return $this->filters;
     }
-
-    public function addNodeVisitor(NodeVisitorInterface $visitor): void
+    public function add_node_visitor(Node_Visitor_Interface $visitor): void
     {
         $this->visitors[] = $visitor;
     }
-
-    public function getNodeVisitors(): array
+    public function get_node_visitors(): array
     {
         return $this->visitors;
     }
-
-    public function addTokenParser(TokenParserInterface $parser): void
+    public function add_token_parser(Token_Parser_Interface $parser): void
     {
-        if (isset($this->tokenParsers[$parser->getTag()])) {
-            throw new \LogicException(\sprintf('Tag "%s" is already registered.', $parser->getTag()));
+        if (isset($this->token_parsers[$parser->get_tag()])) {
+            throw new \LogicException(\sprintf('Tag "%s" is already registered.', $parser->get_tag()));
         }
-
-        $this->tokenParsers[$parser->getTag()] = $parser;
+        $this->token_parsers[$parser->get_tag()] = $parser;
     }
-
-    public function getTokenParsers(): array
+    public function get_token_parsers(): array
     {
-        return $this->tokenParsers;
+        return $this->token_parsers;
     }
-
-    public function addTest(TwigTest $test): void
+    public function add_test(Twig_Test $test): void
     {
-        if (isset($this->tests[$test->getName()])) {
-            throw new \LogicException(\sprintf('Test "%s" is already registered.', $test->getName()));
+        if (isset($this->tests[$test->get_name()])) {
+            throw new \LogicException(\sprintf('Test "%s" is already registered.', $test->get_name()));
         }
-
-        $this->tests[$test->getName()] = $test;
+        $this->tests[$test->get_name()] = $test;
     }
-
-    public function getTests(): array
+    public function get_tests(): array
     {
         return $this->tests;
     }

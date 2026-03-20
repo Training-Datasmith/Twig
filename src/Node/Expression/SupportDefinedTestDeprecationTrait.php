@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 /**
@@ -20,27 +18,23 @@ namespace Twig\Node\Expression;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-trait SupportDefinedTestDeprecationTrait
+trait Support_Defined_Test_Deprecation_Trait
 {
-    public function getAttribute($name, $default = null)
+    public function get_attribute($name, $default = null)
     {
         if ('is_defined_test' === $name) {
             trigger_deprecation('twig/twig', '3.21', 'The "is_defined_test" attribute is deprecated, call "isDefinedTestEnabled()" instead.');
-
-            return $this->isDefinedTestEnabled();
+            return $this->is_defined_test_enabled();
         }
-
-        return parent::getAttribute($name, $default);
+        return parent::get_attribute($name, $default);
     }
-
-    public function setAttribute(string $name, $value): void
+    public function set_attribute(string $name, $value): void
     {
         if ('is_defined_test' === $name) {
             trigger_deprecation('twig/twig', '3.21', 'The "is_defined_test" attribute is deprecated, call "enableDefinedTest()" instead.');
-
-            $this->definedTest = (bool) $value;
+            $this->defined_test = (bool) $value;
         } else {
-            parent::setAttribute($name, $value);
+            parent::set_attribute($name, $value);
         }
     }
 }

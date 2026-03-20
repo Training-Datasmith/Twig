@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,44 +9,29 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node;
 
-use Twig\Attribute\YieldReady;
+use Twig\Attribute\Yield_Ready;
 use Twig\Compiler;
-
 /**
  * Internal node used by the for node.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-#[YieldReady]
-class ForLoopNode extends Node
+#[Yield_Ready]
+class For_Loop_Node extends Node
 {
     public function __construct(int $lineno)
     {
         parent::__construct([], ['with_loop' => false, 'ifexpr' => false, 'else' => false], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        if ($this->getAttribute('else')) {
+        if ($this->get_attribute('else')) {
             $compiler->write("\$context['_iterated'] = true;\n");
         }
-
-        if ($this->getAttribute('with_loop')) {
-            $compiler
-                ->write("++\$context['loop']['index0'];\n")
-                ->write("++\$context['loop']['index'];\n")
-                ->write("\$context['loop']['first'] = false;\n")
-                ->write("if (isset(\$context['loop']['revindex0'], \$context['loop']['revindex'])) {\n")
-                ->indent()
-                ->write("--\$context['loop']['revindex0'];\n")
-                ->write("--\$context['loop']['revindex'];\n")
-                ->write("\$context['loop']['last'] = 0 === \$context['loop']['revindex0'];\n")
-                ->outdent()
-                ->write("}\n")
-            ;
+        if ($this->get_attribute('with_loop')) {
+            $compiler->write("++\$context['loop']['index0'];\n")->write("++\$context['loop']['index'];\n")->write("\$context['loop']['first'] = false;\n")->write("if (isset(\$context['loop']['revindex0'], \$context['loop']['revindex'])) {\n")->indent()->write("--\$context['loop']['revindex0'];\n")->write("--\$context['loop']['revindex'];\n")->write("\$context['loop']['last'] = 0 === \$context['loop']['revindex0'];\n")->outdent()->write("}\n");
         }
     }
 }

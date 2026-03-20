@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,180 +10,111 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
-use Twig\Extension\SandboxExtension;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Extension\Sandbox_Extension;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Template;
-
-class GetAttrExpression extends AbstractExpression implements SupportDefinedTestInterface
+class Get_Attr_Expression extends Abstract_Expression implements Support_Defined_Test_Interface
 {
-    use SupportDefinedTestDeprecationTrait;
-    use SupportDefinedTestTrait;
-
+    use Support_Defined_Test_Deprecation_Trait;
+    use Support_Defined_Test_Trait;
     /**
      * @param ArrayExpression|NameExpression|null $arguments
      */
-    public function __construct(AbstractExpression $node, AbstractExpression $attribute, ?AbstractExpression $arguments, string $type, int $lineno, bool $nullSafe = false)
+    public function __construct(Abstract_Expression $node, Abstract_Expression $attribute, ?Abstract_Expression $arguments, string $type, int $lineno, bool $null_safe = false)
     {
         $nodes = ['node' => $node, 'attribute' => $attribute];
         if (null !== $arguments) {
             $nodes['arguments'] = $arguments;
         }
-
-        if ($arguments && !$arguments instanceof ArrayExpression && !$arguments instanceof ContextVariable) {
-            trigger_deprecation('twig/twig', '3.15', \sprintf('Not passing a "%s" instance as the "arguments" argument of the "%s" constructor is deprecated ("%s" given).', ArrayExpression::class, static::class, $arguments::class));
+        if ($arguments && !$arguments instanceof Array_Expression && !$arguments instanceof Context_Variable) {
+            trigger_deprecation('twig/twig', '3.15', \sprintf('Not passing a "%s" instance as the "arguments" argument of the "%s" constructor is deprecated ("%s" given).', Array_Expression::class, static::class, $arguments::class));
         }
-
-        parent::__construct($nodes, ['type' => $type, 'ignore_strict_check' => false, 'optimizable' => !$nullSafe, 'null_safe' => $nullSafe, 'is_short_circuited' => false, 'var_name' => null], $lineno);
+        parent::__construct($nodes, ['type' => $type, 'ignore_strict_check' => false, 'optimizable' => !$null_safe, 'null_safe' => $null_safe, 'is_short_circuited' => false, 'var_name' => null], $lineno);
     }
-
-    public function enableDefinedTest(): void
+    public function enable_defined_test(): void
     {
-        $this->definedTest = true;
-        $this->changeIgnoreStrictCheck($this);
+        $this->defined_test = true;
+        $this->change_ignore_strict_check($this);
     }
-
     public function compile(Compiler $compiler): void
     {
-        $env = $compiler->getEnvironment();
-        $arrayAccessSandbox = false;
-        $nullSafe = $this->getAttribute('null_safe');
-
+        $env = $compiler->get_environment();
+        $array_access_sandbox = false;
+        $null_safe = $this->get_attribute('null_safe');
         // optimize array calls
-        if (
-            $this->getAttribute('optimizable')
-            && (!$env->isStrictVariables() || $this->getAttribute('ignore_strict_check'))
-            && !$this->definedTest
-            && Template::ARRAY_CALL === $this->getAttribute('type')
-        ) {
-            $var = '$'.$compiler->getVarName();
-            $compiler
-                ->raw('(('.$var.' = ')
-                ->subcompile($this->getNode('node'))
-                ->raw(') && is_array(')
-                ->raw($var);
-
-            if (!$env->hasExtension(SandboxExtension::class)) {
-                $compiler
-                    ->raw(') || ')
-                    ->raw($var)
-                    ->raw(' instanceof ArrayAccess ? (')
-                    ->raw($var)
-                    ->raw('[')
-                    ->subcompile($this->getNode('attribute'))
-                    ->raw('] ?? null) : null)')
-                ;
-
+        if ($this->get_attribute('optimizable') && (!$env->is_strict_variables() || $this->get_attribute('ignore_strict_check')) && !$this->defined_test && Template::ARRAY_CALL === $this->get_attribute('type')) {
+            $var = '$' . $compiler->get_var_name();
+            $compiler->raw('((' . $var . ' = ')->subcompile($this->get_node('node'))->raw(') && is_array(')->raw($var);
+            if (!$env->has_extension(Sandbox_Extension::class)) {
+                $compiler->raw(') || ')->raw($var)->raw(' instanceof ArrayAccess ? (')->raw($var)->raw('[')->subcompile($this->get_node('attribute'))->raw('] ?? null) : null)');
                 return;
             }
-
-            $arrayAccessSandbox = true;
-
-            $compiler
-                ->raw(') || ')
-                ->raw($var)
-                ->raw(' instanceof ArrayAccess && in_array(')
-                ->raw($var.'::class')
-                ->raw(', CoreExtension::ARRAY_LIKE_CLASSES, true) ? (')
-                ->raw($var)
-                ->raw('[')
-                ->subcompile($this->getNode('attribute'))
-                ->raw('] ?? null) : ')
-            ;
+            $array_access_sandbox = true;
+            $compiler->raw(') || ')->raw($var)->raw(' instanceof ArrayAccess && in_array(')->raw($var . '::class')->raw(', CoreExtension::ARRAY_LIKE_CLASSES, true) ? (')->raw($var)->raw('[')->subcompile($this->get_node('attribute'))->raw('] ?? null) : ');
         }
-
-        if ($this->getAttribute('ignore_strict_check')) {
-            $this->getNode('node')->setAttribute('ignore_strict_check', true);
+        if ($this->get_attribute('ignore_strict_check')) {
+            $this->get_node('node')->set_attribute('ignore_strict_check', true);
         }
-
-        if (null === $nullSafeNode = $nullSafe ? $this : null) {
-            $node = $this->getNode('node');
+        if (null === $null_safe_node = $null_safe ? $this : null) {
+            $node = $this->get_node('node');
             while ($node instanceof self) {
-                if ($node->getAttribute('null_safe')) {
-                    $nullSafeNode = $node;
+                if ($node->get_attribute('null_safe')) {
+                    $null_safe_node = $node;
                     break;
                 }
-                $node = $node->getNode('node');
+                $node = $node->get_node('node');
             }
         }
-
-        $isShortCircuited = false;
-        if (null !== $nullSafeNode && !$nullSafeNode->isShortCircuited()) {
-            $compiler
-                ->raw('((null === ('.$nullSafeNode->getVarName($compiler).' = ')
-                ->subcompile($nullSafeNode->getNode('node'))
-                ->raw(')) ? null : ');
-
-            $nullSafeNode->markAsShortCircuited();
-            $isShortCircuited = true;
+        $is_short_circuited = false;
+        if (null !== $null_safe_node && !$null_safe_node->is_short_circuited()) {
+            $compiler->raw('((null === (' . $null_safe_node->get_var_name($compiler) . ' = ')->subcompile($null_safe_node->get_node('node'))->raw(')) ? null : ');
+            $null_safe_node->mark_as_short_circuited();
+            $is_short_circuited = true;
         }
-
         $compiler->raw('CoreExtension::getAttribute($this->env, $this->source, ');
-
-        if ($nullSafe) {
-            $compiler->raw($this->getVarName($compiler));
+        if ($null_safe) {
+            $compiler->raw($this->get_var_name($compiler));
         } else {
-            $compiler->subcompile($this->getNode('node'));
+            $compiler->subcompile($this->get_node('node'));
         }
-
-        $compiler
-            ->raw(', ')
-            ->subcompile($this->getNode('attribute'))
-        ;
-
-        if ($this->hasNode('arguments')) {
-            $compiler->raw(', ')->subcompile($this->getNode('arguments'));
+        $compiler->raw(', ')->subcompile($this->get_node('attribute'));
+        if ($this->has_node('arguments')) {
+            $compiler->raw(', ')->subcompile($this->get_node('arguments'));
         } else {
             $compiler->raw(', []');
         }
-
-        $compiler->raw(', ')
-            ->repr($this->getAttribute('type'))
-            ->raw(', ')->repr($this->definedTest)
-            ->raw(', ')->repr($this->getAttribute('ignore_strict_check'))
-            ->raw(', ')->repr($env->hasExtension(SandboxExtension::class))
-            ->raw(', ')->repr($this->getNode('node')->getTemplateLine())
-            ->raw(')')
-        ;
-
-        if ($arrayAccessSandbox) {
+        $compiler->raw(', ')->repr($this->get_attribute('type'))->raw(', ')->repr($this->defined_test)->raw(', ')->repr($this->get_attribute('ignore_strict_check'))->raw(', ')->repr($env->has_extension(Sandbox_Extension::class))->raw(', ')->repr($this->get_node('node')->get_template_line())->raw(')');
+        if ($array_access_sandbox) {
             $compiler->raw(')');
         }
-
-        if ($isShortCircuited) {
+        if ($is_short_circuited) {
             $compiler->raw(')');
         }
     }
-
-    private function changeIgnoreStrictCheck(self $node): void
+    private function change_ignore_strict_check(self $node): void
     {
-        $node->setAttribute('optimizable', false);
-        $node->setAttribute('ignore_strict_check', true);
-
-        if ($node->getNode('node') instanceof self) {
-            $this->changeIgnoreStrictCheck($node->getNode('node'));
+        $node->set_attribute('optimizable', false);
+        $node->set_attribute('ignore_strict_check', true);
+        if ($node->get_node('node') instanceof self) {
+            $this->change_ignore_strict_check($node->get_node('node'));
         }
     }
-
-    private function markAsShortCircuited(): void
+    private function mark_as_short_circuited(): void
     {
-        $this->setAttribute('is_short_circuited', true);
+        $this->set_attribute('is_short_circuited', true);
     }
-
-    private function isShortCircuited(): bool
+    private function is_short_circuited(): bool
     {
-        return $this->getAttribute('is_short_circuited');
+        return $this->get_attribute('is_short_circuited');
     }
-
-    private function getVarName(Compiler $compiler): string
+    private function get_var_name(Compiler $compiler): string
     {
-        if (null === $this->getAttribute('var_name')) {
-            $this->setAttribute('var_name', $compiler->getVarName());
+        if (null === $this->get_attribute('var_name')) {
+            $this->set_attribute('var_name', $compiler->get_var_name());
         }
-
-        return '$'.$this->getAttribute('var_name');
+        return '$' . $this->get_attribute('var_name');
     }
 }

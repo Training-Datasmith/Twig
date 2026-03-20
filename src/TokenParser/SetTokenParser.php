@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,14 +9,12 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Error\SyntaxError;
+use Twig\Error\Syntax_Error;
 use Twig\Node\Nodes;
-use Twig\Node\SetNode;
+use Twig\Node\Set_Node;
 use Twig\Token;
-
 /**
  * Defines a variable.
  *
@@ -30,59 +27,48 @@ use Twig\Token;
  *
  * @internal
  */
-final class SetTokenParser extends AbstractTokenParser
+final class Set_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\SetNode
+    public function parse(Token $token): \Twig\Node\Set_Node
     {
-        $lineno = $token->getLine();
-        $stream = $this->parser->getStream();
-        $names = $this->parseAssignmentExpression();
-
+        $lineno = $token->get_line();
+        $stream = $this->parser->get_stream();
+        $names = $this->parse_assignment_expression();
         $capture = false;
-        if ($stream->nextIf(Token::OPERATOR_TYPE, '=')) {
-            $values = $this->parseMultitargetExpression();
-
+        if ($stream->next_if(Token::OPERATOR_TYPE, '=')) {
+            $values = $this->parse_multitarget_expression();
             $stream->expect(Token::BLOCK_END_TYPE);
-
             if (\count($names) !== \count($values)) {
-                throw new SyntaxError('When using set, you must have the same number of variables and assignments.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
+                throw new Syntax_Error('When using set, you must have the same number of variables and assignments.', $stream->get_current()->get_line(), $stream->get_source_context());
             }
         } else {
             $capture = true;
-
             if (\count($names) > 1) {
-                throw new SyntaxError('When using set with a block, you cannot have a multi-target.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
+                throw new Syntax_Error('When using set with a block, you cannot have a multi-target.', $stream->get_current()->get_line(), $stream->get_source_context());
             }
-
             $stream->expect(Token::BLOCK_END_TYPE);
-
-            $values = $this->parser->subparse($this->decideBlockEnd(...), true);
+            $values = $this->parser->subparse($this->decide_block_end(...), true);
             $stream->expect(Token::BLOCK_END_TYPE);
         }
-
-        return new SetNode($capture, $names, $values, $lineno);
+        return new Set_Node($capture, $names, $values, $lineno);
     }
-
-    public function decideBlockEnd(Token $token): bool
+    public function decide_block_end(Token $token): bool
     {
         return $token->test('endset');
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'set';
     }
-
-    private function parseMultitargetExpression(): Nodes
+    private function parse_multitarget_expression(): Nodes
     {
         $targets = [];
         while (true) {
-            $targets[] = $this->parser->parseExpression();
-            if (!$this->parser->getStream()->nextIf(Token::PUNCTUATION_TYPE, ',')) {
+            $targets[] = $this->parser->parse_expression();
+            if (!$this->parser->get_stream()->next_if(Token::PUNCTUATION_TYPE, ',')) {
                 break;
             }
         }
-
         return new Nodes($targets);
     }
 }

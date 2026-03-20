@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,19 +9,17 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node;
 
-use Twig\Attribute\YieldReady;
+use Twig\Attribute\Yield_Ready;
 use Twig\Compiler;
-
 /**
  * Represents a types node.
  *
  * @author Jeroen Versteeg <jeroen@alisqi.com>
  */
-#[YieldReady]
-class TypesNode extends Node
+#[Yield_Ready]
+class Types_Node extends Node
 {
     /**
      * @param array<string, array{type: string, optional: bool}> $types
@@ -31,7 +28,6 @@ class TypesNode extends Node
     {
         parent::__construct([], ['mapping' => $types], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
         // Don't compile anything.

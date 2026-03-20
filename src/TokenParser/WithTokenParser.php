@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,12 +9,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Node\WithNode;
+use Twig\Node\With_Node;
 use Twig\Token;
-
 /**
  * Creates a nested scope.
  *
@@ -23,34 +20,27 @@ use Twig\Token;
  *
  * @internal
  */
-final class WithTokenParser extends AbstractTokenParser
+final class With_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\WithNode
+    public function parse(Token $token): \Twig\Node\With_Node
     {
-        $stream = $this->parser->getStream();
-
+        $stream = $this->parser->get_stream();
         $variables = null;
         $only = false;
         if (!$stream->test(Token::BLOCK_END_TYPE)) {
-            $variables = $this->parser->parseExpression();
-            $only = (bool) $stream->nextIf(Token::NAME_TYPE, 'only');
+            $variables = $this->parser->parse_expression();
+            $only = (bool) $stream->next_if(Token::NAME_TYPE, 'only');
         }
-
         $stream->expect(Token::BLOCK_END_TYPE);
-
-        $body = $this->parser->subparse($this->decideWithEnd(...), true);
-
+        $body = $this->parser->subparse($this->decide_with_end(...), true);
         $stream->expect(Token::BLOCK_END_TYPE);
-
-        return new WithNode($body, $variables, $only, $token->getLine());
+        return new With_Node($body, $variables, $only, $token->get_line());
     }
-
-    public function decideWithEnd(Token $token): bool
+    public function decide_with_end(Token $token): bool
     {
         return $token->test('endwith');
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'with';
     }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,40 +9,35 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Loader;
 
-use Twig\Error\LoaderError;
+use Twig\Error\Loader_Error;
 use Twig\Source;
-
 /**
  * Interface all loaders must implement.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface LoaderInterface
+interface Loader_Interface
 {
     /**
      * Returns the source context for a given template logical name.
      *
      * @throws LoaderError When $name is not found
      */
-    public function getSourceContext(string $name): Source;
-
+    public function get_source_context(string $name): Source;
     /**
      * Gets the cache key to use for the cache for a given template name.
      *
      * @throws LoaderError When $name is not found
      */
-    public function getCacheKey(string $name): string;
-
+    public function get_cache_key(string $name): string;
     /**
      * @param int $time Timestamp of the last modification time of the cached template
      *
      * @throws LoaderError When $name is not found
      */
-    public function isFresh(string $name, int $time): bool;
-
+    public function is_fresh(string $name, int $time): bool;
     /**
      * @return bool
      */

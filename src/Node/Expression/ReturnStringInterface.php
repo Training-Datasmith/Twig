@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,9 +9,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
-interface ReturnStringInterface extends ReturnPrimitiveTypeInterface
+interface Return_String_Interface extends Return_Primitive_Type_Interface
 {
 }

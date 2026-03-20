@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,20 +9,17 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser;
 
-namespace Twig\ExpressionParser;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\Expression\AbstractExpression;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Expression\Abstract_Expression;
 use Twig\Parser;
 use Twig\Token;
-
-interface InfixExpressionParserInterface extends ExpressionParserInterface
+interface Infix_Expression_Parser_Interface extends Expression_Parser_Interface
 {
     /**
      * @throws SyntaxError
      */
-    public function parse(Parser $parser, AbstractExpression $left, Token $token): AbstractExpression;
-
-    public function getAssociativity(): InfixAssociativity;
+    public function parse(Parser $parser, Abstract_Expression $left, Token $token): Abstract_Expression;
+    public function get_associativity(): Infix_Associativity;
 }

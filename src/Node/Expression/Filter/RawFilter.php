@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,38 +9,34 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Filter;
 
-use Twig\Attribute\FirstClassTwigCallableReady;
+use Twig\Attribute\First_Class_Twig_Callable_Ready;
 use Twig\Compiler;
-use Twig\Node\EmptyNode;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\FilterExpression;
+use Twig\Node\Empty_Node;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Filter_Expression;
 use Twig\Node\Node;
-use Twig\TwigFilter;
-
+use Twig\Twig_Filter;
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class RawFilter extends FilterExpression
+class Raw_Filter extends Filter_Expression
 {
     /**
      * @param AbstractExpression $node
      */
-    #[FirstClassTwigCallableReady]
-    public function __construct(Node $node, TwigFilter|ConstantExpression|null $filter = null, ?Node $arguments = null, int $lineno = 0)
+    #[First_Class_Twig_Callable_Ready]
+    public function __construct(Node $node, Twig_Filter|Constant_Expression|null $filter = null, ?Node $arguments = null, int $lineno = 0)
     {
-        if (!$node instanceof AbstractExpression) {
-            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $node::class);
+        if (!$node instanceof Abstract_Expression) {
+            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', Abstract_Expression::class, static::class, $node::class);
         }
-
-        parent::__construct($node, $filter ?: new TwigFilter('raw', null, ['is_safe' => ['all']]), $arguments ?: new EmptyNode(), $lineno ?: $node->getTemplateLine());
+        parent::__construct($node, $filter ?: new Twig_Filter('raw', null, ['is_safe' => ['all']]), $arguments ?: new Empty_Node(), $lineno ?: $node->get_template_line());
     }
-
     public function compile(Compiler $compiler): void
     {
-        $compiler->subcompile($this->getNode('node'));
+        $compiler->subcompile($this->get_node('node'));
     }
 }

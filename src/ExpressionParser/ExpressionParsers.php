@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,31 +9,27 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\ExpressionParser;
+namespace Twig\Expression_Parser;
 
 /**
  * @template-implements \IteratorAggregate<ExpressionParserInterface>
  *
  * @internal
  */
-final class ExpressionParsers implements \IteratorAggregate
+final class Expression_Parsers implements \IteratorAggregate
 {
     /**
      * @var array<class-string<ExpressionParserInterface>, array<string, ExpressionParserInterface>>
      */
-    private array $parsersByName = [];
-
+    private array $parsers_by_name = [];
     /**
      * @var array<class-string<ExpressionParserInterface>, ExpressionParserInterface>
      */
-    private array $parsersByClass = [];
-
+    private array $parsers_by_class = [];
     /**
      * @var \WeakMap<ExpressionParserInterface, array<ExpressionParserInterface>>|null
      */
-    private ?\WeakMap $precedenceChanges = null;
-
+    private ?\WeakMap $precedence_changes = null;
     /**
      * @param array<ExpressionParserInterface> $parsers
      */
@@ -42,7 +37,6 @@ final class ExpressionParsers implements \IteratorAggregate
     {
         $this->add($parsers);
     }
-
     /**
      * @param array<ExpressionParserInterface> $parsers
      *
@@ -51,20 +45,18 @@ final class ExpressionParsers implements \IteratorAggregate
     public function add(array $parsers): static
     {
         foreach ($parsers as $parser) {
-            if ($parser->getPrecedence() > 512 || $parser->getPrecedence() < 0) {
-                trigger_deprecation('twig/twig', '3.21', 'Precedence for "%s" must be between 0 and 512, got %d.', $parser->getName(), $parser->getPrecedence());
+            if ($parser->get_precedence() > 512 || $parser->get_precedence() < 0) {
+                trigger_deprecation('twig/twig', '3.21', 'Precedence for "%s" must be between 0 and 512, got %d.', $parser->get_name(), $parser->get_precedence());
                 // throw new \InvalidArgumentException(\sprintf('Precedence for "%s" must be between 0 and 512, got %d.', $parser->getName(), $parser->getPrecedence()));
             }
-            $interface = $parser instanceof PrefixExpressionParserInterface ? PrefixExpressionParserInterface::class : InfixExpressionParserInterface::class;
-            $this->parsersByClass[$parser::class] = $parser;
-            foreach (self::getOperatorTokensFor($parser) as $token) {
-                $this->parsersByName[$interface][$token] = $parser;
+            $interface = $parser instanceof Prefix_Expression_Parser_Interface ? Prefix_Expression_Parser_Interface::class : Infix_Expression_Parser_Interface::class;
+            $this->parsers_by_class[$parser::class] = $parser;
+            foreach (self::get_operator_tokens_for($parser) as $token) {
+                $this->parsers_by_name[$interface][$token] = $parser;
             }
         }
-
         return $this;
     }
-
     /**
      * @template T of ExpressionParserInterface
      *
@@ -72,11 +64,10 @@ final class ExpressionParsers implements \IteratorAggregate
      *
      * @return T|null
      */
-    public function getByClass(string $class): ?ExpressionParserInterface
+    public function get_by_class(string $class): ?Expression_Parser_Interface
     {
-        return $this->parsersByClass[$class] ?? null;
+        return $this->parsers_by_class[$class] ?? null;
     }
-
     /**
      * @template T of ExpressionParserInterface
      *
@@ -84,15 +75,14 @@ final class ExpressionParsers implements \IteratorAggregate
      *
      * @return T|null
      */
-    public function getByName(string $interface, string $name): ?ExpressionParserInterface
+    public function get_by_name(string $interface, string $name): ?Expression_Parser_Interface
     {
-        return $this->parsersByName[$interface][$name] ?? null;
+        return $this->parsers_by_name[$interface][$name] ?? null;
     }
-
     public function getIterator(): \Traversable
     {
         $seen = [];
-        foreach ($this->parsersByName as $parsers) {
+        foreach ($this->parsers_by_name as $parsers) {
             foreach ($parsers as $parser) {
                 $id = spl_object_id($parser);
                 if (!isset($seen[$id])) {
@@ -101,7 +91,7 @@ final class ExpressionParsers implements \IteratorAggregate
                 }
             }
         }
-        foreach ($this->parsersByClass as $parser) {
+        foreach ($this->parsers_by_class as $parser) {
             $id = spl_object_id($parser);
             if (!isset($seen[$id])) {
                 $seen[$id] = true;
@@ -109,49 +99,44 @@ final class ExpressionParsers implements \IteratorAggregate
             }
         }
     }
-
     /**
      * @internal
      *
      * @return \WeakMap<ExpressionParserInterface, array<ExpressionParserInterface>>
      */
-    public function getPrecedenceChanges(): \WeakMap
+    public function get_precedence_changes(): \WeakMap
     {
-        if (null === $this->precedenceChanges) {
-            $this->precedenceChanges = new \WeakMap();
+        if (null === $this->precedence_changes) {
+            $this->precedence_changes = new \WeakMap();
             foreach ($this as $ep) {
-                if (!$ep->getPrecedenceChange()) {
+                if (!$ep->get_precedence_change()) {
                     continue;
                 }
-                $min = min($ep->getPrecedenceChange()->getNewPrecedence(), $ep->getPrecedence());
-                $max = max($ep->getPrecedenceChange()->getNewPrecedence(), $ep->getPrecedence());
+                $min = min($ep->get_precedence_change()->get_new_precedence(), $ep->get_precedence());
+                $max = max($ep->get_precedence_change()->get_new_precedence(), $ep->get_precedence());
                 foreach ($this as $e) {
-                    if ($e->getPrecedence() > $min && $e->getPrecedence() < $max) {
-                        if (!isset($this->precedenceChanges[$e])) {
-                            $this->precedenceChanges[$e] = [];
+                    if ($e->get_precedence() > $min && $e->get_precedence() < $max) {
+                        if (!isset($this->precedence_changes[$e])) {
+                            $this->precedence_changes[$e] = [];
                         }
-                        $this->precedenceChanges[$e][] = $ep;
+                        $this->precedence_changes[$e][] = $ep;
                     }
                 }
             }
         }
-
-        return $this->precedenceChanges;
+        return $this->precedence_changes;
     }
-
     /**
      * @internal
      *
      * @return array<string>
      */
-    public static function getOperatorTokensFor(ExpressionParserInterface $parser): array
+    public static function get_operator_tokens_for(Expression_Parser_Interface $parser): array
     {
         if (method_exists($parser, 'getOperatorTokens')) {
-            return $parser->getOperatorTokens();
+            return $parser->get_operator_tokens();
         }
-
-        trigger_deprecation('twig/twig', '3.24', 'Not implementing the "getOperatorTokens()" method in "%s" is deprecated. This method will be part of the "%s" interface in 4.0.', $parser::class, ExpressionParserInterface::class);
-
-        return [$parser->getName(), ...$parser->getAliases()];
+        trigger_deprecation('twig/twig', '3.24', 'Not implementing the "getOperatorTokens()" method in "%s" is deprecated. This method will be part of the "%s" interface in 4.0.', $parser::class, Expression_Parser_Interface::class);
+        return [$parser->get_name(), ...$parser->get_aliases()];
     }
 }

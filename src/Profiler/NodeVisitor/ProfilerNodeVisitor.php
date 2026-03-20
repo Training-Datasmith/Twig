@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,62 +9,46 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\Profiler\NodeVisitor;
+namespace Twig\Profiler\Node_Visitor;
 
 use Twig\Environment;
-use Twig\Node\BlockNode;
-use Twig\Node\BodyNode;
-use Twig\Node\MacroNode;
-use Twig\Node\ModuleNode;
+use Twig\Node\Block_Node;
+use Twig\Node\Body_Node;
+use Twig\Node\Macro_Node;
+use Twig\Node\Module_Node;
 use Twig\Node\Node;
 use Twig\Node\Nodes;
-use Twig\NodeVisitor\NodeVisitorInterface;
-use Twig\Profiler\Node\EnterProfileNode;
-use Twig\Profiler\Node\LeaveProfileNode;
+use Twig\Node_Visitor\Node_Visitor_Interface;
+use Twig\Profiler\Node\Enter_Profile_Node;
+use Twig\Profiler\Node\Leave_Profile_Node;
 use Twig\Profiler\Profile;
-
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-final class ProfilerNodeVisitor implements NodeVisitorInterface
+final class Profiler_Node_Visitor implements Node_Visitor_Interface
 {
-    private readonly string $varName;
-
-    public function __construct(
-        private readonly string $extensionName,
-    ) {
-        $this->varName = \sprintf('__internal_%s', hash('xxh128', $extensionName));
+    private readonly string $var_name;
+    public function __construct(private readonly string $extension_name)
+    {
+        $this->var_name = \sprintf('__internal_%s', hash('xxh128', $extension_name));
     }
-
-    public function enterNode(Node $node, Environment $env): Node
+    public function enter_node(Node $node, Environment $env): Node
     {
         return $node;
     }
-
-    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
+    public function leave_node(Node $node, Environment $env): \Twig\Node\Node
     {
-        if ($node instanceof ModuleNode) {
-            $node->setNode('display_start', new Nodes([new EnterProfileNode($this->extensionName, Profile::TEMPLATE, $node->getTemplateName(), $this->varName), $node->getNode('display_start')]));
-            $node->setNode('display_end', new Nodes([new LeaveProfileNode($this->varName), $node->getNode('display_end')]));
-        } elseif ($node instanceof BlockNode) {
-            $node->setNode('body', new BodyNode([
-                new EnterProfileNode($this->extensionName, Profile::BLOCK, $node->getAttribute('name'), $this->varName),
-                $node->getNode('body'),
-                new LeaveProfileNode($this->varName),
-            ]));
-        } elseif ($node instanceof MacroNode) {
-            $node->setNode('body', new BodyNode([
-                new EnterProfileNode($this->extensionName, Profile::MACRO, $node->getAttribute('name'), $this->varName),
-                $node->getNode('body'),
-                new LeaveProfileNode($this->varName),
-            ]));
+        if ($node instanceof Module_Node) {
+            $node->set_node('display_start', new Nodes([new Enter_Profile_Node($this->extension_name, Profile::TEMPLATE, $node->get_template_name(), $this->var_name), $node->get_node('display_start')]));
+            $node->set_node('display_end', new Nodes([new Leave_Profile_Node($this->var_name), $node->get_node('display_end')]));
+        } elseif ($node instanceof Block_Node) {
+            $node->set_node('body', new Body_Node([new Enter_Profile_Node($this->extension_name, Profile::BLOCK, $node->get_attribute('name'), $this->var_name), $node->get_node('body'), new Leave_Profile_Node($this->var_name)]));
+        } elseif ($node instanceof Macro_Node) {
+            $node->set_node('body', new Body_Node([new Enter_Profile_Node($this->extension_name, Profile::MACRO, $node->get_attribute('name'), $this->var_name), $node->get_node('body'), new Leave_Profile_Node($this->var_name)]));
         }
-
         return $node;
     }
-
-    public function getPriority(): int
+    public function get_priority(): int
     {
         return 0;
     }

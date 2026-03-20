@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,13 +10,11 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\EmptyNode;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Empty_Node;
 use Twig\Token;
-
 /**
  * Extends a template by another one.
  *
@@ -25,27 +22,22 @@ use Twig\Token;
  *
  * @internal
  */
-final class ExtendsTokenParser extends AbstractTokenParser
+final class Extends_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\EmptyNode
+    public function parse(Token $token): \Twig\Node\Empty_Node
     {
-        $stream = $this->parser->getStream();
-        if ($this->parser->peekBlockStack()) {
-            throw new SyntaxError('Cannot use "extend" in a block.', $token->getLine(), $stream->getSourceContext());
+        $stream = $this->parser->get_stream();
+        if ($this->parser->peek_block_stack()) {
+            throw new Syntax_Error('Cannot use "extend" in a block.', $token->get_line(), $stream->get_source_context());
         }
-
-        if (!$this->parser->isMainScope()) {
-            throw new SyntaxError('Cannot use "extend" in a macro.', $token->getLine(), $stream->getSourceContext());
+        if (!$this->parser->is_main_scope()) {
+            throw new Syntax_Error('Cannot use "extend" in a macro.', $token->get_line(), $stream->get_source_context());
         }
-
-        $this->parser->setParent($this->parser->parseExpression());
-
+        $this->parser->set_parent($this->parser->parse_expression());
         $stream->expect(Token::BLOCK_END_TYPE);
-
-        return new EmptyNode($token->getLine());
+        return new Empty_Node($token->get_line());
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'extends';
     }

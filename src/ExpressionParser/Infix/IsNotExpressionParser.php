@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,25 +9,22 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Infix;
 
-namespace Twig\ExpressionParser\Infix;
-
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\Unary\NotUnary;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Unary\Not_Unary;
 use Twig\Parser;
 use Twig\Token;
-
 /**
  * @internal
  */
-final class IsNotExpressionParser extends IsExpressionParser
+final class Is_Not_Expression_Parser extends Is_Expression_Parser
 {
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): \Twig\Node\Expression\Unary\NotUnary
+    public function parse(Parser $parser, Abstract_Expression $expr, Token $token): \Twig\Node\Expression\Unary\Not_Unary
     {
-        return new NotUnary(parent::parse($parser, $expr, $token), $token->getLine());
+        return new Not_Unary(parent::parse($parser, $expr, $token), $token->get_line());
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return 'is not';
     }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,56 +9,45 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Profiler\Dumper;
 
 use Twig\Profiler\Profile;
-
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-abstract class BaseDumper
+abstract class Base_Dumper
 {
     private ?float $root = null;
-
     public function dump(Profile $profile): string
     {
-        return $this->dumpProfile($profile);
+        return $this->dump_profile($profile);
     }
-
-    abstract protected function formatTemplate(Profile $profile, $prefix): string;
-
-    abstract protected function formatNonTemplate(Profile $profile, $prefix): string;
-
-    abstract protected function formatTime(Profile $profile, $percent): string;
-
-    private function dumpProfile(Profile $profile, string $prefix = '', bool $sibling = false): string
+    abstract protected function format_template(Profile $profile, $prefix): string;
+    abstract protected function format_non_template(Profile $profile, $prefix): string;
+    abstract protected function format_time(Profile $profile, $percent): string;
+    private function dump_profile(Profile $profile, string $prefix = '', bool $sibling = false): string
     {
-        if ($profile->isRoot()) {
-            $this->root = $profile->getDuration();
-            $start = $profile->getName();
+        if ($profile->is_root()) {
+            $this->root = $profile->get_duration();
+            $start = $profile->get_name();
         } else {
-            if ($profile->isTemplate()) {
-                $start = $this->formatTemplate($profile, $prefix);
+            if ($profile->is_template()) {
+                $start = $this->format_template($profile, $prefix);
             } else {
-                $start = $this->formatNonTemplate($profile, $prefix);
+                $start = $this->format_non_template($profile, $prefix);
             }
             $prefix .= $sibling ? '│ ' : '  ';
         }
-
-        $percent = $this->root ? $profile->getDuration() / $this->root * 100 : 0;
-
-        if ($profile->getDuration() * 1000 < 1) {
-            $str = $start."\n";
+        $percent = $this->root ? $profile->get_duration() / $this->root * 100 : 0;
+        if ($profile->get_duration() * 1000 < 1) {
+            $str = $start . "\n";
         } else {
-            $str = \sprintf("%s %s\n", $start, $this->formatTime($profile, $percent));
+            $str = \sprintf("%s %s\n", $start, $this->format_time($profile, $percent));
         }
-
-        $nCount = \count($profile->getProfiles());
+        $n_count = \count($profile->get_profiles());
         foreach ($profile as $i => $p) {
-            $str .= $this->dumpProfile($p, $prefix, $i + 1 !== $nCount);
+            $str .= $this->dump_profile($p, $prefix, $i + 1 !== $n_count);
         }
-
         return $str;
     }
 }

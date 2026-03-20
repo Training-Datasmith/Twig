@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,25 +9,16 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Binary;
 
 use Twig\Compiler;
-use Twig\Node\Expression\ReturnArrayInterface;
-
-class RangeBinary extends AbstractBinary implements ReturnArrayInterface
+use Twig\Node\Expression\Return_Array_Interface;
+class Range_Binary extends Abstract_Binary implements Return_Array_Interface
 {
     public function compile(Compiler $compiler): void
     {
-        $compiler
-            ->raw('range(')
-            ->subcompile($this->getNode('left'))
-            ->raw(', ')
-            ->subcompile($this->getNode('right'))
-            ->raw(')')
-        ;
+        $compiler->raw('range(')->subcompile($this->get_node('left'))->raw(', ')->subcompile($this->get_node('right'))->raw(')');
     }
-
     public function operator(Compiler $compiler): Compiler
     {
         return $compiler->raw('..');

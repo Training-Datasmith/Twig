@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,15 +9,13 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\IncludeNode;
-use Twig\Node\SandboxNode;
-use Twig\Node\TextNode;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Include_Node;
+use Twig\Node\Sandbox_Node;
+use Twig\Node\Text_Node;
 use Twig\Token;
-
 /**
  * Marks a section of a template as untrusted code that must be evaluated in the sandbox mode.
  *
@@ -30,39 +27,33 @@ use Twig\Token;
  *
  * @internal
  */
-final class SandboxTokenParser extends AbstractTokenParser
+final class Sandbox_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\SandboxNode
+    public function parse(Token $token): \Twig\Node\Sandbox_Node
     {
-        $stream = $this->parser->getStream();
-        trigger_deprecation('twig/twig', '3.15', \sprintf('The "sandbox" tag is deprecated in "%s" at line %d.', $stream->getSourceContext()->getName(), $token->getLine()));
-
+        $stream = $this->parser->get_stream();
+        trigger_deprecation('twig/twig', '3.15', \sprintf('The "sandbox" tag is deprecated in "%s" at line %d.', $stream->get_source_context()->get_name(), $token->get_line()));
         $stream->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse($this->decideBlockEnd(...), true);
+        $body = $this->parser->subparse($this->decide_block_end(...), true);
         $stream->expect(Token::BLOCK_END_TYPE);
-
         // in a sandbox tag, only include tags are allowed
-        if (!$body instanceof IncludeNode) {
+        if (!$body instanceof Include_Node) {
             foreach ($body as $node) {
-                if ($node instanceof TextNode && ctype_space((string) $node->getAttribute('data'))) {
+                if ($node instanceof Text_Node && ctype_space((string) $node->get_attribute('data'))) {
                     continue;
                 }
-
-                if (!$node instanceof IncludeNode) {
-                    throw new SyntaxError('Only "include" tags are allowed within a "sandbox" section.', $node->getTemplateLine(), $stream->getSourceContext());
+                if (!$node instanceof Include_Node) {
+                    throw new Syntax_Error('Only "include" tags are allowed within a "sandbox" section.', $node->get_template_line(), $stream->get_source_context());
                 }
             }
         }
-
-        return new SandboxNode($body, $token->getLine());
+        return new Sandbox_Node($body, $token->get_line());
     }
-
-    public function decideBlockEnd(Token $token): bool
+    public function decide_block_end(Token $token): bool
     {
         return $token->test('endsandbox');
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'sandbox';
     }

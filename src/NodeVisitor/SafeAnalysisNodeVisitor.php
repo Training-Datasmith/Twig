@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,178 +9,153 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\NodeVisitor;
+namespace Twig\Node_Visitor;
 
 use Twig\Environment;
-use Twig\Node\Expression\BlockReferenceExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\FilterExpression;
-use Twig\Node\Expression\FunctionExpression;
-use Twig\Node\Expression\GetAttrExpression;
-use Twig\Node\Expression\MacroReferenceExpression;
-use Twig\Node\Expression\MethodCallExpression;
-use Twig\Node\Expression\OperatorEscapeInterface;
-use Twig\Node\Expression\ParentExpression;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Node\Expression\Block_Reference_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Filter_Expression;
+use Twig\Node\Expression\Function_Expression;
+use Twig\Node\Expression\Get_Attr_Expression;
+use Twig\Node\Expression\Macro_Reference_Expression;
+use Twig\Node\Expression\Method_Call_Expression;
+use Twig\Node\Expression\Operator_Escape_Interface;
+use Twig\Node\Expression\Parent_Expression;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Node\Node;
-
 /**
  * @internal
  */
-final class SafeAnalysisNodeVisitor implements NodeVisitorInterface
+final class Safe_Analysis_Node_Visitor implements Node_Visitor_Interface
 {
     private array $data = [];
-    private array $safeVars = [];
-
-    public function setSafeVars(array $safeVars): void
+    private array $safe_vars = [];
+    public function set_safe_vars(array $safe_vars): void
     {
-        $this->safeVars = $safeVars;
+        $this->safe_vars = $safe_vars;
     }
-
     /**
      * @return array
      */
-    public function getSafe(Node $node)
+    public function get_safe(Node $node)
     {
         $hash = spl_object_id($node);
         if (!isset($this->data[$hash])) {
             return [];
         }
-
         foreach ($this->data[$hash] as $bucket) {
             if ($bucket['key'] !== $node) {
                 continue;
             }
-
             if (\in_array('html_attr', $bucket['value'], true)) {
                 $bucket['value'][] = 'html';
                 $bucket['value'][] = 'html_attr_relaxed';
             }
-
             if (\in_array('html_attr_relaxed', $bucket['value'], true)) {
                 $bucket['value'][] = 'html';
             }
-
             return $bucket['value'];
         }
-
         return [];
     }
-
-    private function setSafe(Node $node, array $safe): void
+    private function set_safe(Node $node, array $safe): void
     {
         $hash = spl_object_id($node);
         if (isset($this->data[$hash])) {
             foreach ($this->data[$hash] as &$bucket) {
                 if ($bucket['key'] === $node) {
                     $bucket['value'] = $safe;
-
                     return;
                 }
             }
         }
-        $this->data[$hash][] = [
-            'key' => $node,
-            'value' => $safe,
-        ];
+        $this->data[$hash][] = ['key' => $node, 'value' => $safe];
     }
-
-    public function enterNode(Node $node, Environment $env): Node
+    public function enter_node(Node $node, Environment $env): Node
     {
         return $node;
     }
-
-    public function leaveNode(Node $node, Environment $env): \Twig\Node\Node
+    public function leave_node(Node $node, Environment $env): \Twig\Node\Node
     {
-        if ($node instanceof ConstantExpression) {
+        if ($node instanceof Constant_Expression) {
             // constants are marked safe for all
-            $this->setSafe($node, ['all']);
-        } elseif ($node instanceof BlockReferenceExpression) {
+            $this->set_safe($node, ['all']);
+        } elseif ($node instanceof Block_Reference_Expression) {
             // blocks are safe by definition
-            $this->setSafe($node, ['all']);
-        } elseif ($node instanceof ParentExpression) {
+            $this->set_safe($node, ['all']);
+        } elseif ($node instanceof Parent_Expression) {
             // parent block is safe by definition
-            $this->setSafe($node, ['all']);
-        } elseif ($node instanceof OperatorEscapeInterface) {
+            $this->set_safe($node, ['all']);
+        } elseif ($node instanceof Operator_Escape_Interface) {
             // intersect safeness of operands
-            $operands = $node->getOperandNamesToEscape();
+            $operands = $node->get_operand_names_to_escape();
             if (2 < \count($operands)) {
                 throw new \LogicException(\sprintf('Operators with more than 2 operands are not supported yet, got %d.', \count($operands)));
             }
             if (2 === \count($operands)) {
-                $safe = $this->intersectSafe($this->getSafe($node->getNode($operands[0])), $this->getSafe($node->getNode($operands[1])));
-                $this->setSafe($node, $safe);
+                $safe = $this->intersect_safe($this->get_safe($node->get_node($operands[0])), $this->get_safe($node->get_node($operands[1])));
+                $this->set_safe($node, $safe);
             }
-        } elseif ($node instanceof FilterExpression) {
+        } elseif ($node instanceof Filter_Expression) {
             // filter expression is safe when the filter is safe
-            if ($node->hasAttribute('twig_callable')) {
-                $filter = $node->getAttribute('twig_callable');
+            if ($node->has_attribute('twig_callable')) {
+                $filter = $node->get_attribute('twig_callable');
             } else {
                 // legacy
-                $filter = $env->getFilter($node->getAttribute('name'));
+                $filter = $env->get_filter($node->get_attribute('name'));
             }
-
             if ($filter) {
-                $safe = $filter->getSafe($node->getNode('arguments'));
+                $safe = $filter->get_safe($node->get_node('arguments'));
                 if (null === $safe) {
                     trigger_deprecation('twig/twig', '3.16', 'The "%s::getSafe()" method should not return "null" anymore, return "[]" instead.', $filter::class);
                     $safe = [];
                 }
-
                 if (!$safe) {
-                    $safe = $this->intersectSafe($this->getSafe($node->getNode('node')), $filter->getPreservesSafety());
+                    $safe = $this->intersect_safe($this->get_safe($node->get_node('node')), $filter->get_preserves_safety());
                 }
-                $this->setSafe($node, $safe);
+                $this->set_safe($node, $safe);
             }
-        } elseif ($node instanceof FunctionExpression) {
+        } elseif ($node instanceof Function_Expression) {
             // function expression is safe when the function is safe
-            if ($node->hasAttribute('twig_callable')) {
-                $function = $node->getAttribute('twig_callable');
+            if ($node->has_attribute('twig_callable')) {
+                $function = $node->get_attribute('twig_callable');
             } else {
                 // legacy
-                $function = $env->getFunction($node->getAttribute('name'));
+                $function = $env->get_function($node->get_attribute('name'));
             }
-
             if ($function) {
-                $safe = $function->getSafe($node->getNode('arguments'));
+                $safe = $function->get_safe($node->get_node('arguments'));
                 if (null === $safe) {
                     trigger_deprecation('twig/twig', '3.16', 'The "%s::getSafe()" method should not return "null" anymore, return "[]" instead.', $function::class);
                     $safe = [];
                 }
-                $this->setSafe($node, $safe);
+                $this->set_safe($node, $safe);
             }
-        } elseif ($node instanceof MethodCallExpression || $node instanceof MacroReferenceExpression) {
+        } elseif ($node instanceof Method_Call_Expression || $node instanceof Macro_Reference_Expression) {
             // all macro calls are safe
-            $this->setSafe($node, ['all']);
-        } elseif ($node instanceof GetAttrExpression && $node->getNode('node') instanceof ContextVariable) {
-            $name = $node->getNode('node')->getAttribute('name');
-            if (\in_array($name, $this->safeVars, true)) {
-                $this->setSafe($node, ['all']);
+            $this->set_safe($node, ['all']);
+        } elseif ($node instanceof Get_Attr_Expression && $node->get_node('node') instanceof Context_Variable) {
+            $name = $node->get_node('node')->get_attribute('name');
+            if (\in_array($name, $this->safe_vars, true)) {
+                $this->set_safe($node, ['all']);
             }
         }
-
         return $node;
     }
-
-    private function intersectSafe(array $a, array $b): array
+    private function intersect_safe(array $a, array $b): array
     {
         if (!$a || !$b) {
             return [];
         }
-
         if (\in_array('all', $a, true)) {
             return $b;
         }
-
         if (\in_array('all', $b, true)) {
             return $a;
         }
-
         return array_intersect($a, $b);
     }
-
-    public function getPriority(): int
+    public function get_priority(): int
     {
         return 0;
     }

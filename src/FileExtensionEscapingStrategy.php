@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 /**
@@ -24,7 +22,7 @@ namespace Twig;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class FileExtensionEscapingStrategy
+class File_Extension_Escaping_Strategy
 {
     /**
      * Guesses the best autoescaping strategy based on the file name.
@@ -36,15 +34,13 @@ class FileExtensionEscapingStrategy
     public static function guess(string $name): string|false
     {
         if (\in_array(substr($name, -1), ['/', '\\'], true)) {
-            return 'html'; // return html for directories
+            return 'html';
+            // return html for directories
         }
-
         if (str_ends_with($name, '.twig')) {
             $name = substr($name, 0, -5);
         }
-
         $extension = pathinfo($name, \PATHINFO_EXTENSION);
-
         return match ($extension) {
             'js', 'json' => 'js',
             'css' => 'css',

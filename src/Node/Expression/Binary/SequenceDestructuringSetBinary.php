@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,46 +9,41 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Binary;
 
 use Twig\Compiler;
-use Twig\Error\SyntaxError;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\EmptyExpression;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Array_Expression;
+use Twig\Node\Expression\Empty_Expression;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Node\Node;
-
 /**
  * @internal
  */
-class SequenceDestructuringSetBinary extends AbstractBinary
+class Sequence_Destructuring_Set_Binary extends Abstract_Binary
 {
     private array $variables = [];
-
     /**
      * @param ArrayExpression    $left  The array expression containing variables to assign to
      * @param AbstractExpression $right The expression providing values for assignment
      */
     public function __construct(Node $left, Node $right, int $lineno)
     {
-        foreach ($left->getKeyValuePairs() as $pair) {
-            if ($pair['value'] instanceof EmptyExpression) {
+        foreach ($left->get_key_value_pairs() as $pair) {
+            if ($pair['value'] instanceof Empty_Expression) {
                 $this->variables[] = null;
-            } elseif ($pair['value'] instanceof ContextVariable) {
-                $this->variables[] = $pair['value']->getAttribute('name');
+            } elseif ($pair['value'] instanceof Context_Variable) {
+                $this->variables[] = $pair['value']->get_attribute('name');
             } else {
-                throw new SyntaxError(\sprintf('Cannot assign to "%s", only variables can be assigned in sequence destructuring.', $pair['value']::class), $lineno);
+                throw new Syntax_Error(\sprintf('Cannot assign to "%s", only variables can be assigned in sequence destructuring.', $pair['value']::class), $lineno);
             }
         }
-
         parent::__construct($left, $right, $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        $compiler->addDebugInfo($this);
+        $compiler->add_debug_info($this);
         $compiler->raw('[');
         foreach ($this->variables as $i => $name) {
             if ($i) {
@@ -59,9 +53,8 @@ class SequenceDestructuringSetBinary extends AbstractBinary
                 $compiler->raw('$context[')->repr($name)->raw(']');
             }
         }
-        $compiler->raw('] = array_pad(')->subcompile($this->getNode('right'))->raw(', ')->repr(\count($this->variables))->raw(', null)');
+        $compiler->raw('] = array_pad(')->subcompile($this->get_node('right'))->raw(', ')->repr(\count($this->variables))->raw(', null)');
     }
-
     public function operator(Compiler $compiler): Compiler
     {
         return $compiler->raw('=');

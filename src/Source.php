@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 /**
@@ -25,24 +23,18 @@ final class Source
      * @param string $name The template logical name
      * @param string $path The filesystem path of the template if any
      */
-    public function __construct(
-        private readonly string $code,
-        private readonly string $name,
-        private readonly string $path = '',
-    ) {
+    public function __construct(private readonly string $code, private readonly string $name, private readonly string $path = '')
+    {
     }
-
-    public function getCode(): string
+    public function get_code(): string
     {
         return $this->code;
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return $this->name;
     }
-
-    public function getPath(): string
+    public function get_path(): string
     {
         return $this->path;
     }

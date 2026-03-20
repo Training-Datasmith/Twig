@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,13 +9,11 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
-use Twig\Node\Expression\Variable\AssignContextVariable;
-
-class ListExpression extends AbstractExpression
+use Twig\Node\Expression\Variable\Assign_Context_Variable;
+class List_Expression extends Abstract_Expression
 {
     /**
      * @param array<AssignContextVariable> $items
@@ -25,19 +22,13 @@ class ListExpression extends AbstractExpression
     {
         parent::__construct($items, [], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
         foreach ($this as $i => $name) {
             if ($i) {
                 $compiler->raw(', ');
             }
-
-            $compiler
-                ->raw('$__')
-                ->raw($name->getAttribute('name'))
-                ->raw('__')
-            ;
+            $compiler->raw('$__')->raw($name->get_attribute('name'))->raw('__');
         }
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,23 +10,21 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
-use Twig\Error\SyntaxError;
-use Twig\ExpressionParser\Infix\DotExpressionParser;
-use Twig\ExpressionParser\Infix\FilterExpressionParser;
-use Twig\ExpressionParser\Infix\SquareBracketExpressionParser;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\Unary\NegUnary;
-use Twig\Node\Expression\Unary\PosUnary;
-use Twig\Node\Expression\Unary\SpreadUnary;
-use Twig\Node\Expression\Variable\AssignContextVariable;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Error\Syntax_Error;
+use Twig\Expression_Parser\Infix\Dot_Expression_Parser;
+use Twig\Expression_Parser\Infix\Filter_Expression_Parser;
+use Twig\Expression_Parser\Infix\Square_Bracket_Expression_Parser;
+use Twig\Node\Expression\Array_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Unary\Neg_Unary;
+use Twig\Node\Expression\Unary\Pos_Unary;
+use Twig\Node\Expression\Unary\Spread_Unary;
+use Twig\Node\Expression\Variable\Assign_Context_Variable;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Node\Node;
 use Twig\Node\Nodes;
-
 /**
  * Parses expressions.
  *
@@ -40,7 +37,7 @@ use Twig\Node\Nodes;
  *
  * @deprecated since Twig 3.21
  */
-class ExpressionParser
+class Expression_Parser
 {
     /**
      * @deprecated since Twig 3.21
@@ -50,98 +47,79 @@ class ExpressionParser
      * @deprecated since Twig 3.21
      */
     public const OPERATOR_RIGHT = 2;
-
-    public function __construct(
-        private readonly Parser $parser,
-    ) {
+    public function __construct(private readonly Parser $parser)
+    {
         trigger_deprecation('twig/twig', '3.21', 'Class "%s" is deprecated, use "Parser::parseExpression()" instead.', self::class);
     }
-
-    public function parseExpression($precedence = 0): \Twig\Node\Expression\AbstractExpression
+    public function parse_expression($precedence = 0): \Twig\Node\Expression\Abstract_Expression
     {
         if (\func_num_args() > 1) {
             trigger_deprecation('twig/twig', '3.15', 'Passing a second argument ($allowArrow) to "%s()" is deprecated.', __METHOD__);
         }
-
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated, use "Parser::parseExpression()" instead.', __METHOD__);
-
-        return $this->parser->parseExpression((int) $precedence);
+        return $this->parser->parse_expression((int) $precedence);
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parsePrimaryExpression()
+    public function parse_primary_expression()
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
-        return $this->parseExpression();
+        return $this->parse_expression();
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseStringExpression()
+    public function parse_string_expression()
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
-        return $this->parseExpression();
+        return $this->parse_expression();
     }
-
     /**
      * @deprecated since Twig 3.11, use parseExpression() instead
      */
-    public function parseArrayExpression()
+    public function parse_array_expression()
     {
         trigger_deprecation('twig/twig', '3.11', 'Calling "%s()" is deprecated, use "parseExpression()" instead.', __METHOD__);
-
-        return $this->parseExpression();
+        return $this->parse_expression();
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseSequenceExpression()
+    public function parse_sequence_expression()
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
-        return $this->parseExpression();
+        return $this->parse_expression();
     }
-
     /**
      * @deprecated since Twig 3.11, use parseExpression() instead
      */
-    public function parseHashExpression()
+    public function parse_hash_expression()
     {
         trigger_deprecation('twig/twig', '3.11', 'Calling "%s()" is deprecated, use "parseExpression()" instead.', __METHOD__);
-
-        return $this->parseExpression();
+        return $this->parse_expression();
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseMappingExpression()
+    public function parse_mapping_expression()
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
-        return $this->parseExpression();
+        return $this->parse_expression();
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parsePostfixExpression($node)
+    public function parse_postfix_expression($node)
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
         while (true) {
-            $token = $this->parser->getCurrentToken();
+            $token = $this->parser->get_current_token();
             if ($token->test(Token::PUNCTUATION_TYPE)) {
-                if ('.' == $token->getValue() || '[' == $token->getValue()) {
-                    $node = $this->parseSubscriptExpression($node);
-                } elseif ('|' == $token->getValue()) {
-                    $node = $this->parseFilterExpression($node);
+                if ('.' == $token->get_value() || '[' == $token->get_value()) {
+                    $node = $this->parse_subscript_expression($node);
+                } elseif ('|' == $token->get_value()) {
+                    $node = $this->parse_filter_expression($node);
                 } else {
                     break;
                 }
@@ -149,59 +127,46 @@ class ExpressionParser
                 break;
             }
         }
-
         return $node;
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseSubscriptExpression($node)
+    public function parse_subscript_expression($node)
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
         $parsers = new \ReflectionProperty($this->parser, 'parsers');
-
-        if ('.' === $this->parser->getStream()->next()->getValue()) {
-            return $parsers->getValue($this->parser)->getByClass(DotExpressionParser::class)->parse($this->parser, $node, $this->parser->getCurrentToken());
+        if ('.' === $this->parser->get_stream()->next()->get_value()) {
+            return $parsers->get_value($this->parser)->get_by_class(Dot_Expression_Parser::class)->parse($this->parser, $node, $this->parser->get_current_token());
         }
-
-        return $parsers->getValue($this->parser)->getByClass(SquareBracketExpressionParser::class)->parse($this->parser, $node, $this->parser->getCurrentToken());
+        return $parsers->get_value($this->parser)->get_by_class(Square_Bracket_Expression_Parser::class)->parse($this->parser, $node, $this->parser->get_current_token());
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseFilterExpression($node)
+    public function parse_filter_expression($node)
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
-        $this->parser->getStream()->next();
-
-        return $this->parseFilterExpressionRaw($node);
+        $this->parser->get_stream()->next();
+        return $this->parse_filter_expression_raw($node);
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseFilterExpressionRaw($node)
+    public function parse_filter_expression_raw($node)
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
         $parsers = new \ReflectionProperty($this->parser, 'parsers');
-
-        $op = $parsers->getValue($this->parser)->getByClass(FilterExpressionParser::class);
+        $op = $parsers->get_value($this->parser)->get_by_class(Filter_Expression_Parser::class);
         while (true) {
-            $node = $op->parse($this->parser, $node, $this->parser->getCurrentToken());
-            if (!$this->parser->getStream()->test(Token::OPERATOR_TYPE, '|')) {
+            $node = $op->parse($this->parser, $node, $this->parser->get_current_token());
+            if (!$this->parser->get_stream()->test(Token::OPERATOR_TYPE, '|')) {
                 break;
             }
-            $this->parser->getStream()->next();
+            $this->parser->get_stream()->next();
         }
-
         return $node;
     }
-
     /**
      * Parses arguments.
      *
@@ -211,161 +176,131 @@ class ExpressionParser
      *
      * @deprecated since Twig 3.19 Use Twig\ExpressionParser\Infix\ArgumentsTrait::parseNamedArguments() instead
      */
-    public function parseArguments(): \Twig\Node\Nodes
+    public function parse_arguments(): \Twig\Node\Nodes
     {
         trigger_deprecation('twig/twig', '3.19', \sprintf('The "%s()" method is deprecated, use "Twig\ExpressionParser\Infix\ArgumentsTrait::parseNamedArguments()" instead.', __METHOD__));
-
-        $parsePrimaryExpression = new \ReflectionMethod($this->parser, 'parsePrimaryExpression');
-
-        $namedArguments = false;
+        $parse_primary_expression = new \ReflectionMethod($this->parser, 'parsePrimaryExpression');
+        $named_arguments = false;
         $definition = false;
         if (\func_num_args() > 1) {
             $definition = func_get_arg(1);
         }
         if (\func_num_args() > 0) {
             trigger_deprecation('twig/twig', '3.15', 'Passing arguments to "%s()" is deprecated.', __METHOD__);
-            $namedArguments = func_get_arg(0);
+            $named_arguments = func_get_arg(0);
         }
-
         $args = [];
-        $stream = $this->parser->getStream();
-
+        $stream = $this->parser->get_stream();
         $stream->expect(Token::OPERATOR_TYPE, '(', 'A list of arguments must begin with an opening parenthesis');
-        $hasSpread = false;
+        $has_spread = false;
         while (!$stream->test(Token::PUNCTUATION_TYPE, ')')) {
             if ($args) {
                 $stream->expect(Token::PUNCTUATION_TYPE, ',', 'Arguments must be separated by a comma');
-
                 // if the comma above was a trailing comma, early exit the argument parse loop
                 if ($stream->test(Token::PUNCTUATION_TYPE, ')')) {
                     break;
                 }
             }
-
             if ($definition) {
                 $token = $stream->expect(Token::NAME_TYPE, null, 'An argument must be a name');
-                $value = new ContextVariable($token->getValue(), $this->parser->getCurrentToken()->getLine());
+                $value = new Context_Variable($token->get_value(), $this->parser->get_current_token()->get_line());
+            } else if ($stream->next_if(Token::SPREAD_TYPE)) {
+                $has_spread = true;
+                $value = new Spread_Unary($this->parse_expression(), $stream->get_current()->get_line());
+            } elseif ($has_spread) {
+                throw new Syntax_Error('Normal arguments must be placed before argument unpacking.', $stream->get_current()->get_line(), $stream->get_source_context());
             } else {
-                if ($stream->nextIf(Token::SPREAD_TYPE)) {
-                    $hasSpread = true;
-                    $value = new SpreadUnary($this->parseExpression(), $stream->getCurrent()->getLine());
-                } elseif ($hasSpread) {
-                    throw new SyntaxError('Normal arguments must be placed before argument unpacking.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
-                } else {
-                    $value = $this->parseExpression();
-                }
+                $value = $this->parse_expression();
             }
-
             $name = null;
-            if ($namedArguments && (($token = $stream->nextIf(Token::OPERATOR_TYPE, '=')) || (!$definition && $token = $stream->nextIf(Token::PUNCTUATION_TYPE, ':')))) {
-                if (!$value instanceof ContextVariable) {
-                    throw new SyntaxError(\sprintf('A parameter name must be a string, "%s" given.', $value::class), $token->getLine(), $stream->getSourceContext());
+            if ($named_arguments && (($token = $stream->next_if(Token::OPERATOR_TYPE, '=')) || !$definition && $token = $stream->next_if(Token::PUNCTUATION_TYPE, ':'))) {
+                if (!$value instanceof Context_Variable) {
+                    throw new Syntax_Error(\sprintf('A parameter name must be a string, "%s" given.', $value::class), $token->get_line(), $stream->get_source_context());
                 }
-                $name = $value->getAttribute('name');
-
+                $name = $value->get_attribute('name');
                 if ($definition) {
-                    $value = $parsePrimaryExpression->invoke($this->parser);
-
-                    if (!$this->checkConstantExpression($value)) {
-                        throw new SyntaxError('A default value for an argument must be a constant (a boolean, a string, a number, a sequence, or a mapping).', $token->getLine(), $stream->getSourceContext());
+                    $value = $parse_primary_expression->invoke($this->parser);
+                    if (!$this->check_constant_expression($value)) {
+                        throw new Syntax_Error('A default value for an argument must be a constant (a boolean, a string, a number, a sequence, or a mapping).', $token->get_line(), $stream->get_source_context());
                     }
                 } else {
-                    $value = $this->parseExpression();
+                    $value = $this->parse_expression();
                 }
             }
-
             if ($definition) {
                 if (null === $name) {
-                    $name = $value->getAttribute('name');
-                    $value = new ConstantExpression(null, $this->parser->getCurrentToken()->getLine());
-                    $value->setAttribute('is_implicit', true);
+                    $name = $value->get_attribute('name');
+                    $value = new Constant_Expression(null, $this->parser->get_current_token()->get_line());
+                    $value->set_attribute('is_implicit', true);
                 }
                 $args[$name] = $value;
+            } else if (null === $name) {
+                $args[] = $value;
             } else {
-                if (null === $name) {
-                    $args[] = $value;
-                } else {
-                    $args[$name] = $value;
-                }
+                $args[$name] = $value;
             }
         }
         $stream->expect(Token::PUNCTUATION_TYPE, ')', 'A list of arguments must be closed by a parenthesis');
-
         return new Nodes($args);
     }
-
     /**
      * @deprecated since Twig 3.21, use "AbstractTokenParser::parseAssignmentExpression()" instead
      */
-    public function parseAssignmentExpression(): \Twig\Node\Nodes
+    public function parse_assignment_expression(): \Twig\Node\Nodes
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated, use "AbstractTokenParser::parseAssignmentExpression()" instead.', __METHOD__);
-
-        $stream = $this->parser->getStream();
+        $stream = $this->parser->get_stream();
         $targets = [];
         while (true) {
-            $token = $this->parser->getCurrentToken();
-            if ($stream->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->getValue())) {
+            $token = $this->parser->get_current_token();
+            if ($stream->test(Token::OPERATOR_TYPE) && preg_match(Lexer::REGEX_NAME, (string) $token->get_value())) {
                 // in this context, string operators are variable names
-                $this->parser->getStream()->next();
+                $this->parser->get_stream()->next();
             } else {
                 $stream->expect(Token::NAME_TYPE, null, 'Only variables can be assigned to');
             }
-            $targets[] = new AssignContextVariable($token->getValue(), $token->getLine());
-
-            if (!$stream->nextIf(Token::PUNCTUATION_TYPE, ',')) {
+            $targets[] = new Assign_Context_Variable($token->get_value(), $token->get_line());
+            if (!$stream->next_if(Token::PUNCTUATION_TYPE, ',')) {
                 break;
             }
         }
-
         return new Nodes($targets);
     }
-
     /**
      * @deprecated since Twig 3.21
      */
-    public function parseMultitargetExpression(): \Twig\Node\Nodes
+    public function parse_multitarget_expression(): \Twig\Node\Nodes
     {
         trigger_deprecation('twig/twig', '3.21', 'The "%s()" method is deprecated.', __METHOD__);
-
         $targets = [];
         while (true) {
-            $targets[] = $this->parseExpression();
-            if (!$this->parser->getStream()->nextIf(Token::PUNCTUATION_TYPE, ',')) {
+            $targets[] = $this->parse_expression();
+            if (!$this->parser->get_stream()->next_if(Token::PUNCTUATION_TYPE, ',')) {
                 break;
             }
         }
-
         return new Nodes($targets);
     }
-
     // checks that the node only contains "constant" elements
     // to be removed in 4.0
-    private function checkConstantExpression(Node $node): bool
+    private function check_constant_expression(Node $node): bool
     {
-        if (!(
-            $node instanceof ConstantExpression || $node instanceof ArrayExpression
-            || $node instanceof NegUnary || $node instanceof PosUnary
-        )) {
+        if (!($node instanceof Constant_Expression || $node instanceof Array_Expression || $node instanceof Neg_Unary || $node instanceof Pos_Unary)) {
             return false;
         }
-
         foreach ($node as $n) {
-            if (!$this->checkConstantExpression($n)) {
+            if (!$this->check_constant_expression($n)) {
                 return false;
             }
         }
-
         return true;
     }
-
     /**
      * @deprecated since Twig 3.19 Use Twig\ExpressionParser\Infix\ArgumentsTrait::parseNamedArguments() instead
      */
-    public function parseOnlyArguments()
+    public function parse_only_arguments()
     {
         trigger_deprecation('twig/twig', '3.19', \sprintf('The "%s()" method is deprecated, use "Twig\ExpressionParser\Infix\ArgumentsTrait::parseNamedArguments()" instead.', __METHOD__));
-
-        return $this->parseArguments();
+        return $this->parse_arguments();
     }
 }

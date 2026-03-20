@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,10 +9,8 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 use Twig\Environment;
-use Twig\Extension\DebugExtension;
-
+use Twig\Extension\Debug_Extension;
 /**
  * @internal
  *
@@ -22,6 +19,5 @@ use Twig\Extension\DebugExtension;
 function twig_var_dump(Environment $env, $context, ...$vars): void
 {
     trigger_deprecation('twig/twig', '3.9', 'Using the internal "%s" function is deprecated.', __FUNCTION__);
-
-    DebugExtension::dump($env, $context, ...$vars);
+    Debug_Extension::dump($env, $context, ...$vars);
 }

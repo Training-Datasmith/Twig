@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,12 +9,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Attribute;
 
-use Twig\DeprecatedCallableInfo;
-use Twig\TwigTest;
-
+use Twig\Deprecated_Callable_Info;
+use Twig\Twig_Test;
 /**
  * Registers a method as template test.
  *
@@ -30,7 +27,7 @@ use Twig\TwigTest;
  * @see TwigTest
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-final class AsTwigTest
+final class As_Twig_Test
 {
     /**
      * @param non-empty-string            $name             The name of the test in Twig
@@ -39,12 +36,7 @@ final class AsTwigTest
      * @param bool|null                   $needsContext     Whether the test needs the context array passed as the first argument, or after the charset and the environment
      * @param DeprecatedCallableInfo|null $deprecationInfo  Information about the deprecation
      */
-    public function __construct(
-        public string $name,
-        public ?bool $needsCharset = null,
-        public ?bool $needsEnvironment = null,
-        public ?bool $needsContext = null,
-        public ?DeprecatedCallableInfo $deprecationInfo = null,
-    ) {
+    public function __construct(public string $name, public ?bool $needs_charset = null, public ?bool $needs_environment = null, public ?bool $needs_context = null, public ?Deprecated_Callable_Info $deprecation_info = null)
+    {
     }
 }

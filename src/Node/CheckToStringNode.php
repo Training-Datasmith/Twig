@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,13 +9,11 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node;
 
-use Twig\Attribute\YieldReady;
+use Twig\Attribute\Yield_Ready;
 use Twig\Compiler;
-use Twig\Node\Expression\AbstractExpression;
-
+use Twig\Node\Expression\Abstract_Expression;
 /**
  * Checks if casting an expression to __toString() is allowed by the sandbox.
  *
@@ -27,23 +24,16 @@ use Twig\Node\Expression\AbstractExpression;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-#[YieldReady]
-class CheckToStringNode extends AbstractExpression
+#[Yield_Ready]
+class Check_To_String_Node extends Abstract_Expression
 {
-    public function __construct(AbstractExpression $expr)
+    public function __construct(Abstract_Expression $expr)
     {
-        parent::__construct(['expr' => $expr], [], $expr->getTemplateLine());
+        parent::__construct(['expr' => $expr], [], $expr->get_template_line());
     }
-
     public function compile(Compiler $compiler): void
     {
-        $expr = $this->getNode('expr');
-        $compiler
-            ->raw('$this->sandbox->ensureToStringAllowed(')
-            ->subcompile($expr)
-            ->raw(', ')
-            ->repr($expr->getTemplateLine())
-            ->raw(', $this->source)')
-        ;
+        $expr = $this->get_node('expr');
+        $compiler->raw('$this->sandbox->ensureToStringAllowed(')->subcompile($expr)->raw(', ')->repr($expr->get_template_line())->raw(', $this->source)');
     }
 }

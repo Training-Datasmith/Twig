@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,11 +9,9 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
-use Twig\Node\Expression\TestExpression;
-
+use Twig\Node\Expression\Test_Expression;
 /**
  * Represents a template test.
  *
@@ -22,7 +19,7 @@ use Twig\Node\Expression\TestExpression;
  *
  * @see https://twig.symfony.com/doc/templates.html#test-operator
  */
-final class TwigTest extends AbstractTwigCallable
+final class Twig_Test extends Abstract_Twig_Callable
 {
     /**
      * @param callable|array{class-string, string}|null $callable A callable implementing the test. If null, you need to overwrite the "node_class" option to customize compilation.
@@ -30,40 +27,30 @@ final class TwigTest extends AbstractTwigCallable
     public function __construct(string $name, $callable = null, array $options = [])
     {
         parent::__construct($name, $callable, $options);
-
-        $this->options = array_merge([
-            'node_class' => TestExpression::class,
-            'one_mandatory_argument' => false,
-        ], $this->options);
+        $this->options = array_merge(['node_class' => Test_Expression::class, 'one_mandatory_argument' => false], $this->options);
     }
-
-    public function getType(): string
+    public function get_type(): string
     {
         return 'test';
     }
-
-    public function needsCharset(): bool
+    public function needs_charset(): bool
     {
         return false;
     }
-
-    public function needsEnvironment(): bool
+    public function needs_environment(): bool
     {
         return false;
     }
-
-    public function needsContext(): bool
+    public function needs_context(): bool
     {
         return false;
     }
-
-    public function hasOneMandatoryArgument(): bool
+    public function has_one_mandatory_argument(): bool
     {
         return (bool) $this->options['one_mandatory_argument'];
     }
-
-    public function getMinimalNumberOfRequiredArguments(): int
+    public function get_minimal_number_of_required_arguments(): int
     {
-        return parent::getMinimalNumberOfRequiredArguments() + 1;
+        return parent::get_minimal_number_of_required_arguments() + 1;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,15 +9,13 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\EmptyNode;
-use Twig\Node\Expression\ConstantExpression;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Empty_Node;
+use Twig\Node\Expression\Constant_Expression;
 use Twig\Node\Nodes;
 use Twig\Token;
-
 /**
  * Imports blocks defined in another template into the current template.
  *
@@ -33,43 +30,34 @@ use Twig\Token;
  *
  * @internal
  */
-final class UseTokenParser extends AbstractTokenParser
+final class Use_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\EmptyNode
+    public function parse(Token $token): \Twig\Node\Empty_Node
     {
-        $template = $this->parser->parseExpression();
-        $stream = $this->parser->getStream();
-
-        if (!$template instanceof ConstantExpression) {
-            throw new SyntaxError('The template references in a "use" statement must be a string.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
+        $template = $this->parser->parse_expression();
+        $stream = $this->parser->get_stream();
+        if (!$template instanceof Constant_Expression) {
+            throw new Syntax_Error('The template references in a "use" statement must be a string.', $stream->get_current()->get_line(), $stream->get_source_context());
         }
-
         $targets = [];
-        if ($stream->nextIf('with')) {
+        if ($stream->next_if('with')) {
             while (true) {
-                $name = $stream->expect(Token::NAME_TYPE)->getValue();
-
+                $name = $stream->expect(Token::NAME_TYPE)->get_value();
                 $alias = $name;
-                if ($stream->nextIf('as')) {
-                    $alias = $stream->expect(Token::NAME_TYPE)->getValue();
+                if ($stream->next_if('as')) {
+                    $alias = $stream->expect(Token::NAME_TYPE)->get_value();
                 }
-
-                $targets[$name] = new ConstantExpression($alias, -1);
-
-                if (!$stream->nextIf(Token::PUNCTUATION_TYPE, ',')) {
+                $targets[$name] = new Constant_Expression($alias, -1);
+                if (!$stream->next_if(Token::PUNCTUATION_TYPE, ',')) {
                     break;
                 }
             }
         }
-
         $stream->expect(Token::BLOCK_END_TYPE);
-
-        $this->parser->addTrait(new Nodes(['template' => $template, 'targets' => new Nodes($targets)]));
-
-        return new EmptyNode($token->getLine());
+        $this->parser->add_trait(new Nodes(['template' => $template, 'targets' => new Nodes($targets)]));
+        return new Empty_Node($token->get_line());
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'use';
     }

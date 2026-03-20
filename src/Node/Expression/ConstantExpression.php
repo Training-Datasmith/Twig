@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,25 +10,21 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
-
 /**
  * @final
  */
-class ConstantExpression extends AbstractExpression implements SupportDefinedTestInterface, ReturnPrimitiveTypeInterface
+class Constant_Expression extends Abstract_Expression implements Support_Defined_Test_Interface, Return_Primitive_Type_Interface
 {
-    use SupportDefinedTestTrait;
-
+    use Support_Defined_Test_Trait;
     public function __construct($value, int $lineno)
     {
         parent::__construct([], ['value' => $value], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        $compiler->repr($this->definedTest ? true : $this->getAttribute('value'));
+        $compiler->repr($this->defined_test ? true : $this->get_attribute('value'));
     }
 }

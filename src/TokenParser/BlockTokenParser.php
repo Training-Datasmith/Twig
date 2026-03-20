@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,17 +10,15 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Error\SyntaxError;
-use Twig\Node\BlockNode;
-use Twig\Node\BlockReferenceNode;
-use Twig\Node\EmptyNode;
+use Twig\Error\Syntax_Error;
+use Twig\Node\Block_Node;
+use Twig\Node\Block_Reference_Node;
+use Twig\Node\Empty_Node;
 use Twig\Node\Nodes;
-use Twig\Node\PrintNode;
+use Twig\Node\Print_Node;
 use Twig\Token;
-
 /**
  * Marks a section of a template as being reusable.
  *
@@ -32,46 +29,38 @@ use Twig\Token;
  *
  * @internal
  */
-final class BlockTokenParser extends AbstractTokenParser
+final class Block_Token_Parser extends Abstract_Token_Parser
 {
-    public function parse(Token $token): \Twig\Node\BlockReferenceNode
+    public function parse(Token $token): \Twig\Node\Block_Reference_Node
     {
-        $lineno = $token->getLine();
-        $stream = $this->parser->getStream();
-        $name = $stream->expect(Token::NAME_TYPE)->getValue();
-        $this->parser->setBlock($name, $block = new BlockNode($name, new EmptyNode(), $lineno));
-        $this->parser->pushLocalScope();
-        $this->parser->pushBlockStack($name);
-
-        if ($stream->nextIf(Token::BLOCK_END_TYPE)) {
-            $body = $this->parser->subparse($this->decideBlockEnd(...), true);
-            if ($token = $stream->nextIf(Token::NAME_TYPE)) {
-                $value = $token->getValue();
-
+        $lineno = $token->get_line();
+        $stream = $this->parser->get_stream();
+        $name = $stream->expect(Token::NAME_TYPE)->get_value();
+        $this->parser->set_block($name, $block = new Block_Node($name, new Empty_Node(), $lineno));
+        $this->parser->push_local_scope();
+        $this->parser->push_block_stack($name);
+        if ($stream->next_if(Token::BLOCK_END_TYPE)) {
+            $body = $this->parser->subparse($this->decide_block_end(...), true);
+            if ($token = $stream->next_if(Token::NAME_TYPE)) {
+                $value = $token->get_value();
                 if ($value != $name) {
-                    throw new SyntaxError(\sprintf('Expected endblock for block "%s" (but "%s" given).', $name, $value), $stream->getCurrent()->getLine(), $stream->getSourceContext());
+                    throw new Syntax_Error(\sprintf('Expected endblock for block "%s" (but "%s" given).', $name, $value), $stream->get_current()->get_line(), $stream->get_source_context());
                 }
             }
         } else {
-            $body = new Nodes([
-                new PrintNode($this->parser->parseExpression(), $lineno),
-            ]);
+            $body = new Nodes([new Print_Node($this->parser->parse_expression(), $lineno)]);
         }
         $stream->expect(Token::BLOCK_END_TYPE);
-
-        $block->setNode('body', $body);
-        $this->parser->popBlockStack();
-        $this->parser->popLocalScope();
-
-        return new BlockReferenceNode($name, $lineno);
+        $block->set_node('body', $body);
+        $this->parser->pop_block_stack();
+        $this->parser->pop_local_scope();
+        return new Block_Reference_Node($name, $lineno);
     }
-
-    public function decideBlockEnd(Token $token): bool
+    public function decide_block_end(Token $token): bool
     {
         return $token->test('endblock');
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'block';
     }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,80 +10,67 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 use Twig\Node\Node;
-
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
 class Compiler
 {
-    private ?int $lastLine = null;
+    private ?int $last_line = null;
     private ?string $source = null;
     private ?int $indentation = null;
-    private array $debugInfo = [];
-    private ?int $sourceOffset = null;
-    private ?int $sourceLine = null;
-    private int $varNameSalt = 0;
-    private $didUseEcho = false;
-    private array $didUseEchoStack = [];
-
-    public function __construct(
-        private readonly Environment $env,
-    ) {
+    private array $debug_info = [];
+    private ?int $source_offset = null;
+    private ?int $source_line = null;
+    private int $var_name_salt = 0;
+    private $did_use_echo = false;
+    private array $did_use_echo_stack = [];
+    public function __construct(private readonly Environment $env)
+    {
     }
-
-    public function getEnvironment(): Environment
+    public function get_environment(): Environment
     {
         return $this->env;
     }
-
-    public function getSource(): string
+    public function get_source(): string
     {
         return $this->source;
     }
-
     /**
      * @return $this
      */
     public function reset(int $indentation = 0): static
     {
-        $this->lastLine = null;
+        $this->last_line = null;
         $this->source = '';
-        $this->debugInfo = [];
-        $this->sourceOffset = 0;
+        $this->debug_info = [];
+        $this->source_offset = 0;
         // source code starts at 1 (as we then increment it when we encounter new lines)
-        $this->sourceLine = 1;
+        $this->source_line = 1;
         $this->indentation = $indentation;
-        $this->varNameSalt = 0;
-
+        $this->var_name_salt = 0;
         return $this;
     }
-
     /**
      * @return $this
      */
     public function compile(Node $node, int $indentation = 0): static
     {
         $this->reset($indentation);
-        $this->didUseEchoStack[] = $this->didUseEcho;
-
+        $this->did_use_echo_stack[] = $this->did_use_echo;
         try {
-            $this->didUseEcho = false;
+            $this->did_use_echo = false;
             $node->compile($this);
-
-            if ($this->didUseEcho) {
-                trigger_deprecation('twig/twig', '3.9', 'Using "%s" is deprecated, use "yield" instead in "%s", then flag the class with #[\Twig\Attribute\YieldReady].', $this->didUseEcho, $node::class);
+            if ($this->did_use_echo) {
+                trigger_deprecation('twig/twig', '3.9', 'Using "%s" is deprecated, use "yield" instead in "%s", then flag the class with #[\Twig\Attribute\YieldReady].', $this->did_use_echo, $node::class);
             }
-
             return $this;
         } finally {
-            $this->didUseEcho = array_pop($this->didUseEchoStack);
+            $this->did_use_echo = array_pop($this->did_use_echo_stack);
         }
     }
-
     /**
      * @return $this
      */
@@ -93,23 +79,18 @@ class Compiler
         if (!$raw) {
             $this->source .= str_repeat(' ', $this->indentation * 4);
         }
-
-        $this->didUseEchoStack[] = $this->didUseEcho;
-
+        $this->did_use_echo_stack[] = $this->did_use_echo;
         try {
-            $this->didUseEcho = false;
+            $this->did_use_echo = false;
             $node->compile($this);
-
-            if ($this->didUseEcho) {
-                trigger_deprecation('twig/twig', '3.9', 'Using "%s" is deprecated, use "yield" instead in "%s", then flag the class with #[\Twig\Attribute\YieldReady].', $this->didUseEcho, $node::class);
+            if ($this->did_use_echo) {
+                trigger_deprecation('twig/twig', '3.9', 'Using "%s" is deprecated, use "yield" instead in "%s", then flag the class with #[\Twig\Attribute\YieldReady].', $this->did_use_echo, $node::class);
             }
-
             return $this;
         } finally {
-            $this->didUseEcho = array_pop($this->didUseEchoStack);
+            $this->did_use_echo = array_pop($this->did_use_echo_stack);
         }
     }
-
     /**
      * Adds a raw string to the compiled code.
      *
@@ -117,12 +98,10 @@ class Compiler
      */
     public function raw(string $string): static
     {
-        $this->checkForEcho($string);
+        $this->check_for_echo($string);
         $this->source .= $string;
-
         return $this;
     }
-
     /**
      * Writes a string to the compiled code by adding indentation.
      *
@@ -131,13 +110,11 @@ class Compiler
     public function write(...$strings): static
     {
         foreach ($strings as $string) {
-            $this->checkForEcho($string);
-            $this->source .= str_repeat(' ', $this->indentation * 4).$string;
+            $this->check_for_echo($string);
+            $this->source .= str_repeat(' ', $this->indentation * 4) . $string;
         }
-
         return $this;
     }
-
     /**
      * Adds a quoted string to the compiled code.
      *
@@ -145,11 +122,9 @@ class Compiler
      */
     public function string(string $value): static
     {
-        $this->source .= \sprintf('"%s"', addcslashes($value, "\0\t\"\$\\"));
-
+        $this->source .= \sprintf('"%s"', addcslashes($value, "\x00\t\"\$\\"));
         return $this;
     }
-
     /**
      * Returns a PHP representation of a given value.
      *
@@ -194,45 +169,35 @@ class Compiler
         } else {
             $this->string($value);
         }
-
         return $this;
     }
-
     /**
      * @return $this
      */
-    public function addDebugInfo(Node $node): static
+    public function add_debug_info(Node $node): static
     {
-        if ($node->getTemplateLine() != $this->lastLine) {
-            $this->write(\sprintf("// line %d\n", $node->getTemplateLine()));
-
-            $this->sourceLine += substr_count((string) $this->source, "\n", $this->sourceOffset);
-            $this->sourceOffset = \strlen((string) $this->source);
-            $this->debugInfo[$this->sourceLine] = $node->getTemplateLine();
-
-            $this->lastLine = $node->getTemplateLine();
+        if ($node->get_template_line() != $this->last_line) {
+            $this->write(\sprintf("// line %d\n", $node->get_template_line()));
+            $this->source_line += substr_count((string) $this->source, "\n", $this->source_offset);
+            $this->source_offset = \strlen((string) $this->source);
+            $this->debug_info[$this->source_line] = $node->get_template_line();
+            $this->last_line = $node->get_template_line();
         }
-
         return $this;
     }
-
-    public function getDebugInfo(): array
+    public function get_debug_info(): array
     {
-        ksort($this->debugInfo);
-
-        return $this->debugInfo;
+        ksort($this->debug_info);
+        return $this->debug_info;
     }
-
     /**
      * @return $this
      */
     public function indent(int $step = 1): static
     {
         $this->indentation += $step;
-
         return $this;
     }
-
     /**
      * @return $this
      *
@@ -244,23 +209,18 @@ class Compiler
         if ($this->indentation < $step) {
             throw new \LogicException('Unable to call outdent() as the indentation would become negative.');
         }
-
         $this->indentation -= $step;
-
         return $this;
     }
-
-    public function getVarName(): string
+    public function get_var_name(): string
     {
-        return \sprintf('_v%d', $this->varNameSalt++);
+        return \sprintf('_v%d', $this->var_name_salt++);
     }
-
-    private function checkForEcho(string $string): void
+    private function check_for_echo(string $string): void
     {
-        if ($this->didUseEcho) {
+        if ($this->did_use_echo) {
             return;
         }
-
-        $this->didUseEcho = preg_match('/^\s*+(echo|print)\b/', $string, $m) ? $m[1] : false;
+        $this->did_use_echo = preg_match('/^\s*+(echo|print)\b/', $string, $m) ? $m[1] : false;
     }
 }

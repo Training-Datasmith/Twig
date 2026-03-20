@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,15 +9,14 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\RuntimeLoader;
+namespace Twig\Runtime_Loader;
 
 /**
  * Creates runtime implementations for Twig elements (filters/functions/tests).
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface RuntimeLoaderInterface
+interface Runtime_Loader_Interface
 {
     /**
      * Creates the runtime implementation of a Twig element (filter/function/test).

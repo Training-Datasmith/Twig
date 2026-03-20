@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,11 +9,9 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Variable;
 
-use Twig\Node\Expression\NameExpression;
-
-class ContextVariable extends NameExpression
+use Twig\Node\Expression\Name_Expression;
+class Context_Variable extends Name_Expression
 {
 }

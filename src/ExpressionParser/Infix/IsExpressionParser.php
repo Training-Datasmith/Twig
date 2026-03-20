@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,77 +9,64 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Infix;
 
-namespace Twig\ExpressionParser\Infix;
-
-use Twig\Attribute\FirstClassTwigCallableReady;
-use Twig\ExpressionParser\AbstractExpressionParser;
-use Twig\ExpressionParser\ExpressionParserDescriptionInterface;
-use Twig\ExpressionParser\InfixAssociativity;
-use Twig\ExpressionParser\InfixExpressionParserInterface;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\MacroReferenceExpression;
-use Twig\Node\Expression\NameExpression;
+use Twig\Attribute\First_Class_Twig_Callable_Ready;
+use Twig\Expression_Parser\Abstract_Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Description_Interface;
+use Twig\Expression_Parser\Infix_Associativity;
+use Twig\Expression_Parser\Infix_Expression_Parser_Interface;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Array_Expression;
+use Twig\Node\Expression\Macro_Reference_Expression;
+use Twig\Node\Expression\Name_Expression;
 use Twig\Node\Nodes;
 use Twig\Parser;
 use Twig\Token;
-use Twig\TwigTest;
-
+use Twig\Twig_Test;
 /**
  * @internal
  */
-class IsExpressionParser extends AbstractExpressionParser implements InfixExpressionParserInterface, ExpressionParserDescriptionInterface
+class Is_Expression_Parser extends Abstract_Expression_Parser implements Infix_Expression_Parser_Interface, Expression_Parser_Description_Interface
 {
-    use ArgumentsTrait;
-
-    private array $readyNodes = [];
-
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
+    use Arguments_Trait;
+    private array $ready_nodes = [];
+    public function parse(Parser $parser, Abstract_Expression $expr, Token $token): Abstract_Expression
     {
-        $stream = $parser->getStream();
-        $test = $parser->getTest($token->getLine());
-
+        $stream = $parser->get_stream();
+        $test = $parser->get_test($token->get_line());
         $arguments = null;
         if ($stream->test(Token::OPERATOR_TYPE, '(')) {
-            $arguments = $this->parseNamedArguments($parser);
-        } elseif ($test->hasOneMandatoryArgument()) {
-            $arguments = new Nodes([0 => $parser->parseExpression($this->getPrecedence())]);
+            $arguments = $this->parse_named_arguments($parser);
+        } elseif ($test->has_one_mandatory_argument()) {
+            $arguments = new Nodes([0 => $parser->parse_expression($this->get_precedence())]);
         }
-
-        if ('defined' === $test->getName() && $expr instanceof NameExpression && null !== $alias = $parser->getImportedSymbol('function', $expr->getAttribute('name'))) {
-            $expr = new MacroReferenceExpression($alias['node']->getNode('var'), $alias['name'], new ArrayExpression([], $expr->getTemplateLine()), $expr->getTemplateLine());
+        if ('defined' === $test->get_name() && $expr instanceof Name_Expression && null !== $alias = $parser->get_imported_symbol('function', $expr->get_attribute('name'))) {
+            $expr = new Macro_Reference_Expression($alias['node']->get_node('var'), $alias['name'], new Array_Expression([], $expr->get_template_line()), $expr->get_template_line());
         }
-
-        $ready = $test instanceof TwigTest;
-        if (!isset($this->readyNodes[$class = $test->getNodeClass()])) {
-            $this->readyNodes[$class] = (bool) (new \ReflectionClass($class))->getConstructor()->getAttributes(FirstClassTwigCallableReady::class);
+        $ready = $test instanceof Twig_Test;
+        if (!isset($this->ready_nodes[$class = $test->get_node_class()])) {
+            $this->ready_nodes[$class] = (bool) (new \ReflectionClass($class))->get_constructor()->get_attributes(First_Class_Twig_Callable_Ready::class);
         }
-
-        if (!$ready = $this->readyNodes[$class]) {
+        if (!$ready = $this->ready_nodes[$class]) {
             trigger_deprecation('twig/twig', '3.12', 'Twig node "%s" is not marked as ready for passing a "TwigTest" in the constructor instead of its name; please update your code and then add #[FirstClassTwigCallableReady] attribute to the constructor.', $class);
         }
-
-        return new $class($expr, $ready ? $test : $test->getName(), $arguments, $stream->getCurrent()->getLine());
+        return new $class($expr, $ready ? $test : $test->get_name(), $arguments, $stream->get_current()->get_line());
     }
-
-    public function getPrecedence(): int
+    public function get_precedence(): int
     {
         return 100;
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return 'is';
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
         return 'Twig tests';
     }
-
-    public function getAssociativity(): InfixAssociativity
+    public function get_associativity(): Infix_Associativity
     {
-        return InfixAssociativity::Left;
+        return Infix_Associativity::Left;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,14 +10,12 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\IncludeNode;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Include_Node;
 use Twig\Node\Node;
 use Twig\Token;
-
 /**
  * Includes a template.
  *
@@ -28,47 +25,37 @@ use Twig\Token;
  *
  * @internal
  */
-class IncludeTokenParser extends AbstractTokenParser
+class Include_Token_Parser extends Abstract_Token_Parser
 {
     public function parse(Token $token): Node
     {
-        $expr = $this->parser->parseExpression();
-
-        [$variables, $only, $ignoreMissing] = $this->parseArguments();
-
-        return new IncludeNode($expr, $variables, $only, $ignoreMissing, $token->getLine());
+        $expr = $this->parser->parse_expression();
+        [$variables, $only, $ignore_missing] = $this->parse_arguments();
+        return new Include_Node($expr, $variables, $only, $ignore_missing, $token->get_line());
     }
-
     /**
      * @return array{0: ?AbstractExpression, 1: bool, 2: bool}
      */
-    protected function parseArguments(): array
+    protected function parse_arguments(): array
     {
-        $stream = $this->parser->getStream();
-
-        $ignoreMissing = false;
-        if ($stream->nextIf(Token::NAME_TYPE, 'ignore')) {
+        $stream = $this->parser->get_stream();
+        $ignore_missing = false;
+        if ($stream->next_if(Token::NAME_TYPE, 'ignore')) {
             $stream->expect(Token::NAME_TYPE, 'missing');
-
-            $ignoreMissing = true;
+            $ignore_missing = true;
         }
-
         $variables = null;
-        if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $variables = $this->parser->parseExpression();
+        if ($stream->next_if(Token::NAME_TYPE, 'with')) {
+            $variables = $this->parser->parse_expression();
         }
-
         $only = false;
-        if ($stream->nextIf(Token::NAME_TYPE, 'only')) {
+        if ($stream->next_if(Token::NAME_TYPE, 'only')) {
             $only = true;
         }
-
         $stream->expect(Token::BLOCK_END_TYPE);
-
-        return [$variables, $only, $ignoreMissing];
+        return [$variables, $only, $ignore_missing];
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'include';
     }

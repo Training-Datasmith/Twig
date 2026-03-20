@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,80 +9,67 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Prefix;
 
-namespace Twig\ExpressionParser\Prefix;
-
-use Twig\Error\SyntaxError;
-use Twig\ExpressionParser\AbstractExpressionParser;
-use Twig\ExpressionParser\ExpressionParserDescriptionInterface;
-use Twig\ExpressionParser\PrefixExpressionParserInterface;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ListExpression;
-use Twig\Node\Expression\Variable\AssignContextVariable;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Error\Syntax_Error;
+use Twig\Expression_Parser\Abstract_Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Description_Interface;
+use Twig\Expression_Parser\Prefix_Expression_Parser_Interface;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\List_Expression;
+use Twig\Node\Expression\Variable\Assign_Context_Variable;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Parser;
 use Twig\Token;
-
 /**
  * @internal
  */
-final class GroupingExpressionParser extends AbstractExpressionParser implements PrefixExpressionParserInterface, ExpressionParserDescriptionInterface
+final class Grouping_Expression_Parser extends Abstract_Expression_Parser implements Prefix_Expression_Parser_Interface, Expression_Parser_Description_Interface
 {
-    public function parse(Parser $parser, Token $token): AbstractExpression
+    public function parse(Parser $parser, Token $token): Abstract_Expression
     {
-        $stream = $parser->getStream();
-        $expr = $parser->parseExpression($this->getPrecedence());
-
-        if ($stream->nextIf(Token::PUNCTUATION_TYPE, ')')) {
+        $stream = $parser->get_stream();
+        $expr = $parser->parse_expression($this->get_precedence());
+        if ($stream->next_if(Token::PUNCTUATION_TYPE, ')')) {
             if (!$stream->test(Token::OPERATOR_TYPE, '=>')) {
-                return $expr->setExplicitParentheses();
+                return $expr->set_explicit_parentheses();
             }
-
-            return new ListExpression([self::toAssignContextVariable($expr)], $token->getLine());
+            return new List_Expression([self::to_assign_context_variable($expr)], $token->get_line());
         }
-
         // determine if we are parsing an arrow function arguments
         if (!$stream->test(Token::PUNCTUATION_TYPE, ',')) {
             $stream->expect(Token::PUNCTUATION_TYPE, ')', 'An opened parenthesis is not properly closed');
         }
-
         $names = [$expr];
         while (true) {
-            if ($stream->nextIf(Token::PUNCTUATION_TYPE, ')')) {
+            if ($stream->next_if(Token::PUNCTUATION_TYPE, ')')) {
                 break;
             }
             $stream->expect(Token::PUNCTUATION_TYPE, ',');
             $token = $stream->expect(Token::NAME_TYPE);
-            $names[] = new ContextVariable($token->getValue(), $token->getLine());
+            $names[] = new Context_Variable($token->get_value(), $token->get_line());
         }
-
         if (!$stream->test(Token::OPERATOR_TYPE, '=>')) {
-            throw new SyntaxError('A list of variables must be followed by an arrow.', $stream->getCurrent()->getLine(), $stream->getSourceContext());
+            throw new Syntax_Error('A list of variables must be followed by an arrow.', $stream->get_current()->get_line(), $stream->get_source_context());
         }
-
-        return new ListExpression(array_map(self::toAssignContextVariable(...), $names), $token->getLine());
+        return new List_Expression(array_map(self::to_assign_context_variable(...), $names), $token->get_line());
     }
-
-    private static function toAssignContextVariable(AbstractExpression $expr): AssignContextVariable
+    private static function to_assign_context_variable(Abstract_Expression $expr): Assign_Context_Variable
     {
-        if (!$expr instanceof ContextVariable) {
-            throw new SyntaxError('A list must only contain variables.', $expr->getTemplateLine(), $expr->getSourceContext());
+        if (!$expr instanceof Context_Variable) {
+            throw new Syntax_Error('A list must only contain variables.', $expr->get_template_line(), $expr->get_source_context());
         }
-
-        return $expr instanceof AssignContextVariable ? $expr : new AssignContextVariable($expr->getAttribute('name'), $expr->getTemplateLine());
+        return $expr instanceof Assign_Context_Variable ? $expr : new Assign_Context_Variable($expr->get_attribute('name'), $expr->get_template_line());
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return '(';
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
         return 'Explicit group expression (a)';
     }
-
-    public function getPrecedence(): int
+    public function get_precedence(): int
     {
         return 0;
     }

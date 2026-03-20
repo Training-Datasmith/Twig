@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,12 +9,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Attribute;
 
-use Twig\DeprecatedCallableInfo;
-use Twig\TwigFilter;
-
+use Twig\Deprecated_Callable_Info;
+use Twig\Twig_Filter;
 /**
  * Registers a method as template filter.
  *
@@ -30,7 +27,7 @@ use Twig\TwigFilter;
  * @see TwigFilter
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-final class AsTwigFilter
+final class As_Twig_Filter
 {
     /**
      * @param non-empty-string            $name             The name of the filter in Twig
@@ -43,16 +40,7 @@ final class AsTwigFilter
      * @param string[]|null               $preservesSafety  Preserves the safety of the value that the filter is applied to
      * @param DeprecatedCallableInfo|null $deprecationInfo  Information about the deprecation
      */
-    public function __construct(
-        public string $name,
-        public ?bool $needsCharset = null,
-        public ?bool $needsEnvironment = null,
-        public ?bool $needsContext = null,
-        public ?array $isSafe = null,
-        public string|array|null $isSafeCallback = null,
-        public ?string $preEscape = null,
-        public ?array $preservesSafety = null,
-        public ?DeprecatedCallableInfo $deprecationInfo = null,
-    ) {
+    public function __construct(public string $name, public ?bool $needs_charset = null, public ?bool $needs_environment = null, public ?bool $needs_context = null, public ?array $is_safe = null, public string|array|null $is_safe_callback = null, public ?string $pre_escape = null, public ?array $preserves_safety = null, public ?Deprecated_Callable_Info $deprecation_info = null)
+    {
     }
 }

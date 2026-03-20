@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 /**
@@ -18,9 +16,8 @@ namespace Twig\Node\Expression;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface SupportDefinedTestInterface
+interface Support_Defined_Test_Interface
 {
-    public function enableDefinedTest(): void;
-
-    public function isDefinedTestEnabled(): bool;
+    public function enable_defined_test(): void;
+    public function is_defined_test_enabled(): bool;
 }

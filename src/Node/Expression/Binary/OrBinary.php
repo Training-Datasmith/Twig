@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,13 +10,11 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Binary;
 
 use Twig\Compiler;
-use Twig\Node\Expression\ReturnBoolInterface;
-
-class OrBinary extends AbstractBinary implements ReturnBoolInterface
+use Twig\Node\Expression\Return_Bool_Interface;
+class Or_Binary extends Abstract_Binary implements Return_Bool_Interface
 {
     public function operator(Compiler $compiler): Compiler
     {

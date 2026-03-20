@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,7 +9,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Cache;
 
 /**
@@ -21,70 +19,58 @@ namespace Twig\Cache;
  *
  * @author Quentin Devos <quentin@devos.pm>
  */
-final class ChainCache implements CacheInterface, RemovableCacheInterface
+final class Chain_Cache implements Cache_Interface, Removable_Cache_Interface
 {
     /**
      * @param iterable<CacheInterface> $caches The ordered list of caches used to store and fetch cached items
      */
-    public function __construct(
-        private readonly iterable $caches,
-    ) {
-    }
-
-    public function generateKey(string $name, string $className): string
+    public function __construct(private readonly iterable $caches)
     {
-        return $className."\0".$name;
     }
-
+    public function generate_key(string $name, string $class_name): string
+    {
+        return $class_name . "\x00" . $name;
+    }
     public function write(string $key, string $content): void
     {
-        $splitKey = $this->splitKey($key);
-
+        $split_key = $this->split_key($key);
         foreach ($this->caches as $cache) {
-            $cache->write($cache->generateKey(...$splitKey), $content);
+            $cache->write($cache->generate_key(...$split_key), $content);
         }
     }
-
     public function load(string $key): void
     {
-        [$name, $className] = $this->splitKey($key);
-
+        [$name, $class_name] = $this->split_key($key);
         foreach ($this->caches as $cache) {
-            $cache->load($cache->generateKey($name, $className));
-
-            if (class_exists($className, false)) {
+            $cache->load($cache->generate_key($name, $class_name));
+            if (class_exists($class_name, false)) {
                 break;
             }
         }
     }
-
-    public function getTimestamp(string $key): int
+    public function get_timestamp(string $key): int
     {
-        $splitKey = $this->splitKey($key);
-
+        $split_key = $this->split_key($key);
         foreach ($this->caches as $cache) {
-            if (0 < $timestamp = $cache->getTimestamp($cache->generateKey(...$splitKey))) {
+            if (0 < $timestamp = $cache->get_timestamp($cache->generate_key(...$split_key))) {
                 return $timestamp;
             }
         }
-
         return 0;
     }
-
     public function remove(string $name, string $cls): void
     {
         foreach ($this->caches as $cache) {
-            if ($cache instanceof RemovableCacheInterface) {
+            if ($cache instanceof Removable_Cache_Interface) {
                 $cache->remove($name, $cls);
             }
         }
     }
-
     /**
      * @return string[]
      */
-    private function splitKey(string $key): array
+    private function split_key(string $key): array
     {
-        return array_reverse(explode("\0", $key, 2));
+        return array_reverse(explode("\x00", $key, 2));
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,46 +9,30 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-interface TwigCallableInterface extends \Stringable
+interface Twig_Callable_Interface extends \Stringable
 {
-    public function getName(): string;
-
-    public function getType(): string;
-
-    public function getDynamicName(): string;
-
+    public function get_name(): string;
+    public function get_type(): string;
+    public function get_dynamic_name(): string;
     /**
      * @return callable|array{class-string, string}|null
      */
-    public function getCallable();
-
-    public function getNodeClass(): string;
-
-    public function needsCharset(): bool;
-
-    public function needsEnvironment(): bool;
-
-    public function needsContext(): bool;
-
-    public function withDynamicArguments(string $name, string $dynamicName, array $arguments): self;
-
-    public function getArguments(): array;
-
-    public function isVariadic(): bool;
-
-    public function isDeprecated(): bool;
-
-    public function getDeprecatingPackage(): string;
-
-    public function getDeprecatedVersion(): string;
-
-    public function getAlternative(): ?string;
-
-    public function getMinimalNumberOfRequiredArguments(): int;
+    public function get_callable();
+    public function get_node_class(): string;
+    public function needs_charset(): bool;
+    public function needs_environment(): bool;
+    public function needs_context(): bool;
+    public function with_dynamic_arguments(string $name, string $dynamic_name, array $arguments): self;
+    public function get_arguments(): array;
+    public function is_variadic(): bool;
+    public function is_deprecated(): bool;
+    public function get_deprecating_package(): string;
+    public function get_deprecated_version(): string;
+    public function get_alternative(): ?string;
+    public function get_minimal_number_of_required_arguments(): int;
 }

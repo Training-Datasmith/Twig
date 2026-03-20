@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,87 +10,61 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Compiler;
 use Twig\Node\Node;
-
 /**
  * Represents a block call node.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class BlockReferenceExpression extends AbstractExpression implements SupportDefinedTestInterface
+class Block_Reference_Expression extends Abstract_Expression implements Support_Defined_Test_Interface
 {
-    use SupportDefinedTestDeprecationTrait;
-    use SupportDefinedTestTrait;
-
+    use Support_Defined_Test_Deprecation_Trait;
+    use Support_Defined_Test_Trait;
     /**
      * @param AbstractExpression $name
      */
     public function __construct(Node $name, ?Node $template, int $lineno)
     {
-        if (!$name instanceof AbstractExpression) {
-            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $name::class);
+        if (!$name instanceof Abstract_Expression) {
+            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', Abstract_Expression::class, static::class, $name::class);
         }
-
         $nodes = ['name' => $name];
         if (null !== $template) {
             $nodes['template'] = $template;
         }
-
         parent::__construct($nodes, ['output' => false], $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        if ($this->definedTest) {
-            $this->compileTemplateCall($compiler, 'hasBlock');
+        if ($this->defined_test) {
+            $this->compile_template_call($compiler, 'hasBlock');
+        } else if ($this->get_attribute('output')) {
+            $compiler->add_debug_info($this);
+            $compiler->write('yield from ');
+            $this->compile_template_call($compiler, 'yieldBlock')->raw(";\n");
         } else {
-            if ($this->getAttribute('output')) {
-                $compiler->addDebugInfo($this);
-
-                $compiler->write('yield from ');
-                $this
-                    ->compileTemplateCall($compiler, 'yieldBlock')
-                    ->raw(";\n");
-            } else {
-                $this->compileTemplateCall($compiler, 'renderBlock');
-            }
+            $this->compile_template_call($compiler, 'renderBlock');
         }
     }
-
-    private function compileTemplateCall(Compiler $compiler, string $method): Compiler
+    private function compile_template_call(Compiler $compiler, string $method): Compiler
     {
-        if (!$this->hasNode('template')) {
+        if (!$this->has_node('template')) {
             $compiler->write('$this');
         } else {
-            $compiler
-                ->write('$this->load(')
-                ->subcompile($this->getNode('template'))
-                ->raw(', ')
-                ->repr($this->getTemplateLine())
-                ->raw(')')
-            ;
+            $compiler->write('$this->load(')->subcompile($this->get_node('template'))->raw(', ')->repr($this->get_template_line())->raw(')');
         }
-
         $compiler->raw(\sprintf('->unwrap()->%s', $method));
-
-        return $this->compileBlockArguments($compiler);
+        return $this->compile_block_arguments($compiler);
     }
-
-    private function compileBlockArguments(Compiler $compiler): Compiler
+    private function compile_block_arguments(Compiler $compiler): Compiler
     {
-        $compiler
-            ->raw('(')
-            ->subcompile($this->getNode('name'))
-            ->raw(', $context');
-
-        if (!$this->hasNode('template')) {
+        $compiler->raw('(')->subcompile($this->get_node('name'))->raw(', $context');
+        if (!$this->has_node('template')) {
             $compiler->raw(', $blocks');
         }
-
         return $compiler->raw(')');
     }
 }

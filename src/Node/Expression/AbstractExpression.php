@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,35 +10,30 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression;
 
 use Twig\Node\Node;
-
 /**
  * Abstract class for all nodes that represents an expression.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-abstract class AbstractExpression extends Node
+abstract class Abstract_Expression extends Node
 {
-    public function isGenerator(): bool
+    public function is_generator(): bool
     {
-        return $this->hasAttribute('is_generator') && $this->getAttribute('is_generator');
+        return $this->has_attribute('is_generator') && $this->get_attribute('is_generator');
     }
-
     /**
      * @return static
      */
-    public function setExplicitParentheses(): self
+    public function set_explicit_parentheses(): self
     {
-        $this->setAttribute('with_parentheses', true);
-
+        $this->set_attribute('with_parentheses', true);
         return $this;
     }
-
-    public function hasExplicitParentheses(): bool
+    public function has_explicit_parentheses(): bool
     {
-        return $this->hasAttribute('with_parentheses') && $this->getAttribute('with_parentheses');
+        return $this->has_attribute('with_parentheses') && $this->get_attribute('with_parentheses');
     }
 }

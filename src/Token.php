@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,7 +10,6 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig;
 
 /**
@@ -40,12 +38,8 @@ final class Token implements \Stringable
      * @deprecated since Twig 3.21, "spread" is now an operator
      */
     public const SPREAD_TYPE = 13;
-
-    public function __construct(
-        private readonly int $type,
-        private $value,
-        private readonly int $lineno,
-    ) {
+    public function __construct(private readonly int $type, private $value, private readonly int $lineno)
+    {
         if (self::ARROW_TYPE === $type) {
             trigger_deprecation('twig/twig', '3.21', 'The "%s" token type is deprecated, "arrow" is now an operator.', self::ARROW_TYPE);
         }
@@ -53,12 +47,10 @@ final class Token implements \Stringable
             trigger_deprecation('twig/twig', '3.21', 'The "%s" token type is deprecated, "spread" is now an operator.', self::SPREAD_TYPE);
         }
     }
-
     public function __toString(): string
     {
-        return \sprintf('%s(%s)', self::typeToString($this->type, true), $this->value);
+        return \sprintf('%s(%s)', self::type_to_string($this->type, true), $this->value);
     }
-
     /**
      * Tests the current token for a type and/or a value.
      *
@@ -76,77 +68,60 @@ final class Token implements \Stringable
             $values = $type;
             $type = self::NAME_TYPE;
         }
-
         if (self::ARROW_TYPE === $type) {
-            trigger_deprecation('twig/twig', '3.21', 'The "%s" token type is deprecated, "arrow" is now an operator.', self::typeToEnglish(self::ARROW_TYPE));
-
+            trigger_deprecation('twig/twig', '3.21', 'The "%s" token type is deprecated, "arrow" is now an operator.', self::type_to_english(self::ARROW_TYPE));
             return self::OPERATOR_TYPE === $this->type && '=>' === $this->value;
         }
         if (self::SPREAD_TYPE === $type) {
-            trigger_deprecation('twig/twig', '3.21', 'The "%s" token type is deprecated, "spread" is now an operator.', self::typeToEnglish(self::SPREAD_TYPE));
-
+            trigger_deprecation('twig/twig', '3.21', 'The "%s" token type is deprecated, "spread" is now an operator.', self::type_to_english(self::SPREAD_TYPE));
             return self::OPERATOR_TYPE === $this->type && '...' === $this->value;
         }
-
-        $typeMatches = $this->type === $type;
-        if ($typeMatches && self::PUNCTUATION_TYPE === $type && \in_array($this->value, ['(', '[', '|', '.', '?', '?:'], true) && $values) {
+        $type_matches = $this->type === $type;
+        if ($type_matches && self::PUNCTUATION_TYPE === $type && \in_array($this->value, ['(', '[', '|', '.', '?', '?:'], true) && $values) {
             foreach ((array) $values as $value) {
                 if (\in_array($value, ['(', '[', '|', '.', '?', '?:'], true)) {
-                    trigger_deprecation('twig/twig', '3.21', 'The "%s" token is now an "%s" token instead of a "%s" one.', $this->value, self::typeToEnglish(self::OPERATOR_TYPE), $this->toEnglish());
-
+                    trigger_deprecation('twig/twig', '3.21', 'The "%s" token is now an "%s" token instead of a "%s" one.', $this->value, self::type_to_english(self::OPERATOR_TYPE), $this->to_english());
                     break;
                 }
             }
         }
-        if (!$typeMatches) {
+        if (!$type_matches) {
             if (self::OPERATOR_TYPE === $type && self::PUNCTUATION_TYPE === $this->type) {
                 if ($values) {
                     foreach ((array) $values as $value) {
                         if (\in_array($value, ['(', '[', '|', '.', '?', '?:'], true)) {
-                            $typeMatches = true;
-
+                            $type_matches = true;
                             break;
                         }
                     }
                 } else {
-                    $typeMatches = true;
+                    $type_matches = true;
                 }
             }
         }
-
-        return $typeMatches && (
-            null === $values
-            || (\is_array($values) && \in_array($this->value, $values, true))
-            || $this->value == $values
-        );
+        return $type_matches && (null === $values || \is_array($values) && \in_array($this->value, $values, true) || $this->value == $values);
     }
-
-    public function getLine(): int
+    public function get_line(): int
     {
         return $this->lineno;
     }
-
     /**
      * @deprecated since Twig 3.19
      */
-    public function getType(): int
+    public function get_type(): int
     {
         trigger_deprecation('twig/twig', '3.19', \sprintf('The "%s()" method is deprecated.', __METHOD__));
-
         return $this->type;
     }
-
-    public function getValue()
+    public function get_value()
     {
         return $this->value;
     }
-
-    public function toEnglish(): string
+    public function to_english(): string
     {
-        return self::typeToEnglish($this->type);
+        return self::type_to_english($this->type);
     }
-
-    public static function typeToString(int $type, bool $short = false): string
+    public static function type_to_string(int $type, bool $short = false): string
     {
         $name = match ($type) {
             self::EOF_TYPE => 'EOF_TYPE',
@@ -166,11 +141,9 @@ final class Token implements \Stringable
             self::SPREAD_TYPE => 'SPREAD_TYPE',
             default => throw new \LogicException(\sprintf('Token of type "%s" does not exist.', $type)),
         };
-
-        return $short ? $name : 'Twig\Token::'.$name;
+        return $short ? $name : 'Twig\Token::' . $name;
     }
-
-    public static function typeToEnglish(int $type): string
+    public static function type_to_english(int $type): string
     {
         return match ($type) {
             self::EOF_TYPE => 'end of template',

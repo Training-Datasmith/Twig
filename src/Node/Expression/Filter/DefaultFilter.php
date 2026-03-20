@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,24 +9,22 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Filter;
 
-use Twig\Attribute\FirstClassTwigCallableReady;
+use Twig\Attribute\First_Class_Twig_Callable_Ready;
 use Twig\Compiler;
-use Twig\Extension\CoreExtension;
-use Twig\Node\EmptyNode;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\FilterExpression;
-use Twig\Node\Expression\GetAttrExpression;
-use Twig\Node\Expression\Ternary\ConditionalTernary;
-use Twig\Node\Expression\Test\DefinedTest;
-use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Extension\Core_Extension;
+use Twig\Node\Empty_Node;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Filter_Expression;
+use Twig\Node\Expression\Get_Attr_Expression;
+use Twig\Node\Expression\Ternary\Conditional_Ternary;
+use Twig\Node\Expression\Test\Defined_Test;
+use Twig\Node\Expression\Variable\Context_Variable;
 use Twig\Node\Node;
-use Twig\TwigFilter;
-use Twig\TwigTest;
-
+use Twig\Twig_Filter;
+use Twig\Twig_Test;
 /**
  * Returns the value or the default value when it is undefined or empty.
  *
@@ -35,40 +32,35 @@ use Twig\TwigTest;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class DefaultFilter extends FilterExpression
+class Default_Filter extends Filter_Expression
 {
     /**
      * @param AbstractExpression $node
      */
-    #[FirstClassTwigCallableReady]
-    public function __construct(Node $node, TwigFilter|ConstantExpression $filter, Node $arguments, int $lineno)
+    #[First_Class_Twig_Callable_Ready]
+    public function __construct(Node $node, Twig_Filter|Constant_Expression $filter, Node $arguments, int $lineno)
     {
-        if (!$node instanceof AbstractExpression) {
-            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $node::class);
+        if (!$node instanceof Abstract_Expression) {
+            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', Abstract_Expression::class, static::class, $node::class);
         }
-
-        if ($filter instanceof TwigFilter) {
-            $name = $filter->getName();
-            $default = new FilterExpression($node, $filter, $arguments, $node->getTemplateLine());
+        if ($filter instanceof Twig_Filter) {
+            $name = $filter->get_name();
+            $default = new Filter_Expression($node, $filter, $arguments, $node->get_template_line());
         } else {
-            $name = $filter->getAttribute('value');
-            $default = new FilterExpression($node, new TwigFilter('default', CoreExtension::default(...)), $arguments, $node->getTemplateLine());
+            $name = $filter->get_attribute('value');
+            $default = new Filter_Expression($node, new Twig_Filter('default', Core_Extension::default(...)), $arguments, $node->get_template_line());
         }
-
-        if ('default' === $name && ($node instanceof ContextVariable || $node instanceof GetAttrExpression)) {
-            $test = new DefinedTest(clone $node, new TwigTest('defined'), new EmptyNode(), $node->getTemplateLine());
-            $false = \count($arguments) ? $arguments->getNode('0') : new ConstantExpression('', $node->getTemplateLine());
-
-            $node = new ConditionalTernary($test, $default, $false, $node->getTemplateLine());
+        if ('default' === $name && ($node instanceof Context_Variable || $node instanceof Get_Attr_Expression)) {
+            $test = new Defined_Test(clone $node, new Twig_Test('defined'), new Empty_Node(), $node->get_template_line());
+            $false = \count($arguments) ? $arguments->get_node('0') : new Constant_Expression('', $node->get_template_line());
+            $node = new Conditional_Ternary($test, $default, $false, $node->get_template_line());
         } else {
             $node = $default;
         }
-
         parent::__construct($node, $filter, $arguments, $lineno);
     }
-
     public function compile(Compiler $compiler): void
     {
-        $compiler->subcompile($this->getNode('node'));
+        $compiler->subcompile($this->get_node('node'));
     }
 }

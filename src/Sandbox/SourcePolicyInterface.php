@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,17 +9,15 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Sandbox;
 
 use Twig\Source;
-
 /**
  * Interface for a class that can optionally enable the sandbox mode based on a template's Twig\Source.
  *
  * @author Yaakov Saxon
  */
-interface SourcePolicyInterface
+interface Source_Policy_Interface
 {
-    public function enableSandbox(Source $source): bool;
+    public function enable_sandbox(Source $source): bool;
 }

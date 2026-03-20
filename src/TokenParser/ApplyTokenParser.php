@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,16 +9,14 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Token_Parser;
 
-namespace Twig\TokenParser;
-
-use Twig\ExpressionParser\Infix\FilterExpressionParser;
-use Twig\Node\Expression\Variable\LocalVariable;
+use Twig\Expression_Parser\Infix\Filter_Expression_Parser;
+use Twig\Node\Expression\Variable\Local_Variable;
 use Twig\Node\Nodes;
-use Twig\Node\PrintNode;
-use Twig\Node\SetNode;
+use Twig\Node\Print_Node;
+use Twig\Node\Set_Node;
 use Twig\Token;
-
 /**
  * Applies filters on a section of a template.
  *
@@ -29,38 +26,31 @@ use Twig\Token;
  *
  * @internal
  */
-final class ApplyTokenParser extends AbstractTokenParser
+final class Apply_Token_Parser extends Abstract_Token_Parser
 {
     public function parse(Token $token): \Twig\Node\Nodes
     {
-        $lineno = $token->getLine();
-        $ref = new LocalVariable(null, $lineno);
+        $lineno = $token->get_line();
+        $ref = new Local_Variable(null, $lineno);
         $filter = $ref;
-        $op = $this->parser->getEnvironment()->getExpressionParsers()->getByClass(FilterExpressionParser::class);
+        $op = $this->parser->get_environment()->get_expression_parsers()->get_by_class(Filter_Expression_Parser::class);
         while (true) {
-            $filter = $op->parse($this->parser, $filter, $this->parser->getCurrentToken());
-            if (!$this->parser->getStream()->test(Token::OPERATOR_TYPE, '|')) {
+            $filter = $op->parse($this->parser, $filter, $this->parser->get_current_token());
+            if (!$this->parser->get_stream()->test(Token::OPERATOR_TYPE, '|')) {
                 break;
             }
-            $this->parser->getStream()->next();
+            $this->parser->get_stream()->next();
         }
-
-        $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse($this->decideApplyEnd(...), true);
-        $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
-
-        return new Nodes([
-            new SetNode(true, $ref, $body, $lineno),
-            new PrintNode($filter, $lineno),
-        ], $lineno);
+        $this->parser->get_stream()->expect(Token::BLOCK_END_TYPE);
+        $body = $this->parser->subparse($this->decide_apply_end(...), true);
+        $this->parser->get_stream()->expect(Token::BLOCK_END_TYPE);
+        return new Nodes([new Set_Node(true, $ref, $body, $lineno), new Print_Node($filter, $lineno)], $lineno);
     }
-
-    public function decideApplyEnd(Token $token): bool
+    public function decide_apply_end(Token $token): bool
     {
         return $token->test('endapply');
     }
-
-    public function getTag(): string
+    public function get_tag(): string
     {
         return 'apply';
     }

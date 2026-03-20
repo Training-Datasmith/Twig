@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,39 +9,32 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Extension;
 
-use Twig\Profiler\NodeVisitor\ProfilerNodeVisitor;
+use Twig\Profiler\Node_Visitor\Profiler_Node_Visitor;
 use Twig\Profiler\Profile;
-
-class ProfilerExtension extends AbstractExtension
+class Profiler_Extension extends Abstract_Extension
 {
     private array $actives = [];
-
     public function __construct(Profile $profile)
     {
         $this->actives[] = $profile;
     }
-
     public function enter(Profile $profile): void
     {
-        $this->actives[0]->addProfile($profile);
+        $this->actives[0]->add_profile($profile);
         array_unshift($this->actives, $profile);
     }
-
     public function leave(Profile $profile): void
     {
         $profile->leave();
         array_shift($this->actives);
-
         if (1 === \count($this->actives)) {
             $this->actives[0]->leave();
         }
     }
-
-    public function getNodeVisitors(): array
+    public function get_node_visitors(): array
     {
-        return [new ProfilerNodeVisitor(static::class)];
+        return [new Profiler_Node_Visitor(static::class)];
     }
 }

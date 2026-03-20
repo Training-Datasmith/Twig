@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,28 +9,24 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Profiler\Dumper;
 
 use Twig\Profiler\Profile;
-
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */
-final class TextDumper extends BaseDumper
+final class Text_Dumper extends Base_Dumper
 {
-    protected function formatTemplate(Profile $profile, $prefix): string
+    protected function format_template(Profile $profile, $prefix): string
     {
-        return \sprintf('%s└ %s', $prefix, $profile->getTemplate());
+        return \sprintf('%s└ %s', $prefix, $profile->get_template());
     }
-
-    protected function formatNonTemplate(Profile $profile, $prefix): string
+    protected function format_non_template(Profile $profile, $prefix): string
     {
-        return \sprintf('%s└ %s::%s(%s)', $prefix, $profile->getTemplate(), $profile->getType(), $profile->getName());
+        return \sprintf('%s└ %s::%s(%s)', $prefix, $profile->get_template(), $profile->get_type(), $profile->get_name());
     }
-
-    protected function formatTime(Profile $profile, $percent): string
+    protected function format_time(Profile $profile, $percent): string
     {
-        return \sprintf('%.2fms/%.0f%%', $profile->getDuration() * 1000, $percent);
+        return \sprintf('%.2fms/%.0f%%', $profile->get_duration() * 1000, $percent);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,84 +9,70 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+namespace Twig\Expression_Parser\Infix;
 
-namespace Twig\ExpressionParser\Infix;
-
-use Twig\ExpressionParser\AbstractExpressionParser;
-use Twig\ExpressionParser\ExpressionParserDescriptionInterface;
-use Twig\ExpressionParser\InfixAssociativity;
-use Twig\ExpressionParser\InfixExpressionParserInterface;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\Expression\ArrayExpression;
-use Twig\Node\Expression\ConstantExpression;
-use Twig\Node\Expression\GetAttrExpression;
+use Twig\Expression_Parser\Abstract_Expression_Parser;
+use Twig\Expression_Parser\Expression_Parser_Description_Interface;
+use Twig\Expression_Parser\Infix_Associativity;
+use Twig\Expression_Parser\Infix_Expression_Parser_Interface;
+use Twig\Node\Expression\Abstract_Expression;
+use Twig\Node\Expression\Array_Expression;
+use Twig\Node\Expression\Constant_Expression;
+use Twig\Node\Expression\Get_Attr_Expression;
 use Twig\Node\Nodes;
 use Twig\Parser;
 use Twig\Template;
 use Twig\Token;
-
 /**
  * @internal
  */
-final class SquareBracketExpressionParser extends AbstractExpressionParser implements InfixExpressionParserInterface, ExpressionParserDescriptionInterface
+final class Square_Bracket_Expression_Parser extends Abstract_Expression_Parser implements Infix_Expression_Parser_Interface, Expression_Parser_Description_Interface
 {
-    public function parse(Parser $parser, AbstractExpression $expr, Token $token): AbstractExpression
+    public function parse(Parser $parser, Abstract_Expression $expr, Token $token): Abstract_Expression
     {
-        $stream = $parser->getStream();
-        $lineno = $token->getLine();
-        $arguments = new ArrayExpression([], $lineno);
-
+        $stream = $parser->get_stream();
+        $lineno = $token->get_line();
+        $arguments = new Array_Expression([], $lineno);
         // slice?
         $slice = false;
         if ($stream->test(Token::PUNCTUATION_TYPE, ':')) {
             $slice = true;
-            $attribute = new ConstantExpression(0, $token->getLine());
+            $attribute = new Constant_Expression(0, $token->get_line());
         } else {
-            $attribute = $parser->parseExpression();
+            $attribute = $parser->parse_expression();
         }
-
-        if ($stream->nextIf(Token::PUNCTUATION_TYPE, ':')) {
+        if ($stream->next_if(Token::PUNCTUATION_TYPE, ':')) {
             $slice = true;
         }
-
         if ($slice) {
             if ($stream->test(Token::PUNCTUATION_TYPE, ']')) {
-                $length = new ConstantExpression(null, $token->getLine());
+                $length = new Constant_Expression(null, $token->get_line());
             } else {
-                $length = $parser->parseExpression();
+                $length = $parser->parse_expression();
             }
-
-            $filter = $parser->getFilter('slice', $token->getLine());
+            $filter = $parser->get_filter('slice', $token->get_line());
             $arguments = new Nodes([$attribute, $length]);
-            $filter = new ($filter->getNodeClass())($expr, $filter, $arguments, $token->getLine());
-
+            $filter = new ($filter->get_node_class())($expr, $filter, $arguments, $token->get_line());
             $stream->expect(Token::PUNCTUATION_TYPE, ']');
-
             return $filter;
         }
-
         $stream->expect(Token::PUNCTUATION_TYPE, ']');
-
-        return new GetAttrExpression($expr, $attribute, $arguments, Template::ARRAY_CALL, $lineno);
+        return new Get_Attr_Expression($expr, $attribute, $arguments, Template::ARRAY_CALL, $lineno);
     }
-
-    public function getName(): string
+    public function get_name(): string
     {
         return '[';
     }
-
-    public function getDescription(): string
+    public function get_description(): string
     {
         return 'Array access';
     }
-
-    public function getPrecedence(): int
+    public function get_precedence(): int
     {
         return 512;
     }
-
-    public function getAssociativity(): InfixAssociativity
+    public function get_associativity(): Infix_Associativity
     {
-        return InfixAssociativity::Left;
+        return Infix_Associativity::Left;
     }
 }

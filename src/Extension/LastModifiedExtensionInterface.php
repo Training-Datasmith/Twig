@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,10 +9,9 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Extension;
 
-interface LastModifiedExtensionInterface extends ExtensionInterface
+interface Last_Modified_Extension_Interface extends Extension_Interface
 {
     /**
      * Returns the last modification time of the extension for cache invalidation.
@@ -21,5 +19,5 @@ interface LastModifiedExtensionInterface extends ExtensionInterface
      * This timestamp should be the last time the source code of the extension class
      * and all its dependencies were modified (including the Runtime class).
      */
-    public function getLastModified(): int;
+    public function get_last_modified(): int;
 }

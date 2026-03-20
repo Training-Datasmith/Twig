@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,27 +9,18 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Binary;
 
 use Twig\Compiler;
-use Twig\Node\Expression\ReturnBoolInterface;
-
-class StartsWithBinary extends AbstractBinary implements ReturnBoolInterface
+use Twig\Node\Expression\Return_Bool_Interface;
+class Starts_With_Binary extends Abstract_Binary implements Return_Bool_Interface
 {
     public function compile(Compiler $compiler): void
     {
-        $left = $compiler->getVarName();
-        $right = $compiler->getVarName();
-        $compiler
-            ->raw(\sprintf('(is_string($%s = ', $left))
-            ->subcompile($this->getNode('left'))
-            ->raw(\sprintf(') && is_string($%s = ', $right))
-            ->subcompile($this->getNode('right'))
-            ->raw(\sprintf(') && str_starts_with($%1$s, $%2$s))', $left, $right))
-        ;
+        $left = $compiler->get_var_name();
+        $right = $compiler->get_var_name();
+        $compiler->raw(\sprintf('(is_string($%s = ', $left))->subcompile($this->get_node('left'))->raw(\sprintf(') && is_string($%s = ', $right))->subcompile($this->get_node('right'))->raw(\sprintf(') && str_starts_with($%1$s, $%2$s))', $left, $right));
     }
-
     public function operator(Compiler $compiler): Compiler
     {
         return $compiler->raw('');

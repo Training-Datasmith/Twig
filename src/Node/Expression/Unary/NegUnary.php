@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -11,12 +10,10 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Twig\Node\Expression\Unary;
 
 use Twig\Compiler;
-
-class NegUnary extends AbstractUnary
+class Neg_Unary extends Abstract_Unary
 {
     public function operator(Compiler $compiler): Compiler
     {

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /*
  * This file is part of Twig.
  *
@@ -10,8 +9,7 @@ declare(strict_types=1);
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace Twig\ExpressionParser;
+namespace Twig\Expression_Parser;
 
 /**
  * @method list<string> getOperatorTokens() Returns the operator token strings that this expression parser handles.
@@ -21,18 +19,14 @@ namespace Twig\ExpressionParser;
  *                                           operator tokens (like LiteralExpressionParser) should return an empty array.
  *                                           This method will be added to the interface in Twig 4.0.
  */
-interface ExpressionParserInterface
+interface Expression_Parser_Interface
 {
     public function __toString(): string;
-
-    public function getName(): string;
-
-    public function getPrecedence(): int;
-
-    public function getPrecedenceChange(): ?PrecedenceChange;
-
+    public function get_name(): string;
+    public function get_precedence(): int;
+    public function get_precedence_change(): ?Precedence_Change;
     /**
      * @return array<string>
      */
-    public function getAliases(): array;
+    public function get_aliases(): array;
 }
